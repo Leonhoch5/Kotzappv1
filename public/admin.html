@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #2c3e50; /* Dark background */
+      color: #ecf0f1; /* Light text color */
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #25d366; /* WhatsApp green */
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #34495e; /* Darker container background */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    button {
+      background-color: #25d366; /* WhatsApp green */
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+    button:hover {
+      background-color: #1aa34a;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 10px;
+      margin: 5px;
+      border: 1px solid #7f8c8d; /* Gray border */
+      border-radius: 5px;
+      background-color: #bdc3c7; /* Light gray input background */
+      color: #2c3e50; /* Dark text for inputs */
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 5px 0;
+      border-bottom: 1px solid #7f8c8d; /* Gray border */
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #e74c3c; /* Red for errors */
+    }
+    #clear-chat-status, #kick-user-status, #ban-user-status, #delete-user-status {
+      color: #2ecc71; /* Green for success */
+    }
+  </style>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <a href="/index.html" style="color: white">
+    <span class="material-icons" style="position: fixed; top: 0; right: 0; margin: 20px;">home</span>
+  </a>
+  <a href="/index.html" style="color: white">
+    <span class="material-icons" style="position: fixed; top: 0; left: 0; margin: 20px;">arrow_back</span>
+  </a>
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <p>Welcome to the admin page. Only root users can see this.</p>
+
+    <!-- Fetch Users -->
+    <h2>Fetch All Users</h2>
+    <button id="fetch-users">Fetch All Users</button>
+    <ul id="user-list"></ul>
+
+    <!-- Delete User -->
+    <h2>Delete a User</h2>
+    <input type="text" id="delete-username" placeholder="Enter username to delete">
+    <button id="delete-user">Delete User</button>
+    <p id="delete-user-status"></p>
+
+    <!-- Ban User -->
+    <h2>Ban a User</h2>
+    <input type="text" id="ban-username" placeholder="Enter username to ban">
+    <button id="ban-user">Ban User</button>
+    <p id="ban-user-status"></p>
+
+    <!-- Clear Chat History -->
+    <h2>Clear Chat History</h2>
+    <input type="text" id="clear-lobby" placeholder="Enter lobby name to clear">
+    <button id="clear-chat">Clear Chat</button>
+    <p id="clear-chat-status"></p>
+
+    <!-- View Active Lobbies -->
+    <h2>Active Lobbies</h2>
+    <button id="view-lobbies">View Active Lobbies</button>
+    <ul id="lobby-list"></ul>
+
+    <!-- Kick User from Lobby -->
+    <h2>Kick User from Lobby</h2>
+    <input type="text" id="kick-username" placeholder="Enter username to kick">
+    <input type="text" id="kick-lobby" placeholder="Enter lobby name">
+    <button id="kick-user">Kick User</button>
+    <p id="kick-user-status"></p>
+  </div>
+</body>
+</html>

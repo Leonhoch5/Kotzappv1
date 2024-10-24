@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <title>Profile</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+      }
+      .profile-container {
+        background-color: #2e2e2e;
+        padding: 20px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      h2 {
+        text-align: center;
+        color: #00b300;
+        margin-bottom: 40px;
+      }
+      .submit-btn, .delete-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .submit-btn {
+        background-color: #00b300;
+        color: #fff;
+      }
+      .submit-btn:hover {
+        background-color: #009900;
+      }
+      .delete-btn {
+        background-color: #ff3333;
+        color: #fff;
+      }
+      .delete-btn:hover {
+        background-color: #cc0000;
+      }
+      #message {
+        color: #ffcc00;
+        text-align: center;
+        margin-top: 10px;
+      }
+      button {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/index.html" style="color: white">
+      <span class="material-icons" style="position: fixed; top: 0; right: 0; margin: 20px;">home</span>
+    </a>
+    <a href="/index.html" style="color: white">
+      <span class="material-icons" style="position: fixed; top: 0; left: 0; margin: 20px;">arrow_back</span>
+    </a>
+    
+    <div class="profile-container">
+      <h2>User Profile</h2>
+      <a href="/username.html">
+        <button type="button" class="submit-btn" id="changeUsernameBtn">Change Username</button>
+      </a>
+      <a href="/password.html">
+        <button type="button" class="submit-btn" id="changePasswordBtn">Change Password</button>
+      </a>
+      <button type="button" class="delete-btn" id="deleteAccountBtn">Delete Account</button>
+      <div id="message"></div>
+    </div>
+
+    <script>
+      const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+      const messageDiv = document.getElementById("message");
+
+      // Retrieve the username from sessionStorage
+      const username = sessionStorage.getItem("username");
+
+      if (!username) {
+        messageDiv.innerText = "Error: No username found in session. Please log in.";
+        deleteAccountBtn.disabled = true; // Disable delete button if no username is found
+      }
+
+      // Delete Account
+      deleteAccountBtn.addEventListener("click", async () => {
+        const confirmDelete = confirm("Are you sure you want to delete your account?");
+        if (!confirmDelete) return;
+
+        try {
+          const response = await fetch("/delete-account", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: username }), // Send the username directly from sessionStorage
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            sessionStorage.clear(); // Clear sessionStorage on success
+            window.location.href = "/login.html"; // Redirect to login page after account deletion
+          } else {
+            messageDiv.innerText = result.message;
+          }
+        } catch (error) {
+          console.error("Error deleting account:", error);
+          messageDiv.innerText = "An error occurred. Please try again.";
+        }
+      });
+    </script>
+  </body>
+</html>

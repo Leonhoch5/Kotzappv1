@@ -1,0 +1,285 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #075e54;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+#status,
+#statuslobby {
+  font-size: 1.2em;
+  color: #2ecc71;
+  margin-bottom: 20px;
+}
+
+button,
+nav ul li a,
+nav ul li button {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+  text-decoration: none; /* No underline */
+  white-space: nowrap;
+}
+
+button:hover,
+nav ul li a:hover,
+nav ul li button:hover {
+  background-color: #27ae60;
+}
+
+input[type="text"],
+select {
+  padding: 8px;
+  border: 1px solid #555;
+  border-radius: 20px;
+  font-size: 1em;
+  margin: 5px;
+  width: 100%;
+  max-width: 300px;
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+input[type="text"]:focus {
+  border: 2px solid #2ecc71;
+  outline: none;
+}
+
+input[type="text"] {
+  border: 2px solid #075e54;
+  padding-left: 17px;
+}
+
+#chat {
+  width: 100%;
+  max-width: 600px;
+  height: 500px;
+  border: 1px solid #555;
+  border-radius: 20px;
+  background-image: url("https://4kwallpapers.com/images/wallpapers/desert-doom-sand-dunes-dark-background-monochrome-landscape-3840x2160-6409.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow-y: auto;
+  margin: 20px 0;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+#chat div:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.message-container {
+  display: flex; /* Use flexbox for layout */
+  margin-bottom: 5px; /* Space between messages */
+}
+
+.username {
+  font-weight: bold; /* Make usernames bold */
+  white-space: nowrap; /* Prevent usernames from wrapping */
+}
+
+.message-text {
+  display: inline-block; /* Ensures the text follows the username */
+  word-wrap: break-word; /* Allows long messages to wrap */
+  max-width: calc(100% - 150px); /* Adjust based on expected width */
+}
+
+.message {
+  display: flex;
+  justify-content: flex-start;
+  padding: 5px;
+  margin: 5px;
+}
+
+.message.you {
+  justify-content: flex-end;
+}
+
+.message.you .message-content {
+  background-color: #2ecc71;
+}
+
+#message {
+  width: 80%;
+}
+
+#send {
+  width: 15%;
+}
+
+nav {
+  display: flex; /* Ensure nav is flex */
+  justify-content: center; /* Center nav items */
+  align-items: center; /* Center items vertically */
+  width: 100%;
+  background-color: #333;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+nav ul {
+  list-style: none; /* Remove bullet points */
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center items */
+  align-items: center; /* Center items vertically */
+  gap: 20px; /* Space between items */
+  padding: 0; /* Remove padding */
+}
+
+nav ul li select {
+  border: 1px solid #555;
+  border-radius: 20px;
+  font-size: 1em;
+  background-color: #2ecc71;
+  color: white;
+  cursor: pointer;
+}
+
+nav ul li select:hover {
+  background-color: #27ae60;
+}
+
+#clock,
+#count {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 25px;
+  font-weight: bolder;
+  color: #2ecc71;
+}
+
+.icon-container {
+  display: flex; /* Use flexbox to arrange items in a row */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  gap: 15px; /* Space between icons */
+}
+
+.icon {
+  display: flex; /* Enables flexbox for centering */
+  align-items: center; /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  width: 40px; /* Width for the icon container */
+  height: 40px; /* Height for the icon container */
+  background-color: rgba(0, 0, 0, 0.5); /* Default background color (dark) */
+  color: white; /* Icon color */
+  border-radius: 50%; /* Make icons circular */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Add transitions for effects */
+}
+
+.icon .material-symbols-outlined {
+  font-size: 24px; /* Ensure the icon has a consistent size */
+  line-height: 40px; /* Vertically center the icon within the button */
+}
+
+.icon:hover {
+  background-color: #2ecc71; /* Change background color on hover */
+  transform: scale(1.2); /* Slightly enlarge on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+}
+
+.material-symbols-outlined {
+  font-size: 24px; /* Set icon size */
+  transition: transform 0.3s; /* Add transition to icon */
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white; /* Icon color */
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Add transitions for effects */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+}
+
+.nav:hover {
+  background-color: #2ecc71; /* Change background color on hover */
+  transform: scale(1.2); /* Slightly enlarge on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+  transform: scale(1.2); /* Enlarge icon on hover */
+}
+
+.tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  display: none; /* Hidden by default */
+  pointer-events: none; /* Prevent tooltip from blocking hover events */
+  transition: opacity 0.3s; /* Smooth appearance */
+  z-index: 1000000; /* Make sure it appears above other elements */
+}
+
+/* Scrollbar Styling */
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  background: none;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: darkgray;
+  border-radius: 50px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: black;
+}
+
+/* Scrollbar Styling */
+#chat::-webkit-scrollbar {
+  width: 10px;
+}
+
+#chat::-webkit-scrollbar-track {
+  background: none;
+}
+
+#chat::-webkit-scrollbar-thumb {
+  background: darkgray;
+  border-radius: 50px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #send {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  input[type="text"],
+  select {
+    max-width: 100%;
+  }
+}
+.light-mode {
+  background-color: #f0f0f0;
+  color: #000;
+}

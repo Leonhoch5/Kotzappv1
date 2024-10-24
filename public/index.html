@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat Application</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Include Material Symbols -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+    />
+  </head>
+  <body>
+    <div id="tooltip" class="tooltip"></div>
+    <!-- Navbar Section with Lobby Selection -->
+    <nav>
+      <ul>
+        <p id="clock"></p>
+        <li>
+          <select class="custom-select nav" id="lobby">
+            <option value="lobby 1">Lobby 1</option>
+            <option value="lobby 2">Lobby 2</option>
+            <option value="lobby 3">Lobby 3</option>
+            <option value="Programming">Programming</option>
+          </select>
+        </li>
+        <li class="icon-container">
+          <a href="profile.html" class="icon" data-tooltip="Profile">
+            <span class="material-symbols-outlined">person</span>
+          </a>
+          <a href="settings.html" class="icon" data-tooltip="Settings">
+            <span class="material-symbols-outlined">settings</span>
+          </a>
+          <a
+            href="https://games-hub.glitch.me/"
+            class="icon"
+            data-tooltip="Games"
+          >
+            <span class="material-symbols-outlined">sports_esports</span>
+          </a>
+          <a href="admin.html" class="icon" id="adminLink" data-tooltip="Admin">
+            <span class="material-symbols-outlined">manage_accounts</span>
+          </a>
+          <a href="about.html" class="icon" data-tooltip="About">
+            <span class="material-symbols-outlined">info</span>
+          </a>
+          <a href="login.html" class="icon" data-tooltip="Logout">
+            <span class="material-symbols-outlined">logout</span>
+          </a>
+        </li>
+        <li>
+          <a id="join" class="nav">Join Lobby</a>
+        </li>
+        <p id="count"></p>
+      </ul>
+    </nav>
+
+    <div id="statuslobby"></div>
+    <div id="status"></div>
+
+    <!-- Chat Area -->
+    <div id="chat"></div>
+    <input id="message" type="text" placeholder="Enter message" />
+    <button type="button" id="send" style="margin: 5px">Send</button>
+
+    <script>
+      if (!sessionStorage.getItem("loggedIn")) {
+        window.location.href = "/login.html";
+      }
+
+      window.onload = () => {
+        if (!sessionStorage.getItem("loggedIn")) {
+          sessionStorage.setItem("loggedIn", "true");
+        }
+
+        // Check for admin privileges
+        const adminLink = document.getElementById("adminLink");
+        const username = sessionStorage.getItem("username");
+        if (username !== "root") {
+          adminLink.style.display = "none"; // Hide the admin link if username is root
+        }
+      };
+
+      // Theme Management
+      const theme = sessionStorage.getItem("theme"); // Default to DarkMode
+      applyTheme(theme);
+
+      function applyTheme(theme) {
+        if (theme === "LightMode") {
+          document.body.classList.add("light-mode");
+          sessionStorage.setItem("theme", "LightMode"); // Save theme to sessionStorage
+        } else {
+          document.body.classList.remove("light-mode");
+          sessionStorage.setItem("theme", "DarkMode"); // Save theme to sessionStorage
+        }
+      }
+      const tooltip = document.getElementById("tooltip");
+      const icons = document.querySelectorAll(".icon");
+
+      // Show tooltip and position it based on mouse movement
+      icons.forEach((icon) => {
+        icon.addEventListener("mouseenter", (event) => {
+          const iconText = event.target.getAttribute("data-tooltip");
+          tooltip.textContent = iconText; // Set the tooltip text
+          tooltip.style.display = "block"; // Show the tooltip
+        });
+
+        icon.addEventListener("mousemove", (event) => {
+          tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+          tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+        });
+
+        icon.addEventListener("mouseleave", () => {
+          tooltip.style.display = "none"; // Hide the tooltip when not hovering
+        });
+      });
+    </script>
+    <script>
+      function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        const timeString = `${hours}:${minutes}:${seconds}`;
+
+        document.getElementById("clock").textContent = timeString;
+      }
+
+      // Update the clock every second
+      setInterval(updateClock, 1000);
+
+      // Initial call to set the clock right away
+      updateClock();
+
+      function startCountdown() {
+        const countElement = document.getElementById("count");
+
+        // Update the countdown every 1 second
+        setInterval(function () {
+          // Get current time
+          const now = new Date();
+
+          // Set the target time to today at 16:00
+          let targetTime = new Date();
+          targetTime.setHours(16, 0, 0, 0); // Set hours to 16:00:00:000
+
+          // If it's past 16:00, set the target time to tomorrow's 16:00
+          if (now >= targetTime) {
+            targetTime.setDate(targetTime.getDate() + 1);
+          }
+
+          // Calculate the difference in milliseconds
+          const timeDifference = targetTime - now;
+
+          // Convert milliseconds to hours, minutes, and seconds
+          const hours = Math.floor(
+            (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+          // Display the result in the element with id="count"
+          countElement.innerHTML =
+            hours + "h " + minutes + "m " + seconds + "s ";
+        }, 1000); // Refresh every 1 second
+      }
+
+      // Start the countdown when the page loads
+      startCountdown();
+    </script>
+    <script src="script.js" defer></script>
+  </body>
+</html>
