@@ -21,6 +21,22 @@ body {
   margin-bottom: 20px;
 }
 
+#statuslobby:hover {
+  cursor: pointer;
+}
+
+#status:hover {
+  cursor: default;
+}
+
+#count:hover {
+  cursor: default;
+}
+
+#clock:hover {
+  cursor: default;
+}
+
 button,
 nav ul li a,
 nav ul li button {
@@ -55,52 +71,113 @@ select {
   color: #e0e0e0;
 }
 
-input[type="text"]:focus {
-  border: 2px solid #2ecc71;
-  outline: none;
-}
-
 input[type="text"] {
   border: 2px solid #075e54;
   padding-left: 17px;
 }
 
-#chat {
+input[type="text"]:focus {
+  border: 2px solid #2ecc71;
+  outline: none;
+}
+
+#chat-container {
   width: 100%;
   max-width: 600px;
   height: 500px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: relative;
+}
+
+#chat {
+  position: absolute;
+  flex: 1;
+  z-index: 9;
+  width: 100%;
+  height: 100%;
   border: 1px solid #555;
   border-radius: 20px;
   background-image: url("https://4kwallpapers.com/images/wallpapers/desert-doom-sand-dunes-dark-background-monochrome-landscape-3840x2160-6409.jpg");
   background-size: cover;
+  background-position: center; /* Center the background image */
   background-repeat: no-repeat;
   overflow-y: auto;
-  margin: 20px 0;
-  padding: 10px;
+  padding: 10px 5px 10px 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column-reverse;
+  align-items: stretch; /* Allow messages to take full width */
+  align-self: center;
+}
+/* Container for all messages */
+.message-container {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  margin-top: 10px; /* Margin between message containers */
+  max-width: 70%; /* Limit width of messages */
+  position: relative; /* Relative positioning for the container */
 }
 
-#chat div:hover {
+.date-separator {
+  display: block;
+  margin: 20px;
+  text-align: center;
+  font-weight: bold;
+  padding: 5px 0;
+  color: #666; /* Adjust color as needed */
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  width: 40%;
+  max-width: 40%;
+  min-width: 20%;
+  color: #333;
+  padding: 5px;
+  align-self: center;
+}
+
+#sticky-date-container {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  width: 20%;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+  padding: 5px;
+  color: #333;
+  z-index: 10;
+  visibility: hidden; /* Initially hidden */
+  align-self: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#sticky-date-container.visible {
+  visibility: visible; /* Show when there's a date to display */
+}
+
+#sticky-date-container.active {
+  opacity: 1;
+}
+
+#MessageSend {
+  width: 100%;
+  max-width: 300px;
+}
+
+#message-text:hover {
   text-decoration: underline;
   cursor: pointer;
 }
 
-.message-container {
-  display: flex; /* Use flexbox for layout */
-  margin-bottom: 5px; /* Space between messages */
-}
-
-.username {
-  font-weight: bold; /* Make usernames bold */
-  white-space: nowrap; /* Prevent usernames from wrapping */
-}
-
 .message-text {
   display: inline-block; /* Ensures the text follows the username */
-  word-wrap: break-word; /* Allows long messages to wrap */
-  max-width: calc(100% - 150px); /* Adjust based on expected width */
+  overflow-wrap: break-word; /* Allow breaking on word boundaries */
+  word-wrap: break-word; /* Legacy support for older browsers */
+  cursor: pointer;
 }
 
 .message {
@@ -110,20 +187,83 @@ input[type="text"] {
   margin: 5px;
 }
 
-.message.you {
-  justify-content: flex-end;
+/* Username styling */
+.username {
+  font-weight: bold; /* Bold for username */
+  font-size: 0.85em; /* Font size for username */
+  margin-bottom: 2px; /* Space between username and message */
+  color: #075e54; /* WhatsApp-like color */
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8), 0px 0px 6px rgba(0, 0, 0, 0.8); /* Stronger shadow for contrast */
 }
 
-.message.you .message-content {
-  background-color: #2ecc71;
+.message-container .username {
+  display: block;
+}
+
+.message-container.same-user {
+  margin-top: 1px; /* Smaller space between same-user messages */
+}
+
+.message-container.same-user .username {
+  display: none; /* Hide username for consecutive messages */
+}
+
+/* Styles for messages from the current user */
+.you {
+  align-self: flex-end; /* Align current user's messages to the right */
+}
+
+/* Styles for messages from other users */
+.others {
+  align-self: flex-start;
+}
+
+.message-bubble {
+  position: relative; /* Enables positioning of child elements */
+  display: inline-block; /* Allow text wrapping within the bubble */
+  padding: 8px 12px; /* Original padding */
+  padding-right: 40px; /* Additional padding on the right to create space for the timestamp */
+  border-radius: 8px; /* Rounded corners for the bubble */
+  font-size: 1em; /* Font size for the message */
+  line-height: 1.3; /* Line height for better readability */
+  word-wrap: break-word; /* Break words if necessary */
+  max-width: 100%; /* Ensures the bubble does not exceed container */
+  white-space: pre-wrap; /* Preserve whitespace */
+  margin-bottom: 2px; /* Space between message bubble and next message */
+}
+
+/* Bubble color for current user */
+.you .message-bubble {
+  background-color: #dcf8c6; /* Light green */
+  color: #000;
+}
+
+/* Bubble color for other users */
+.others .message-bubble {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ddd;
+}
+
+.timestamp {
+  font-size: 0.65em; /* Smaller font for the timestamp */
+  color: #888; /* Grey color for the timestamp */
+  position: absolute; /* Positioning relative to the message bubble */
+  bottom: 4px; /* Distance from the bottom of the bubble */
+  right: 8px; /* Distance from the right of the bubble */
+  text-align: right; /* Align text to the right */
 }
 
 #message {
-  width: 80%;
+  width: 100%;
 }
 
 #send {
-  width: 15%;
+  width: 100%;
+}
+
+#sendImage {
+  width: 100%;
 }
 
 nav {
@@ -235,6 +375,116 @@ nav ul li select:hover {
   z-index: 1000000; /* Make sure it appears above other elements */
 }
 
+
+
+#span-container {
+  mix-blend-mode: difference;
+  position: absolute;
+  width: 19px;
+  height: 18px;
+  z-index: 20;
+  align-self: flex-end;
+  transform: translate(-30px, 10px); 
+}
+
+input + label span {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  top: 0;
+  margin-top: -1px;
+  left: 0;
+  display: block;
+  background: white;
+  transition: 0.5s;
+}
+
+input + label span:first-child {
+  top: 3px;
+}
+
+input + label span:nth-child(2) {
+  top: 8px; 
+}
+
+input + label span:last-child {
+  top: 13px;
+}
+
+label:hover {
+  cursor: pointer;
+}
+
+input:not(:checked) + label span {
+  background: white; 
+}
+
+input:checked + label span {
+  background: white;
+  opacity: 0;
+  top: 50%;
+}
+
+input:checked + label span:first-child {
+  opacity: 1;
+  transform: rotate(405deg);
+}
+
+input:checked + label span:last-child {
+  opacity: 1;
+  transform: rotate(-405deg);
+}
+
+input ~ .lobby-selection {
+  background: white;
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 0px;
+  z-index: 13;
+  border-radius: 20px;
+  transition: 0.5s;
+  transition-delay: 0.5s;
+  overflow: hidden;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+}
+
+input ~ .lobby-selection > ul {
+  text-align: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0; 
+}
+
+input ~ .lobby-selection > ul > li {
+  opacity: 0;
+  transition: 0.5s;
+  transition-delay: 0s;
+}
+
+input ~ .lobby-selection > ul > li > a {
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #020304;
+  font-weight: 700;
+  font-family: sans-serif;
+  display: block;
+  padding: 30px;
+}
+
+input:checked ~ .lobby-selection {
+  height: 100%;
+  transition-delay: 0s;
+}
+
+input:checked ~ .lobby-selection > ul > li {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+
+
 /* Scrollbar Styling */
 body::-webkit-scrollbar {
   width: 10px;
@@ -267,8 +517,20 @@ body::-webkit-scrollbar-thumb:hover {
   border-radius: 50px;
 }
 
-/* Responsive Design */
+@-moz-document url-prefix() {
+  #chat {
+    scrollbar-width: none;
+    padding: 10px;
+  }
+}
+
+
 @media (max-width: 768px) {
+  #chat {
+    max-width: 100%;
+    padding: 10px;
+  }
+
   #send {
     width: 100%;
     margin-top: 10px;
@@ -278,7 +540,12 @@ body::-webkit-scrollbar-thumb:hover {
   select {
     max-width: 100%;
   }
+
+  #MessageSend {
+    max-width: 100%;
+  }
 }
+
 .light-mode {
   background-color: #f0f0f0;
   color: #000;

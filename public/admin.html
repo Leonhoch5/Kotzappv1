@@ -1,115 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #2c3e50; /* Dark background */
-      color: #ecf0f1; /* Light text color */
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #25d366; /* WhatsApp green */
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: #34495e; /* Darker container background */
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-    button {
-      background-color: #25d366; /* WhatsApp green */
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 5px 0;
-    }
-    button:hover {
-      background-color: #1aa34a;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 10px;
-      margin: 5px;
-      border: 1px solid #7f8c8d; /* Gray border */
-      border-radius: 5px;
-      background-color: #bdc3c7; /* Light gray input background */
-      color: #2c3e50; /* Dark text for inputs */
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      padding: 5px 0;
-      border-bottom: 1px solid #7f8c8d; /* Gray border */
-    }
-    #status {
-      margin-top: 10px;
-      font-weight: bold;
-      color: #e74c3c; /* Red for errors */
-    }
-    #clear-chat-status, #kick-user-status, #ban-user-status, #delete-user-status {
-      color: #2ecc71; /* Green for success */
-    }
-  </style>
-  <script src="admin.js" defer></script>
-</head>
-<body>
-  <a href="/index.html" style="color: white">
-    <span class="material-icons" style="position: fixed; top: 0; right: 0; margin: 20px;">home</span>
-  </a>
-  <a href="/index.html" style="color: white">
-    <span class="material-icons" style="position: fixed; top: 0; left: 0; margin: 20px;">arrow_back</span>
-  </a>
-  <div class="container">
-    <h1>Admin Panel</h1>
-    <p>Welcome to the admin page. Only root users can see this.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1a1a2e;
+        color: #ecf0f1;
+        margin: 0;
+        padding: 20px;
+        overflow: auto; /* Allow overflow */
+        position: relative; /* For positioning squares */
+      }
+      h1 {
+        text-align: center;
+        color: #25d366;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #222831;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        position: relative; /* Ensure it stays on top of squares */
+        z-index: 1; /* Raise z-index of container */
+      }
+      button {
+        background-color: #25d366;
+        color: white;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px 0;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      button:hover {
+        background-color: #1aa34a;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #3a4750;
+        border-radius: 5px;
+        background-color: #3a4750;
+        color: #ecf0f1;
+        box-sizing: border-box;
+      }
+      input[type="text"]::placeholder {
+        color: #bdc3c7;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      li {
+        padding: 8px 0;
+        border-bottom: 1px solid #3a4750;
+      }
+      li:hover {
+        text-decoration: underline;
+        cursor: pointer;
+        color: #25d366;
+      }
+      #status {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #e74c3c;
+      }
+      #clear-chat-status,
+      #kick-user-status,
+      #ban-user-status,
+      #delete-user-status {
+        color: #2ecc71;
+      }
+      .material-icons {
+        font-size: 28px;
+        transition: color 0.3s;
+      }
+      .material-icons:hover {
+        color: #25d366;
+      }
+      .square {
+        width: 80px;
+        height: 80px;
+        background: rgba(0, 255, 0, 0.1);
+        margin: 2px;
+        box-shadow: 0px 0px 15px 5px rgba(0, 255, 0, 0.2);
+        position: fixed; /* Make squares absolute for random placement */
+        animation: spin 3s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      /* Scrollbar Styling */
+      body::-webkit-scrollbar {
+        width: 10px;
+      }
 
-    <!-- Fetch Users -->
-    <h2>Fetch All Users</h2>
-    <button id="fetch-users">Fetch All Users</button>
-    <ul id="user-list"></ul>
+      body::-webkit-scrollbar-track {
+        background: none;
+      }
 
-    <!-- Delete User -->
-    <h2>Delete a User</h2>
-    <input type="text" id="delete-username" placeholder="Enter username to delete">
-    <button id="delete-user">Delete User</button>
-    <p id="delete-user-status"></p>
+      body::-webkit-scrollbar-thumb {
+        background: darkgray;
+        border-radius: 50px;
+      }
 
-    <!-- Ban User -->
-    <h2>Ban a User</h2>
-    <input type="text" id="ban-username" placeholder="Enter username to ban">
-    <button id="ban-user">Ban User</button>
-    <p id="ban-user-status"></p>
+      body::-webkit-scrollbar-thumb:hover {
+        background: black;
+      }
+    </style>
+    <script src="admin.js" defer></script>
+  </head>
+  <body>
+    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+      <span
+        class="material-icons"
+        style="position: fixed; top: 0; right: 0; margin: 20px"
+        >home</span
+      >
+    </a>
+    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+      <span
+        class="material-icons"
+        style="position: fixed; top: 0; left: 0; margin: 20px"
+        >arrow_back</span
+      >
+    </a>
 
-    <!-- Clear Chat History -->
-    <h2>Clear Chat History</h2>
-    <input type="text" id="clear-lobby" placeholder="Enter lobby name to clear">
-    <button id="clear-chat">Clear Chat</button>
-    <p id="clear-chat-status"></p>
+    <div class="container">
+      <h1>Admin Panel</h1>
+      <p>Welcome to the admin page. Only root users can see this.</p>
 
-    <!-- View Active Lobbies -->
-    <h2>Active Lobbies</h2>
-    <button id="view-lobbies">View Active Lobbies</button>
-    <ul id="lobby-list"></ul>
+      <h2>Fetch All Users</h2>
+      <button id="fetch-users">Fetch All Users</button>
+      <ul id="user-list"></ul>
 
-    <!-- Kick User from Lobby -->
-    <h2>Kick User from Lobby</h2>
-    <input type="text" id="kick-username" placeholder="Enter username to kick">
-    <input type="text" id="kick-lobby" placeholder="Enter lobby name">
-    <button id="kick-user">Kick User</button>
-    <p id="kick-user-status"></p>
-  </div>
-</body>
+      <h2>Delete a User</h2>
+      <input
+        type="text"
+        id="delete-username"
+        placeholder="Enter username to delete"
+      />
+            <button id="delete-user">Delete User</button>
+      <p id="delete-user-status"></p>
+      <h2>Make a User Admin</h2>
+      <input
+        type="text"
+        id="make-admin-username"
+        placeholder="Enter username to make admin"
+      />
+      <button id="make-admin">Make Admin</button>
+      <p id="make-admin-status"></p>
+
+
+      <h2>Ban a User</h2>
+      <input
+        type="text"
+        id="ban-username"
+        placeholder="Enter username to ban"
+      />
+      <button id="ban-user">Ban User</button>
+      <p id="ban-user-status"></p>
+
+      <h2>Clear Chat History</h2>
+      <input
+        type="text"
+        id="clear-lobby"
+        placeholder="Enter lobby name to clear"
+      />
+      <button id="clear-chat">Clear Chat</button>
+      <p id="clear-chat-status"></p>
+
+      <h2>Active Lobbies</h2>
+      <button id="view-lobbies">View Active Lobbies</button>
+      <ul id="lobby-list"></ul>
+
+      <h2>Kick User from Lobby</h2>
+      <input
+        type="text"
+        id="kick-username"
+        placeholder="Enter username to kick"
+      />
+      <input type="text" id="kick-lobby" placeholder="Enter lobby name" />
+      <button id="kick-user">Kick User</button>
+      <p id="kick-user-status"></p>
+    </div>
+
+    <script>
+      const numberOfSquares = 30; // Total number of squares
+      const squares = [];
+
+      // Create squares dynamically and position them randomly
+      function createSquares() {
+        const scrollingLine = document.body; // Use body as the container for squares
+        for (let i = 0; i < numberOfSquares; i++) {
+          const square = document.createElement("div");
+          square.classList.add("square");
+          positionSquare(square);
+          scrollingLine.appendChild(square);
+          squares.push(square); // Store reference to each square
+        }
+      }
+
+      // Position a square at a random location within the viewport
+      function positionSquare(square) {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        // Calculate random position, ensuring the square is fully visible
+        const randomX = Math.random() * (viewportWidth - 80); // 80 is the width of the square
+        const randomY = Math.random() * (viewportHeight - 80); // 80 is the height of the square
+
+        square.style.left = `${randomX}px`;
+        square.style.top = `${randomY}px`;
+      }
+
+      createSquares();
+
+      // Check if the user is logged in
+      if (!sessionStorage.getItem("loggedIn")) {
+        window.location.href = "/login.html";
+      }
+
+      document
+        .getElementById("backBtn")
+        .addEventListener("click", function (event) {
+          event.preventDefault(); // Prevent the default anchor behavior
+          window.history.back(); // Go back to the last visited page
+        });
+    </script>
+  </body>
 </html>

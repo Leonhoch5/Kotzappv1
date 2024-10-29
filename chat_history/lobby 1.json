@@ -1,0 +1,80 @@
+[
+  {
+    "id": 0,
+    "username": "root",
+    "timestamp": "2024-10-28T20:37:23.783Z",
+    "message": "maxi wir müssen vllt accounts nochmal neu machen wegen roles?"
+  },
+  {
+    "id": 3,
+    "username": "root",
+    "timestamp": "2024-10-28T20:38:46.949Z",
+    "message": "die sind nicht in roles.db sondern in users.db als neue value"
+  },
+  {
+    "id": 4,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:50:27.155Z",
+    "message": "ja"
+  },
+  {
+    "id": 5,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:50:30.091Z",
+    "message": "mache morgen"
+  },
+  {
+    "id": 6,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:50:34.646Z",
+    "message": "am besten"
+  },
+  {
+    "id": 7,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:50:45.643Z",
+    "message": "ich habe weather gemacht"
+  },
+  {
+    "id": 8,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:50:54.381Z",
+    "message": "St. Leon-Rot"
+  },
+  {
+    "id": 9,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:51:14.603Z",
+    "message": "so wird geschrieben, aber rest geht alles auch"
+  },
+  {
+    "id": 10,
+    "username": "root",
+    "timestamp": "2024-10-28T20:54:06.920Z",
+    "message": "ok"
+  },
+  {
+    "id": 11,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:54:28.894Z",
+    "message": "mache db neu, aber morgen"
+  },
+  {
+    "id": 12,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:54:35.246Z",
+    "message": "damit nicht vergessen"
+  },
+  {
+    "id": 13,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:56:42.137Z",
+    "message": "ich mache root und mein account"
+  },
+  {
+    "id": 14,
+    "username": "Maximilian",
+    "timestamp": "2024-10-28T20:56:49.393Z",
+    "message": "danach macht ihr"
+  }
+]

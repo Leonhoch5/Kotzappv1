@@ -20,15 +20,7 @@
     <!-- Navbar Section with Lobby Selection -->
     <nav>
       <ul>
-        <p id="clock"></p>
-        <li>
-          <select class="custom-select nav" id="lobby">
-            <option value="lobby 1">Lobby 1</option>
-            <option value="lobby 2">Lobby 2</option>
-            <option value="lobby 3">Lobby 3</option>
-            <option value="Programming">Programming</option>
-          </select>
-        </li>
+        <p id="clock" data-tooltip="Current Time"></p>
         <li class="icon-container">
           <a href="profile.html" class="icon" data-tooltip="Profile">
             <span class="material-symbols-outlined">person</span>
@@ -46,6 +38,9 @@
           <a href="admin.html" class="icon" id="adminLink" data-tooltip="Admin">
             <span class="material-symbols-outlined">manage_accounts</span>
           </a>
+          <a href="weather.html" class="icon" data-tooltip="Weather">
+            <span class="material-symbols-outlined">rainy</span>
+          </a>
           <a href="about.html" class="icon" data-tooltip="About">
             <span class="material-symbols-outlined">info</span>
           </a>
@@ -53,20 +48,57 @@
             <span class="material-symbols-outlined">logout</span>
           </a>
         </li>
-        <li>
-          <a id="join" class="nav">Join Lobby</a>
-        </li>
-        <p id="count"></p>
+        <p id="count" data-tooltip="Time till 16:00">XXh XXm XXs</p>
       </ul>
     </nav>
 
-    <div id="statuslobby"></div>
-    <div id="status"></div>
+    <div id="statuslobby" data-tooltip="Rejoin?"></div>
+    <div id="status" data-tooltip="Online Users"></div>
 
     <!-- Chat Area -->
-    <div id="chat"></div>
-    <input id="message" type="text" placeholder="Enter message" />
-    <button type="button" id="send" style="margin: 5px">Send</button>
+
+    <div id="chat-container">
+      <input id="burger" type="checkbox" style="display: none" />
+
+      <label for="burger">
+        <div id="span-container" data-tooltip="Lobbys">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </label>
+
+      <div id="lobby-selection" class="lobby-selection">
+        <ul>
+          <li>
+            <a href="#" class="lobby-option" data-lobby="lobby 1" data-tooltip="Lobby 1">Lobby 1</a>
+          </li>
+          <li>
+            <a href="#" class="lobby-option" data-lobby="lobby 2" data-tooltip="Lobby 2">Lobby 2</a>
+          </li>
+          <li>
+            <a href="#" class="lobby-option" data-lobby="lobby 3" data-tooltip="Lobby 3">Lobby 3</a>
+          </li>
+          <li>
+            <a href="#" class="lobby-option" data-lobby="Programming" data-tooltip="Programming">Programming</a>
+          </li>
+        </ul>
+      </div>
+      <div id="chat"></div>
+    </div>
+
+    <div id="MessageSend">
+      <input id="message" type="text" placeholder="Enter message" />
+      <button type="button" id="send" style="margin: 5px">Send</button>
+
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        style="display: none"
+      />
+      <button id="sendImage" style="margin: 5px">Send Image</button>
+    </div>
 
     <script>
       if (!sessionStorage.getItem("loggedIn")) {
@@ -102,7 +134,7 @@
       const tooltip = document.getElementById("tooltip");
       const icons = document.querySelectorAll(".icon");
 
-      // Show tooltip and position it based on mouse movement
+      // Show tooltip and position it based on mouse movement for icons
       icons.forEach((icon) => {
         icon.addEventListener("mouseenter", (event) => {
           const iconText = event.target.getAttribute("data-tooltip");
@@ -118,6 +150,108 @@
         icon.addEventListener("mouseleave", () => {
           tooltip.style.display = "none"; // Hide the tooltip when not hovering
         });
+      });
+
+      // Show tooltip for the statuslobby
+      const statusLobby = document.getElementById("statuslobby");
+
+      statusLobby.addEventListener("mouseenter", (event) => {
+        const iconText = event.target.getAttribute("data-tooltip");
+        tooltip.textContent = iconText; // Set the tooltip text
+        tooltip.style.display = "block"; // Show the tooltip
+      });
+
+      statusLobby.addEventListener("mousemove", (event) => {
+        tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+        tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+      });
+
+      statusLobby.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none"; // Hide the tooltip when not hovering
+      });
+
+      const status = document.getElementById("status");
+      status.addEventListener("mouseenter", (event) => {
+        const iconText = event.target.getAttribute("data-tooltip");
+        tooltip.textContent = iconText; // Set the tooltip text
+        tooltip.style.display = "block"; // Show the tooltip
+      });
+
+      status.addEventListener("mousemove", (event) => {
+        tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+        tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+      });
+
+      status.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none"; // Hide the tooltip when not hovering
+      });
+      
+      const clock = document.getElementById("clock");
+      clock.addEventListener("mouseenter", (event) => {
+        const iconText = event.target.getAttribute("data-tooltip");
+        tooltip.textContent = iconText; // Set the tooltip text
+        tooltip.style.display = "block"; // Show the tooltip
+      });
+
+      clock.addEventListener("mousemove", (event) => {
+        tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+        tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+      });
+
+      clock.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none"; // Hide the tooltip when not hovering
+      });
+      
+      const count = document.getElementById("count");
+      count.addEventListener("mouseenter", (event) => {
+        const iconText = event.target.getAttribute("data-tooltip");
+        tooltip.textContent = iconText; // Set the tooltip text
+        tooltip.style.display = "block"; // Show the tooltip
+      });
+
+      count.addEventListener("mousemove", (event) => {
+        tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+        tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+      });
+
+      count.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none"; // Hide the tooltip when not hovering
+      });
+      
+      const lobbyOption = document.querySelectorAll(".lobby-option");
+
+      // Show tooltip and position it based on mouse movement for icons
+      lobbyOption.forEach((lobbyOption) => {
+        lobbyOption.addEventListener("mouseenter", (event) => {
+          const iconText = event.target.getAttribute("data-tooltip");
+          tooltip.textContent = iconText; // Set the tooltip text
+          tooltip.style.display = "block"; // Show the tooltip
+        });
+
+        lobbyOption.addEventListener("mousemove", (event) => {
+          tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+          tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+        });
+
+        lobbyOption.addEventListener("mouseleave", () => {
+          tooltip.style.display = "none"; // Hide the tooltip when not hovering
+        });
+      });
+      
+      const Lobbys = document.getElementById("span-container");
+      Lobbys.addEventListener("mouseenter", (event) => {
+        const iconText = event.target.getAttribute("data-tooltip");
+        tooltip.textContent = iconText; // Set the tooltip text
+        tooltip.style.display = "block"; // Show the tooltip
+      });
+
+      Lobbys.addEventListener("mousemove", (event) => {
+        tooltip.style.left = `${event.pageX + 10}px`; // Position tooltip to the right of the cursor
+        tooltip.style.top = `${event.pageY + 10}px`; // Position tooltip below the cursor
+      });
+
+      Lobbys.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none"; // Hide the tooltip when not hovering
       });
     </script>
     <script>
@@ -159,17 +293,20 @@
           const timeDifference = targetTime - now;
 
           // Convert milliseconds to hours, minutes, and seconds
-          const hours = Math.floor(
-            (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-          );
-          const minutes = Math.floor(
-            (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-          );
-          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+          const hours = String(
+            Math.floor(
+              (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+            )
+          ).padStart(2, "0");
+          const minutes = String(
+            Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60))
+          ).padStart(2, "0");
+          const seconds = String(
+            Math.floor((timeDifference % (1000 * 60)) / 1000)
+          ).padStart(2, "0");
 
           // Display the result in the element with id="count"
-          countElement.innerHTML =
-            hours + "h " + minutes + "m " + seconds + "s ";
+          countElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
         }, 1000); // Refresh every 1 second
       }
 

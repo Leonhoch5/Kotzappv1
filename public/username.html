@@ -3,8 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
+    />
     <title>User Profile</title>
     <style>
       body {
@@ -84,11 +91,19 @@
     </style>
   </head>
   <body>
-     <a href="/index.html" style="color: white">
-      <span class="material-icons" style="position: fixed; top: 0; right: 0; margin: 20px;">home</span>
-    </a><br />
-    <a href="/profile.html" style="color: white">
-      <span class="material-icons" style="position: fixed; top: 0; left: 0; margin: 20px;">arrow_back</span>
+    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+      <span
+        class="material-icons"
+        style="position: fixed; top: 0; right: 0; margin: 20px"
+        >home</span
+      > </a
+    ><br />
+    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+      <span
+        class="material-icons"
+        style="position: fixed; top: 0; left: 0; margin: 20px"
+        >arrow_back</span
+      >
     </a>
     <div class="profile-container">
       <h2>User Profile</h2>
@@ -111,6 +126,8 @@
           id="newUsername"
           name="newUsername"
           placeholder="New Username"
+          required
+          maxlength="12"
         />
       </div>
       <div class="input-group">
@@ -120,15 +137,38 @@
           id="passwordForUsername"
           name="passwordForUsername"
           placeholder="Password"
+          required
         />
       </div>
-      <button type="button" class="submit-btn" id="changeUsernameBtn">Change Username</button><br /><br />
+      <button type="button" class="submit-btn" id="changeUsernameBtn">
+        Change Username</button
+      ><br /><br />
 
-      <button type="button" class="delete-btn" id="deleteAccountBtn">Delete Account</button>
-      <div id="message" style="color: #ffcc00; text-align: center; margin-top: 10px"></div>
+      <button type="button" class="delete-btn" id="deleteAccountBtn">
+        Delete Account
+      </button>
+      <div
+        id="message"
+        style="color: #ffcc00; text-align: center; margin-top: 10px"
+      ></div>
     </div>
 
     <script>
+      if (!sessionStorage.getItem("loggedIn")) {
+        window.location.href = "/login.html";
+      }
+
+      window.onload = () => {
+        if (!sessionStorage.getItem("loggedIn")) {
+          sessionStorage.setItem("loggedIn", "true");
+        }}
+      document
+        .getElementById("backBtn")
+        .addEventListener("click", function (event) {
+          event.preventDefault(); // Prevent the default anchor behavior
+          window.history.back(); // Go back to the last visited page
+        });
+
       const usernameField = document.getElementById("profileUsername");
       const changeUsernameBtn = document.getElementById("changeUsernameBtn");
       const deleteAccountBtn = document.getElementById("deleteAccountBtn");
@@ -140,7 +180,9 @@
       // Change Username
       changeUsernameBtn.addEventListener("click", async () => {
         const newUsername = document.getElementById("newUsername").value;
-        const passwordForUsername = document.getElementById("passwordForUsername").value;
+        const passwordForUsername = document.getElementById(
+          "passwordForUsername"
+        ).value;
 
         if (!newUsername || !passwordForUsername) {
           messageDiv.innerText = "Please fill in both fields!";
@@ -177,13 +219,16 @@
       const username = sessionStorage.getItem("username");
 
       if (!username) {
-        messageDiv.innerText = "Error: No username found in session. Please log in.";
+        messageDiv.innerText =
+          "Error: No username found in session. Please log in.";
         deleteAccountBtn.disabled = true; // Disable delete button if no username is found
       }
 
       // Delete Account
       deleteAccountBtn.addEventListener("click", async () => {
-        const confirmDelete = confirm("Are you sure you want to delete your account?");
+        const confirmDelete = confirm(
+          "Are you sure you want to delete your account?"
+        );
         if (!confirmDelete) return;
 
         try {
