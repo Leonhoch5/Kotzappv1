@@ -1,5 +1,4 @@
 //server.js
-
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
@@ -9,10 +8,12 @@ const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const axios = require("axios");
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+const upload = multer({ dest: "uploads/" });
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
@@ -32,13 +33,13 @@ const db = new sqlite3.Database("./users.db", (err) => {
       `CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT(12) UNIQUE,
-            password TEXT
+            password TEXT,
             role TEXT
         )`,
       (err) => {
         if (err) {
           console.error(
-            "Error creating users table, maybe the username is longer than 12 ZEICHEN",
+            "Error creating users table, maybe the username is longer than 12 SYMBOLS",
             err.message
           );
         }
@@ -46,30 +47,15 @@ const db = new sqlite3.Database("./users.db", (err) => {
     );
   }
 });
-// Checking if user is Admin
-function isAdmin(username, callback) {
-  db.get(
-    `SELECT role FROM users WHERE username = ?`,
-    [username],
-    (err, row) => {
-      if (err) {
-        console.error("Error fetching role:", err.message);
-        return callback(false); // Return false if an error occurs
-      }
-      callback(row && row.role === "admin"); // Return true if the role is admin
-      console.log(username, "is admin")
-    }
-  );
-}
 
 // Register route
 app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   db.run(
     `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
-    [username, hashedPassword],
+    [username, hashedPassword, role],
     function (err) {
       if (err) {
         if (err.code === "SQLITE_CONSTRAINT") {
@@ -101,12 +87,23 @@ app.post("/login", (req, res) => {
         return;
       }
 
-      if (row && (await bcrypt.compare(password, row.password))) {
-        res.send({ success: true, message: "Login successful" });
-      } else if (row.password === "") {
-        res
-          .status(403)
-          .send({ success: false, message: "Your account is banned." });
+      if (row) {
+        // Compare the password with the hashed password
+        if (await bcrypt.compare(password, row.password)) {
+          // Successfully logged in
+          res.send({
+            success: true,
+            message: "Login successful",
+            role: row.role, // Include the user's role
+          });
+        } else if (row.role === "banned") {
+          // Send a response indicating redirection to banned page
+          return res.status(403).json({ redirect: "/banned.html" });
+        } else {
+          res
+            .status(401)
+            .send({ success: false, message: "Invalid username or password" });
+        }
       } else {
         res
           .status(401)
@@ -116,7 +113,7 @@ app.post("/login", (req, res) => {
   );
 });
 
-// Change Password route
+// Change assword route
 app.post("/change-password", async (req, res) => {
   const { username, oldPassword, newPassword } = req.body;
 
@@ -228,20 +225,61 @@ app.post("/change-username", async (req, res) => {
   );
 });
 
+// DELETE user account route
+app.post("/delete-account", (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Username is required." });
+  }
+
+  db.run(`DELETE FROM users WHERE username = ?`, [username], function (err) {
+    if (err) {
+      console.error("Error deleting user:", err);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while deleting the account.",
+      });
+    }
+
+    // Check if the user was actually deleted
+    if (this.changes === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    // If the deletion was successful
+    res.json({ success: true, message: "User account deleted successfully." });
+  });
+});
+
+function isValidDate(dateString) {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()); 
+}
+
 // WebSocket connection handling
 const lobbies = {};
+const clients = new Map();
 
 wss.on("connection", (ws) => {
   let currentLobby = null;
   let username = null;
+  let role = null;
 
   ws.on("message", (message) => {
     const parsedMessage = JSON.parse(message);
-    console.log("Received message:", parsedMessage);
+    const data = JSON.parse(message);
 
     if (parsedMessage.type === "join") {
+      clients.set(ws, data.username);
+      console.log(`${data.username} joined the chat.`);
       currentLobby = parsedMessage.lobby;
       username = parsedMessage.username;
+      role = parsedMessage.role;
 
       // Initialize lobby if it doesn't exist
       if (!lobbies[currentLobby]) {
@@ -251,24 +289,50 @@ wss.on("connection", (ws) => {
 
       sendChatHistory(ws, currentLobby);
       broadcastOnlineUsers(currentLobby);
-
       console.log(`Client ${username} joined lobby: ${currentLobby}`);
+
+      // Set username as a property on the WebSocket object
+      ws.username = username; // Store username on the ws object
+    } else if (parsedMessage.type === "ping") {
+      ws.send(JSON.stringify({ type: "pong" }));
     } else if (parsedMessage.type === "message" && currentLobby) {
       // Handle admin commands
-      if (username === "root" && parsedMessage.message.startsWith("/")) {
+      if (role === "admin" && parsedMessage.message.startsWith("/")) {
         handleAdminCommand(parsedMessage.message, currentLobby);
       } else {
-        const timestamp = new Date().toISOString();
-        const fullMessage = {
-          id: parsedMessage.id,
-          username: username,
-          timestamp: timestamp,
-          message: parsedMessage.message,
-        };
+        const timestamp = new Date().toISOString(); // Assuming this is how timestamp is set
+        if (isValidDate(timestamp)) {
+          const fullMessage = {
+            id: parsedMessage.id,
+            username: username,
+            timestamp: timestamp,
+            message: parsedMessage.message,
+          };
 
-        broadcastToLobby(fullMessage, currentLobby);
-        saveToChatHistory(fullMessage, currentLobby);
+          broadcastToLobby(fullMessage, currentLobby);
+          saveToChatHistory(fullMessage, currentLobby);
+          console.log("Received message:", parsedMessage);
+        } else {
+          console.log("Invalid timestamp. Not showing date separator.");
+        }
       }
+    } else if (data.type === "image") {
+      const imagePath = path.join(
+        __dirname,
+        "uploads",
+        `${data.timestamp}.png`
+      );
+      const imageBuffer = Buffer.from(data.data, "base64");
+
+      fs.writeFile(imagePath, imageBuffer, (err) => {
+        if (err) {
+          console.error(err);
+          ws.send(JSON.stringify({ error: "Error saving image" }));
+        } else {
+          console.log("Image saved successfully");
+          ws.send(JSON.stringify({ message: "Image uploaded successfully" }));
+        }
+      });
     } else if (parsedMessage.type === "delete" && currentLobby) {
       const messageId = parseInt(parsedMessage.id, 10);
       const timestamp = parsedMessage.timestamp; // Extract timestamp for validation
@@ -297,8 +361,8 @@ wss.on("connection", (ws) => {
 
       const messageOwnerUsername = messageToDelete.username;
 
-      // Allow deletion if the user is "root" or if they own the message
-      if (username === "root" || messageOwnerUsername === username) {
+      // Allow deletion if the role is "Admin" or if they own the message
+      if (role === "admin" || messageOwnerUsername === username) {
         console.log(
           `User ${username} is deleting message ID: ${messageId} from ${messageOwnerUsername}.`
         );
@@ -345,6 +409,7 @@ wss.on("connection", (ws) => {
   }
 
   ws.on("close", () => {
+    clients.delete(ws); // Remove the client from the map
     if (currentLobby && lobbies[currentLobby]) {
       lobbies[currentLobby] = new Set(
         [...lobbies[currentLobby]].filter((client) => client.ws !== ws)
@@ -387,6 +452,16 @@ wss.on("connection", (ws) => {
           banUser(args[1]);
         }
         break;
+      case "/admin":
+        if (args[1]) {
+          makeAdmin(args[1]);
+        }
+        break;
+      case "/user":
+        if (args[1]) {
+          makeUser(args[1]);
+        }
+        break;
       case "/delete":
         if (args[1]) {
           const target = args[1];
@@ -408,7 +483,7 @@ wss.on("connection", (ws) => {
     if (fs.existsSync(chatHistoryFile)) {
       fs.unlinkSync(chatHistoryFile);
       console.log(
-        `Chat history for lobby '${lobby}' has been cleared by root.`
+        `Chat history for lobby '${lobby}' has been cleared by Admin.`
       );
       // Broadcast clear message to all clients in the lobby
       broadcastToLobby({ type: "clear" }, lobby);
@@ -421,40 +496,91 @@ wss.on("connection", (ws) => {
         [...lobbies[lobby]].filter((client) => client.username !== username)
       );
       broadcastToLobby(
-        { type: "system", message: `User ${username} was kicked by root.` },
+        { type: "system", message: `User ${username} was kicked by Admin.` },
         lobby
       );
     }
   }
 
-  function banUser(username) {
-  const query = `UPDATE users SET banned = 1 WHERE username = ?`;
-
-  db.run(query, [username], function (err) {
-    if (err) {
-      console.error("Error banning user:", err.message);
-      return;
-    }
-    if (this.changes > 0) {
-      console.log(`User ${username} has been banned by root.`);
-
-      // Notify the banned client
-      for (const client of wss.clients) {
-        if (client.readyState === WebSocket.OPEN && client.username === username) {
-          client.send(JSON.stringify({ type: "banned" }));
-          setTimeout(() => client.close(), 500); // Close connection after a short delay
+  // Route to make a user an admin
+  function makeAdmin(username, res) {
+    db.run(
+      `UPDATE users SET role = 'admin' WHERE username = ?`,
+      [username],
+      function (err) {
+        if (err) {
+          console.error("Error promoting user to admin:", err.message);
+          return res.status(500).json({
+            success: false,
+            message: "Error promoting user to admin.",
+          });
+        }
+        if (this.changes > 0) {
+          sendRoleChangeToClient(username, "admin"); // Send role change to the specific client
+          broadcastToLobby({
+            type: "system",
+            message: `User ${username} is now an admin.`,
+          });
+        } else {
+          res.status(404).json({ success: false, message: "User not found." });
         }
       }
-    }
-  });
-}
+    );
+  }
 
+  // Route to make a user a regular user
+  function makeUser(username, res) {
+    db.run(
+      `UPDATE users SET role = 'user' WHERE username = ?`,
+      [username],
+      function (err) {
+        if (err) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Error promoting user to user." });
+        }
+        if (this.changes > 0) {
+          sendRoleChangeToClient(username, "user"); // Send role change to the specific client
+          broadcastToLobby({
+            type: "system",
+            message: `User ${username} is now a user.`,
+          });
+        } else {
+          res.status(404).json({ success: false, message: "User not found." });
+        }
+      }
+    );
+  }
+
+  // Route to ban a user
+  function banUser(username, res) {
+    db.run(
+      'UPDATE users SET role = "banned" WHERE username = ?',
+      [username],
+      function (err) {
+        if (err) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Error banning user." });
+        }
+        if (this.changes > 0) {
+          sendRoleChangeToClient(username, "banned"); // Send role change to the specific client
+          broadcastToLobby({
+            type: "system",
+            message: "User banned successfully.",
+          });
+        } else {
+          res.status(404).json({ success: false, message: "User not found." });
+        }
+      }
+    );
+  }
 
   function deleteMessage(messageId, timestamp, lobby) {
     if (deleteMessageFromFile(messageId, timestamp, lobby)) {
       broadcastToLobby({ type: "delete", id: messageId }, lobby);
       broadcastToLobby(
-        { type: "system", message: `Message ${messageId} deleted by root.` },
+        { type: "system", message: `Message ${messageId} deleted by Admin.` },
         lobby
       );
     }
@@ -480,7 +606,7 @@ wss.on("connection", (ws) => {
       broadcastToLobby(
         {
           type: "system",
-          message: `All messages from user ${targetUsername} deleted by root.`,
+          message: `All messages from user ${targetUsername} deleted by Admin.`,
         },
         lobby
       );
@@ -511,11 +637,6 @@ wss.on("connection", (ws) => {
     return false; // Return false if the file doesn't exist or no message was deleted
   }
 
-  function broadcastToLobby(message, lobby) {
-    const messageStr = JSON.stringify(message);
-    lobbies[lobby].forEach((client) => client.ws.send(messageStr));
-  }
-
   function saveToChatHistory(message, lobby) {
     const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
     let chatHistory = [];
@@ -535,6 +656,58 @@ wss.on("connection", (ws) => {
     ); // Log the update
   }
 });
+
+function broadcastToLobby(message, lobbyName) {
+  if (lobbies[lobbyName]) {
+    lobbies[lobbyName].forEach((client) => {
+      if (client.ws.readyState === WebSocket.OPEN) {
+        client.ws.send(JSON.stringify(message));
+      }
+    });
+  }
+}
+
+function closeLobby(lobbyName) {
+  // Check if the lobby exists
+  if (lobbies[lobbyName]) {
+    // Step 1: Broadcast the "clear" message to notify users about the chat history being cleared
+    broadcastToLobby({ type: "clear" }, lobbyName);
+
+    // Step 2: Delete the chat history file for the lobby
+    const chatHistoryFile = path.join(chatHistoryDir, `${lobbyName}.json`);
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+      console.log(`Chat history for lobby '${lobbyName}' has been deleted.`);
+    }
+
+    // Step 3: Disconnect all users in the lobby
+    lobbies[lobbyName].forEach((client) => {
+      if (client.ws.readyState === WebSocket.OPEN) {
+        const message = { type: "system", message: `Lobby '${lobbyName}' has been closed.` };
+        client.ws.send(JSON.stringify(message)); // Notify user of lobby closure
+        client.ws.close(); // Disconnect the user from the lobby
+      }
+    });
+
+    // Step 4: Remove the lobby from the list of active lobbies
+    delete lobbies[lobbyName];
+    console.log(`Lobby '${lobbyName}' has been closed and removed from memory.`);
+  }
+}
+
+app.post("/admin/close-lobby", (req, res) => {
+  const { lobby } = req.body;
+
+  // Check if the lobby exists
+  if (lobbies[lobby]) {
+    closeLobby(lobby); // Call the function to close the lobby
+    res.json({ success: true, message: `Lobby '${lobby}' has been closed.` });
+  } else {
+    res.status(404).json({ success: false, message: "Lobby not found." });
+  }
+});
+
+
 // Set up the directory for storing images
 const imagesDir = path.join(__dirname, "images");
 if (!fs.existsSync(imagesDir)) {
@@ -552,32 +725,81 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
-
-// Route to upload images
-app.post("/upload-image", upload.single("image"), (req, res) => {
+app.post("/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ success: false, message: "No file uploaded." });
+    return res.status(400).send("No file uploaded");
   }
-  res.json({ success: true, filePath: `/images/${req.file.filename}` });
+
+  const imagePath = path.join(imagesDir, req.file.filename);
+
+  // Move the uploaded file to a permanent location
+  fs.rename(req.file.path, imagePath, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error saving image");
+    }
+
+    // Prepare the message data to save to chat history
+    const message = {
+      id: Date.now().toString(), // unique id
+      username: req.body.username,
+      timestamp: new Date().toISOString(),
+      message: null, // no text message
+      imageUrl: `/images/${req.file.filename}` // URL of the saved image
+    };
+
+    // Send response with message data to confirm success
+    res.json(message);
+  });
 });
+
 
 // Serve images statically from /images
 app.use("/images", express.static(imagesDir));
-// Middleware to ensure user is root for admin actions
-function checkRoot(req, res, next) {
-  const username = req.headers["x-username"];
-  if (username !== "root") {
-    return res.status(403).json({
-      success: false,
-      message: "Access denied. Only root can access this.",
-    });
+
+// Checking if user is Admin
+function isAdmin(req, res, next) {
+  const username = req.body.username; // You may need to get this from a session or token
+
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    (err, row) => {
+      if (err) {
+        console.error("Error fetching role:", err.message);
+        return res
+          .status(500)
+          .json({ success: false, message: "Error checking role." });
+      }
+      if (row && row.role === "admin") {
+        next(); // User is admin, proceed to the route handler
+      } else {
+        res
+          .status(403)
+          .json({ success: false, message: "Unauthorized access." });
+      }
+    }
+  );
+}
+
+function sendRoleChangeToClient(username, newRole) {
+  const message = JSON.stringify({
+    type: "ROLE_CHANGE",
+    username: username,
+    role: newRole,
+  });
+
+  // Find the client associated with the username
+  for (const [client, user] of clients.entries()) {
+    if (user === username && client.readyState === WebSocket.OPEN) {
+      client.send(message); // Send message to specific client
+      break; // Stop after sending to the first matched client
+    }
   }
-  next();
 }
 
 // Route to make a user an admin
-app.post("/admin/make-admin", checkRoot, (req, res) => {
+app.post("/admin/make-admin", (req, res) => {
   const { username } = req.body;
 
   db.run(
@@ -590,7 +812,57 @@ app.post("/admin/make-admin", checkRoot, (req, res) => {
           .json({ success: false, message: "Error promoting user to admin." });
       }
       if (this.changes > 0) {
-        res.json({ success: true, message: `User ${username} is now an admin.` });
+        sendRoleChangeToClient(username, "admin"); // Send role change to the specific client
+        res.json({
+          success: true,
+          message: `User ${username} is now an admin.`,
+        });
+      } else {
+        res.status(404).json({ success: false, message: "User not found." });
+      }
+    }
+  );
+});
+
+// Route to make a user a regular user
+app.post("/admin/make-user", (req, res) => {
+  const { username } = req.body;
+
+  db.run(
+    `UPDATE users SET role = 'user' WHERE username = ?`,
+    [username],
+    function (err) {
+      if (err) {
+        return res
+          .status(500)
+          .json({ success: false, message: "Error promoting user to user." });
+      }
+      if (this.changes > 0) {
+        sendRoleChangeToClient(username, "user"); // Send role change to the specific client
+        res.json({ success: true, message: `User ${username} is now a user.` });
+      } else {
+        res.status(404).json({ success: false, message: "User not found." });
+      }
+    }
+  );
+});
+
+// Route to ban a user
+app.post("/admin/ban-user", (req, res) => {
+  const { username } = req.body;
+
+  db.run(
+    'UPDATE users SET role = "banned" WHERE username = ?',
+    [username],
+    function (err) {
+      if (err) {
+        return res
+          .status(500)
+          .json({ success: false, message: "Error banning user." });
+      }
+      if (this.changes > 0) {
+        sendRoleChangeToClient(username, "banned"); // Send role change to the specific client
+        res.json({ success: true, message: "User banned successfully." });
       } else {
         res.status(404).json({ success: false, message: "User not found." });
       }
@@ -598,9 +870,10 @@ app.post("/admin/make-admin", checkRoot, (req, res) => {
   );
 });
 // Route to get all users
-app.get("/admin/users", checkRoot, (req, res) => {
-  db.all("SELECT username FROM users", (err, rows) => {
+app.get("/admin/users", (req, res) => {
+  db.all("SELECT username, role FROM users", (err, rows) => {
     if (err) {
+      console.error("Error fetching users:", err.message);
       return res
         .status(500)
         .json({ success: false, message: "Error fetching users." });
@@ -610,7 +883,7 @@ app.get("/admin/users", checkRoot, (req, res) => {
 });
 
 // Route to delete a user
-app.post("/admin/delete-user", checkRoot, (req, res) => {
+app.post("/admin/delete-user", (req, res) => {
   const { username } = req.body;
 
   db.run("DELETE FROM users WHERE username = ?", [username], function (err) {
@@ -627,30 +900,8 @@ app.post("/admin/delete-user", checkRoot, (req, res) => {
   });
 });
 
-// Route to ban a user (by setting their password to an empty string)
-app.post("/admin/ban-user", checkRoot, (req, res) => {
-  const { username } = req.body;
-
-  db.run(
-    'UPDATE users SET password = "" WHERE username = ?',
-    [username],
-    function (err) {
-      if (err) {
-        return res
-          .status(500)
-          .json({ success: false, message: "Error banning user." });
-      }
-      if (this.changes > 0) {
-        res.json({ success: true, message: "User banned successfully." });
-      } else {
-        res.status(404).json({ success: false, message: "User not found." });
-      }
-    }
-  );
-});
-
 // Route to clear chat history of a specific lobby
-app.post("/admin/clear-chat", checkRoot, (req, res) => {
+app.post("/admin/clear-chat", (req, res) => {
   const { lobby } = req.body;
   const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
 
@@ -666,13 +917,13 @@ app.post("/admin/clear-chat", checkRoot, (req, res) => {
 });
 
 // Route to get the list of active lobbies
-app.get("/admin/active-lobbies", checkRoot, (req, res) => {
+app.get("/admin/active-lobbies", (req, res) => {
   const activeLobbies = Object.keys(lobbies); // Assuming lobbies are stored in memory
   res.json({ success: true, lobbies: activeLobbies });
 });
 
 // Route to kick a user from a lobby
-app.post("/admin/kick-user", checkRoot, (req, res) => {
+app.post("/admin/kick-user", (req, res) => {
   const { username, lobby } = req.body;
 
   if (lobbies[lobby]) {
@@ -691,6 +942,34 @@ app.post("/admin/kick-user", checkRoot, (req, res) => {
   }
 });
 
+app.get("/admin/active-lobbies", (req, res) => {
+  const activeLobbies = getActiveLobbies();
+
+  if (activeLobbies.length === 0) {
+    return res.json({ success: true, lobbies: [] });
+  }
+
+  res.json({ success: true, lobbies: activeLobbies });
+});
+
+// Function to get active lobbies from the DOM
+function getActiveLobbies() {
+  const lobbies = [];
+
+  // Select all elements with the data-lobby attribute
+  const lobbyElements = document.querySelectorAll("[data-lobby]");
+
+  // Iterate over the selected elements and push their values to the lobbies array
+  lobbyElements.forEach((element) => {
+    const lobbyName = element.getAttribute("data-lobby");
+    if (lobbyName) {
+      lobbies.push(lobbyName); // Add lobby name to the array
+    }
+  });
+
+  return lobbies; // Return the list of lobby names
+}
+
 // Error handling for invalid routes
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found." });
@@ -700,3 +979,21 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

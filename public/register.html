@@ -200,6 +200,14 @@
             placeholder="Password"
             required
           />
+          <input
+            style="display: none;"
+            type="user"
+            id="user"
+            name="user"
+            value="user"
+            disabled
+          />
         </div>
         <button type="submit" class="submit-btn">Register</button>
         <div class="forgot-password">
@@ -209,6 +217,13 @@
     </div>
 
     <script>
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+      window.onload = () => {
+        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === 'banned') {
+          window.location.href = "/banned.html";
+      }
+      }
       const scrollingLine = document.getElementById("scrollingLine");
 
       function createSquares() {
@@ -237,7 +252,7 @@
 
         const username = document.getElementById("registerUsername").value;
         const password = document.getElementById("registerPassword").value;
-        const role = "admin";
+        const role = document.getElementById("user").value;
 
         try {
           const response = await fetch("/register", {

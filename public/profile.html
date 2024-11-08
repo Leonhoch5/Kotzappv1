@@ -14,44 +14,83 @@
       href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
     />
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #1a1a1a;
-        color: #ffffff;
+      * {
         margin: 0;
         padding: 0;
+        font-family: "Quicksand", sans-serif;
+      }
+      body {
         display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
-        height: 100vh;
+        min-height: 100vh;
+        background-color: #000;
+        overflow: hidden;
       }
+
+      /* Background grid pattern */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            to right,
+            #0f0 0px,
+            #0f0 1px,
+            transparent 1px,
+            transparent 50px
+          ),
+          repeating-linear-gradient(
+            to bottom,
+            #0f0 0px,
+            #0f0 1px,
+            transparent 1px,
+            transparent 50px
+          );
+        opacity: 0.2;
+        z-index: -1;
+      }
+
       .profile-container {
-        background-color: #2e2e2e;
-        padding: 20px;
-        border-radius: 10px;
+        position: relative;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 40px;
         width: 100%;
         max-width: 400px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-      h2 {
         text-align: center;
-        color: #00b300;
-        margin-bottom: 40px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 20px 2px rgba(0, 255, 0, 0.5);
+        z-index: 1; /* Ensure the login container is above the animated background */
       }
+
+      h2 {
+        font-size: 2em;
+        color: #0f0;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
       .submit-btn,
       .delete-btn {
         width: 100%;
         padding: 10px;
-        margin-top: 10px;
-        font-size: 16px;
+        background-color: #00b300;
+        color: #000;
+        font-size: 1.2em;
+        font-weight: bold;
+        text-transform: uppercase;
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        transition: 0.3s;
       }
-      .submit-btn {
-        background-color: #00b300;
-        color: #fff;
+
+      .submit-btn:hover {
+        background: #00b300;
       }
       .submit-btn:hover {
         background-color: #009900;
@@ -70,18 +109,74 @@
       }
       button {
         margin-bottom: 20px;
+        margin-top: 10px;
+      }
+      .material-icons {
+        font-size: 28px;
+        transition: color 0.3s;
+      }
+      .material-icons:hover {
+        color: #25d366;
+      }
+
+      /* Scrolling line effect */
+      .scrolling-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        animation: scroll 10s linear infinite;
+      }
+
+      .square {
+        width: 80px; /* Fixed width */
+        height: 80px; /* Fixed height to maintain square shape */
+        background: rgba(0, 255, 0, 0.1);
+        margin: 2px; /* Margin between squares */
+        box-shadow: 0px 0px 15px 5px rgba(0, 255, 0, 0.2);
+        animation: spin 3s linear infinite; /* Spinning effect */
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(100vh); /* Scroll down to bottom */
+        }
+        100% {
+          transform: translateY(0); /* Scroll back up */
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
   <body>
-    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+    <div class="scrolling-line" id="scrollingLine"></div>
+    <a
+      href="/index.html"
+      style="position: absolute; color: white; z-index: 100000000"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; right: 0; margin: 20px"
         >home</span
       >
     </a>
-    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+    <a
+      href="#"
+      style="position: absolute; color: white; z-index: 100000000"
+      id="backBtn"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; left: 0; margin: 20px"
@@ -108,6 +203,7 @@
     </div>
 
     <script>
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
       if (!sessionStorage.getItem("loggedIn")) {
         window.location.href = "/login.html";
       }
@@ -115,13 +211,42 @@
       window.onload = () => {
         if (!sessionStorage.getItem("loggedIn")) {
           sessionStorage.setItem("loggedIn", "true");
-        }}
+        }
+        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === "banned") {
+          window.location.href = "/banned.html";
+        }
+      };
+      if (role === "banned") {
+        window.location.href = "/banned.html";
+      }
       document
         .getElementById("backBtn")
         .addEventListener("click", function (event) {
           event.preventDefault(); // Prevent the default anchor behavior
           window.history.back(); // Go back to the last visited page
         });
+
+      const scrollingLine = document.getElementById("scrollingLine");
+
+      function createSquares() {
+        const squareSize = 82; // 80px for the square + 2px margin
+        const numberOfSquares = Math.floor(window.innerWidth / squareSize); // Calculate how many squares fit in the viewport
+        scrollingLine.innerHTML = ""; // Clear existing squares
+
+        for (let i = 0; i < numberOfSquares; i++) {
+          // Create squares to fill the width
+          const square = document.createElement("div");
+          square.classList.add("square");
+          scrollingLine.appendChild(square);
+        }
+      }
+
+      // Recreate squares on window resize
+      window.addEventListener("resize", createSquares);
+
+      // Initial square creation
+      createSquares();
 
       const deleteAccountBtn = document.getElementById("deleteAccountBtn");
       const messageDiv = document.getElementById("message");

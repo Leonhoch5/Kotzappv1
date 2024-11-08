@@ -14,6 +14,10 @@ body {
   padding: 20px;
 }
 
+a {
+  text-decoration: none;
+}
+
 #status,
 #statuslobby {
   font-size: 1.2em;
@@ -61,11 +65,9 @@ nav ul li button:hover {
 input[type="text"],
 select {
   padding: 8px;
-  border: 1px solid #555;
   border-radius: 20px;
   font-size: 1em;
   margin: 5px;
-  width: 100%;
   max-width: 300px;
   background-color: #333;
   color: #e0e0e0;
@@ -73,7 +75,6 @@ select {
 
 input[type="text"] {
   border: 2px solid #075e54;
-  padding-left: 17px;
 }
 
 input[type="text"]:focus {
@@ -81,15 +82,25 @@ input[type="text"]:focus {
   outline: none;
 }
 
-#chat-container {
+#main-container {
   width: 100%;
   max-width: 600px;
   height: 500px;
   margin: 20px 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   position: relative;
+}
+
+#chat-container {
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: absolute;
+  flex: 1;
 }
 
 #chat {
@@ -111,6 +122,7 @@ input[type="text"]:focus {
   flex-direction: column-reverse;
   align-items: stretch; /* Allow messages to take full width */
   align-self: center;
+  transition: filter 0.3s ease;
 }
 /* Container for all messages */
 .message-container {
@@ -163,20 +175,14 @@ input[type="text"]:focus {
   opacity: 1;
 }
 
-#MessageSend {
-  width: 100%;
-  max-width: 300px;
-}
-
 #message-text:hover {
-  text-decoration: underline;
   cursor: pointer;
 }
 
 .message-text {
-  display: inline-block; /* Ensures the text follows the username */
-  overflow-wrap: break-word; /* Allow breaking on word boundaries */
-  word-wrap: break-word; /* Legacy support for older browsers */
+  display: inline-block;
+  overflow-wrap: break-word; 
+  word-wrap: break-word; 
   cursor: pointer;
 }
 
@@ -185,6 +191,48 @@ input[type="text"]:focus {
   justify-content: flex-start;
   padding: 5px;
   margin: 5px;
+}
+
+.message-menu {
+  position: absolute;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  z-index: 1000;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+.menu-option {
+  border-radius: 5px;
+  color: #cccccc;
+}
+
+.message-menu .menu-option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+#deleteMessage {
+  color: #e41c0c;
+}
+
+.message-menu .menu-option:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.blur {
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.selected-message-container {
+  position: fixed;
+  z-index: 10;
+  white-space: nowrap;
+  padding-right: 10px;
 }
 
 /* Username styling */
@@ -201,11 +249,11 @@ input[type="text"]:focus {
 }
 
 .message-container.same-user {
-  margin-top: 1px; /* Smaller space between same-user messages */
+  margin-top: 1px; 
 }
 
 .message-container.same-user .username {
-  display: none; /* Hide username for consecutive messages */
+  display: none; 
 }
 
 /* Styles for messages from the current user */
@@ -232,6 +280,20 @@ input[type="text"]:focus {
   margin-bottom: 2px; /* Space between message bubble and next message */
 }
 
+.message-bubble:hover {
+  cursor: pointer;
+}
+
+.selected-message-container {
+  max-width: 68%;
+}
+
+.uploaded-image {
+  max-width: 100%; /* To keep images within the chat bubble width */
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
 /* Bubble color for current user */
 .you .message-bubble {
   background-color: #dcf8c6; /* Light green */
@@ -254,16 +316,46 @@ input[type="text"]:focus {
   text-align: right; /* Align text to the right */
 }
 
-#message {
+#MessageSend {
   width: 100%;
+  max-width: 400px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  flex-direction: row;
+  max-height: 40px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 50px;
+  border: 2px solid #075e54;
+}
+
+#message {
+  width: calc(100% - 40px - 40px);
+  height: 100%;
 }
 
 #send {
-  width: 100%;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  max-width: 40px;
+  flex: 1;
 }
 
 #sendImage {
-  width: 100%;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  max-width: 40px;
+  flex: 1;
 }
 
 nav {
@@ -375,8 +467,6 @@ nav ul li select:hover {
   z-index: 1000000; /* Make sure it appears above other elements */
 }
 
-
-
 #span-container {
   mix-blend-mode: difference;
   position: absolute;
@@ -384,7 +474,7 @@ nav ul li select:hover {
   height: 18px;
   z-index: 20;
   align-self: flex-end;
-  transform: translate(-30px, 10px); 
+  transform: translate(-30px, 10px);
 }
 
 input + label span {
@@ -404,7 +494,7 @@ input + label span:first-child {
 }
 
 input + label span:nth-child(2) {
-  top: 8px; 
+  top: 8px;
 }
 
 input + label span:last-child {
@@ -416,7 +506,7 @@ label:hover {
 }
 
 input:not(:checked) + label span {
-  background: white; 
+  background: white;
 }
 
 input:checked + label span {
@@ -447,15 +537,15 @@ input ~ .lobby-selection {
   transition-delay: 0.5s;
   overflow: hidden;
   display: flex;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
 }
 
 input ~ .lobby-selection > ul {
   text-align: center;
   list-style-type: none;
   padding: 0;
-  margin: 0; 
+  margin: 0;
 }
 
 input ~ .lobby-selection > ul > li {
@@ -484,6 +574,167 @@ input:checked ~ .lobby-selection > ul > li {
   transition-delay: 0.5s;
 }
 
+/* Style for toggle switch */
+.toggle-switch {
+  position: absolute;
+  width: 40px;
+  height: 19px;
+  display: inline-block;
+  z-index: 11;
+  transform: translate(10px, 10px);
+}
+
+.toggle-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 19px; /* Set to match the height for a pill shape */
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: #cccccc;
+}
+
+.toggle-label::before {
+  content: "";
+  position: absolute;
+  width: 17px; /* Adjusted to fit inside the toggle switch */
+  height: 17px; /* Slightly smaller than height for padding */
+  left: 1px;
+  bottom: 1px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+/* When checked, change background and move the toggle */
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #4caf50;
+}
+
+.toggle-checkbox:checked + .toggle-label::before {
+  transform: translateX(21px); /* Adjusted to fit toggle width */
+}
+
+#statusText {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  display: inline-block;
+  padding: 5px;
+  font-size: 14px;
+  color: #333;
+  z-index: 10;
+  background-color: #d3d3d3;
+  border-radius: 5px;
+  width: fit-content; /* Adjust width exactly to text content */
+  max-width: 100%; /* Prevents it from expanding if there's unexpected long text */
+  white-space: nowrap; /* Prevents text wrapping */
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow */
+  transform: translate(55px, 7px);
+}
+
+#statusText.fade-in {
+  opacity: 1;
+}
+
+#menuButton {
+  display: flex; /* Enables flexbox for centering */
+  align-items: center; /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  background-color: rgba(0, 0, 0, 0.5); /* Default background color (dark) */
+  color: white; /* Icon color */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Add transitions for effects */
+  display: none; /* Hide button by default */
+  z-index: 100000;
+}
+
+#menuButton:hover {
+  background-color: #2ecc71; /* Change background color on hover */
+  transform: scale(1.2); /* Slightly enlarge on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+  transform: scale(1.2); /* Enlarge icon on hover */
+}
+
+.mobile-menu {
+  transform: translateY(-100%); /* Start hidden above the screen */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
+  z-index: 100; /* Ensure it appears above other elements */
+  flex-direction: column;
+  align-items: center; /* Center the icons horizontally */
+  justify-content: center; /* Center the icons vertically */
+  transition: opacity 0.5s ease; /* Smooth fade-in effect */
+  opacity: 0; /* Start invisible */
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Slide-up animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Apply the animations based on the .show class */
+.mobile-menu.show {
+  animation: slideDown 0.5s forwards;
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column;
+  opacity: 1; /* Fade in */
+}
+
+.mobile-menu.show .icon {
+  margin: 10px;
+}
+
+.mobile-menu.hide {
+  animation: slideUp 0.5s forwards;
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column;
+}
+
+.icon-mobile {
+  width: 120px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+#mobile-nav {
+  display: none;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
 /* Scrollbar Styling */
 body::-webkit-scrollbar {
@@ -524,10 +775,16 @@ body::-webkit-scrollbar-thumb:hover {
   }
 }
 
-
 @media (max-width: 768px) {
-  #chat {
+  #main-container {
     max-width: 100%;
+  }
+
+  #chat-container {
+    max-width: 100%;
+  }
+
+  #chat {
     padding: 10px;
   }
 
@@ -543,6 +800,31 @@ body::-webkit-scrollbar-thumb:hover {
 
   #MessageSend {
     max-width: 100%;
+  }
+  #clock,
+  #count {
+    display: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 450px) {
+  nav {
+    display: none;
+  }
+  .icon-container {
+    display: none; /* Hide icons */
+  }
+  #mobile-nav {
+    display: block;
+  }
+  #menuButton {
+    display: block; /* Show the MENU button */
+    margin-left: 10px; /* Add margin for spacing */
+    margin-right: 10px; /* Add margin for spacing */
   }
 }
 

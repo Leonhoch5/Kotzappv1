@@ -12,6 +12,7 @@ let currentLobby = document.getElementsByClassName("lobby-option")[0].getAttribu
 
 // Retrieve username from sessionStorage
 let username = sessionStorage.getItem("username");
+const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
 
 if (!username) {
   alert("Please log in.");
@@ -61,6 +62,10 @@ function formatDate(date) {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
 
+  if (isNaN(date.getTime())) {
+    return null; 
+  }
+  
   if (date.toDateString() === today.toDateString()) {
     return "Today";
   } else if (date.toDateString() === yesterday.toDateString()) {
@@ -74,34 +79,25 @@ function formatDate(date) {
   }
 }
 
-// Track the last message's username globally to compare with new messages
 let lastMessageUsername = null;
+let selectedMessageContainer = null;
 
-function appendMessage({ id, username, timestamp, message }) {
-  if (!message.trim()) return;
 
+function appendMessage({ id, username, timestamp, message, imageUrl }) {
   const messageDate = new Date(timestamp);
   const formattedDate = formatDate(messageDate);
 
-  // Add a date separator if it's a new date compared to the last message
   if (
     !lastMessageDate ||
     lastMessageDate.toDateString() !== messageDate.toDateString()
   ) {
-    if (!timestamp) {
-      return;
-    } else {
-      const dateSeparator = document.createElement("div");
-      dateSeparator.setAttribute("data-timestamp", timestamp);
-      dateSeparator.classList.add("date-separator");
-      dateSeparator.classList.add("message-container");
-      dateSeparator.textContent = formattedDate;
-      chat.prepend(dateSeparator); // Add separator at the top of the chat
-      lastMessageDate = messageDate; // Update lastMessageDate to the current message date
-
-      // Reset lastMessageUsername for a new day to display usernames again
-      lastMessageUsername = null;
-    }
+    const dateSeparator = document.createElement("div");
+    dateSeparator.setAttribute("data-timestamp", timestamp);
+    dateSeparator.classList.add("date-separator", "message-container");
+    dateSeparator.textContent = formattedDate;
+    chat.prepend(dateSeparator);
+    lastMessageDate = messageDate;
+    lastMessageUsername = null;
   }
 
   const messageContainer = document.createElement("div");
@@ -122,19 +118,28 @@ function appendMessage({ id, username, timestamp, message }) {
   usernameDiv.textContent = username;
   usernameDiv.style.color = generateColor(username);
 
-  // Check if this message is from the same user as the last message
   const isSameUser = username === lastMessageUsername;
-
   if (isSameUser) {
-    usernameDiv.style.display = "none"; // Hide username for consecutive messages
-    messageContainer.classList.add("same-user"); // Add 'same-user' class for smaller margin
+    usernameDiv.style.display = "none";
+    messageContainer.classList.add("same-user");
   } else {
-    usernameDiv.style.display = "block"; // Show username for new user
+    usernameDiv.style.display = "block";
+    messageContainer.classList.remove("same-user");
   }
 
   const messageBubble = document.createElement("div");
   messageBubble.classList.add("message-bubble");
-  messageBubble.textContent = message;
+
+  // Check if it's an image message and append accordingly
+  if (imageUrl) {
+    const img = document.createElement("img");
+    img.src = imageUrl;
+    img.alt = "Uploaded image";
+    img.classList.add("uploaded-image");
+    messageBubble.appendChild(img);
+  } else {
+    messageBubble.textContent = message;
+  }
 
   const timestampDiv = document.createElement("div");
   timestampDiv.classList.add("timestamp");
@@ -146,50 +151,23 @@ function appendMessage({ id, username, timestamp, message }) {
   messageBubble.appendChild(document.createTextNode(" "));
   messageBubble.appendChild(timestampDiv);
 
-  // Set data attributes for later comparisons
   messageContainer.dataset.id = id;
   messageContainer.dataset.timestamp = timestamp;
-  messageContainer.dataset.username = username; // Store username for `isSameUser` check
+  messageContainer.dataset.username = username;
   messageContainer.appendChild(usernameDiv);
   messageContainer.appendChild(messageBubble);
 
-  usernameDiv.addEventListener("mouseenter", () => {
-    usernameDiv.style.textDecoration = "underline"; // Underline username on hover
-    usernameDiv.style.cursor = "pointer"; // Let cursor be pointer
-  });
-  usernameDiv.addEventListener("mouseleave", () => {
-    usernameDiv.style.textDecoration = "none"; // Remove underline
-    usernameDiv.style.cursor = "default"; // Let cursor be default
-  });
-  messageBubble.addEventListener("mouseenter", () => {
-    messageBubble.style.textDecoration = "underline"; // Underline username on hover
-    messageBubble.style.cursor = "pointer"; // Let cursor be pointer
-  });
-  messageBubble.addEventListener("mouseleave", () => {
-    messageBubble.style.textDecoration = "none"; // Remove underline
-    messageBubble.style.cursor = "default"; // Let cursor be default
-  });
-
   messageBubble.addEventListener("click", () => {
-    if (isCurrentUser || currentUser === "root") {
-      if (confirm(`Delete message: "${message}"?`)) {
-        ws.send(JSON.stringify({ type: "delete", id, timestamp }));
-        messageContainer.remove();
-      }
-    } else {
-      alert("You can only delete your own messages.");
-    }
+    selectedMessageContainer = messageContainer;
+    messageContainer.classList.toggle("selected");
   });
 
-  // Prepend the new message at the top of the chat
   chat.prepend(messageContainer);
-
-  // Update lastMessageUsername to the current username for the next comparison
   lastMessageUsername = username;
 
-  // Initialize the sticky date observer after messages have been loaded
   initializeStickyDateObserver();
 }
+
 
 // Function to handle the sticky date display
 function initializeStickyDateObserver() {
@@ -227,6 +205,130 @@ function initializeStickyDateObserver() {
     observer.observe(messageContainer)
   );
 }
+
+const messageMenu = document.getElementById("messageMenu");
+let selectedMessage = null;
+
+document.querySelectorAll('.chat-message').forEach(message => {
+  message.addEventListener('click', (event) => {
+    selectedMessage = event.currentTarget;
+    openMessageMenu(selectedMessage, event);
+  });
+});
+
+function openMessageMenu(messageElement, clickEvent) {
+  const chat = document.getElementById('chat');
+  const chatContainer = document.getElementById('chat-container');
+  const messageMenu = document.getElementById('messageMenu');
+
+  clickEvent.stopPropagation();
+
+  const messageRect = messageElement.getBoundingClientRect();
+  const chatRect = chat.getBoundingClientRect();
+
+  const currentUser = sessionStorage.getItem("username");
+  const isCurrentUser = messageElement.classList.contains('you');
+
+  const topPosition = messageRect.bottom - chatRect.top;
+  const leftPosition = isCurrentUser ? messageRect.right - chatRect.left - messageMenu.offsetWidth : messageRect.left - chatRect.left;
+
+  messageMenu.style.top = `${topPosition}px`;
+  messageMenu.style.left = `${leftPosition}px`;
+
+  messageMenu.style.display = 'block';
+
+  chat.classList.add('blur');
+
+  let selectedMessageContainer = document.querySelector('.selected-message-container');
+
+  const clonedMessageContainer = messageElement.parentNode.cloneNode(true);
+  const usernameDiv = clonedMessageContainer.querySelector('.username');
+  if (usernameDiv) {
+    usernameDiv.remove();
+  }
+
+  clonedMessageContainer.style.maxWidth = '100%';
+  clonedMessageContainer.style.margin = '0';
+  clonedMessageContainer.style.boxSizing = 'border-box';
+
+  if (!selectedMessageContainer) {
+    selectedMessageContainer = document.createElement('div');
+    selectedMessageContainer.className = 'selected-message-container';
+    chatContainer.appendChild(selectedMessageContainer);
+  } else {
+    selectedMessageContainer.innerHTML = '';
+  }
+
+  selectedMessageContainer.style.position = 'absolute';
+  selectedMessageContainer.style.top = `${messageRect.top - chatRect.top}px`;
+  selectedMessageContainer.style.left = `${leftPosition}px`;
+
+  selectedMessageContainer.appendChild(clonedMessageContainer);
+
+  document.addEventListener('click', (event) => {
+    if (!messageMenu.contains(event.target) && !selectedMessageContainer.contains(event.target)) {
+      closeMessageMenu();
+    }
+  });
+}
+
+function closeMessageMenu() {
+  const messageMenu = document.getElementById('messageMenu');
+  messageMenu.style.display = 'none';
+
+  const chat = document.getElementById('chat');
+  chat.classList.remove('blur');
+
+  const selectedMessageContainer = document.querySelector('.selected-message-container');
+  if (selectedMessageContainer) {
+    selectedMessageContainer.remove();
+  }
+
+  document.removeEventListener('click', closeMessageMenu);
+}
+
+document.getElementById("pinMessage").addEventListener("click", () => {
+  const id = selectedMessageContainer.dataset.id;
+  const timestamp = selectedMessageContainer.dataset.timestamp;
+  if (selectedMessageContainer) {
+    console.log("Pinning message:", id, timestamp);
+    closeMessageMenu();
+  }
+});
+
+document.getElementById("deleteMessage").addEventListener("click", () => {
+  if (selectedMessageContainer) {
+    const id = selectedMessageContainer.dataset.id;
+    const timestamp = selectedMessageContainer.dataset.timestamp;
+    const originalUsername = selectedMessageContainer.dataset.username;
+    const currentUser = sessionStorage.getItem("username");
+    const role = sessionStorage.getItem("role"); // Retrieve the user's role
+    const isMessageOwner = originalUsername === currentUser || selectedMessageContainer.classList.contains("you");
+
+    if (isMessageOwner || role === "admin") {
+      const messageText = selectedMessageContainer.querySelector('.message-bubble').childNodes[0].nodeValue.trim();
+      if (confirm(`Delete message: "${messageText}"?`)) {
+        ws.send(JSON.stringify({ type: "delete", id, timestamp }));
+        selectedMessageContainer.remove();
+        selectedMessageContainer = null;
+        closeMessageMenu();
+      }
+    } else {
+      alert("You can only delete your own messages.");
+    }
+  } else {
+    alert("No message selected for deletion.");
+  }
+});
+
+chat.addEventListener("click", (event) => {
+  const messageBubble = event.target.closest(".message-bubble");
+  if (messageBubble) {
+    event.stopPropagation();
+    selectedMessage = messageBubble;
+    openMessageMenu(selectedMessage, event);
+  }
+});
 
 // Ensure the sticky date container is created and added to DOM
 function setupStickyDateContainer() {
@@ -315,6 +417,70 @@ function updateOnlineUsers(users) {
   statusDiv.textContent = `-- Online: ${users.join(", ")} --`;
 }
 
+const alwaysOnCheckbox = document.getElementById("alwaysOnCheckbox");
+const statusText = document.getElementById("statusText");
+
+function updateStatusText() {
+  if (alwaysOnCheckbox.checked) {
+    statusText.textContent = "Always Connected";
+    statusText.classList.add("fade-in");
+  } else {
+    statusText.textContent = "Disconnect after Inactivity";
+    statusText.classList.add("fade-in");
+  }
+  setTimeout(() => {
+    statusText.classList.remove("fade-in");
+  }, 2000);
+}
+
+// Add event listener for the checkbox
+alwaysOnCheckbox.addEventListener("change", updateStatusText);
+
+
+const PING_INTERVAL = 150000; // 2.5 min.
+const PONG_TIMEOUT = 10000; // 10 seconds
+
+let pingInterval; // For ping intervals
+let pongTimeout; // For pong timeout
+
+function startPing() {
+  if (alwaysOnCheckbox.checked) {
+    pingInterval = setInterval(() => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        if (alwaysOnCheckbox.checked) {
+          ws.send(JSON.stringify({ type: "ping" }));
+          startPongTimeout();
+        }
+      } else {
+        if (alwaysOnCheckbox.checked) {
+        console.warn("WebSocket is not open. Current state:", ws.readyState);
+        reconnect();
+        }
+      }
+    }, PING_INTERVAL);
+  }
+}
+
+function startPongTimeout() {
+  clearTimeout(pongTimeout);
+  pongTimeout = setTimeout(() => {
+    console.warn("No pong received. Attempting to reconnect...");
+    reconnect();
+  }, PONG_TIMEOUT);
+}
+
+function stopPing() {
+  clearInterval(pingInterval);
+  clearTimeout(pongTimeout);
+}
+
+function reconnect() {
+  if (ws) {
+    ws.close();
+  }
+  join(); // Call join to reconnect
+}
+
 function join () {
   if (ws) {
     ws.close();
@@ -327,9 +493,13 @@ function join () {
   ws.onopen = () => {
     console.log("Connected to the server");
     ws.send(
-      JSON.stringify({ type: "join", lobby: currentLobby, username: username })
+      JSON.stringify({ type: "join", lobby: currentLobby, username: username, role: role })
     );
     chat.innerHTML = "";
+    
+    if (alwaysOnCheckbox.checked) {
+      startPing();
+    }
   };
 
   ws.onerror = (error) => {
@@ -339,10 +509,25 @@ function join () {
 
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
+    
+    if (data.type === "pong") {
+      clearTimeout(pongTimeout); // Clear pong timeout on receiving pong
+      if (alwaysOnCheckbox.checked) {
+      startPing();
+    }
+    }
+    else if (data.type === 'ROLE_CHANGE') {
+      const { username, role } = data;
 
-    if (data.type === "banned") {
-      alert("You have been banned. Redirecting to login...");
-      window.location.href = "/login.html"; // Redirect to login page
+      // Update sessionStorage for the specific user
+      sessionStorage.setItem(`role`, role);
+      
+      if (role === 'banned') {
+          window.location.href = "/banned.html";
+      }
+
+      // Optional: Log to confirm the change
+      console.log(`Role of ${username} changed to ${role}`);
     } else if (data.type === "delete") {
       const messageDiv = chat.querySelector(
         `div[data-id="${data.id}"][data-timestamp="${data.timestamp}"]`
@@ -362,7 +547,7 @@ function join () {
         username: "System",
         timestamp: new Date().toISOString(),
         message: "Chat has been cleared by the admin.",
-      });     
+      });
     } else {
       appendMessage(data);
     }
@@ -371,7 +556,8 @@ function join () {
   ws.onclose = () => {
     console.log("Connection closed");
     statusDiv.textContent = "Connection closed.";
-  };
+    clearInterval(pingInterval); // Clear ping interval on close
+  }
 
   console.log(`Joined lobby: ${currentLobby} as ${username}`);
 };
@@ -388,19 +574,30 @@ lobbySelect.addEventListener("change", (event) => {
   console.log(`Selected lobby: ${currentLobby}`);
 });
 
+alwaysOnCheckbox.addEventListener("change", () => {
+  clearInterval(pingInterval); // Clear existing interval
+  if (alwaysOnCheckbox.checked) {
+    startPing(); // Restart ping if "Always On" is checked
+  } else {
+    stopPing();
+  }
+});
+
 document.querySelectorAll('.lobby-option').forEach(link => {
     link.addEventListener('click', function(event) {
         event.preventDefault(); // Prevent default anchor behavior
-
-        // Get the lobby name from the clicked link's data-lobby attribute
         const lobbyName = this.getAttribute("data-lobby");
+      
+        if (lobbyName !== currentLobby) {
         
         // Update currentLobby to the new lobby name
         currentLobby = lobbyName; 
         
         // Call the join function with the updated lobby name
         join();
-        document.querySelector('input[type="checkbox"]').checked = false;
+        document.getElementById('burger').checked = false;
+        }
+      else {console.log ("Already connected to this lobby!")}
     });
 });
 
@@ -408,13 +605,10 @@ document.querySelectorAll('#statuslobby').forEach(link => {
     link.addEventListener('click', function(event) {
         event.preventDefault(); 
       
-        currentLobby 
-        
-        join();
+        reconnect();
     });
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   join();
 });
-

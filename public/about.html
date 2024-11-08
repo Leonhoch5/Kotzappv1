@@ -42,6 +42,24 @@
       a:hover {
         text-decoration: underline;
       }
+      .material-icons {
+        font-size: 28px;
+        transition: color 0.3s;
+      }
+      .material-icons:hover {
+        color: #25d366;
+      }
+      
+      .copyright {
+        font-size: 14px;
+        max-height: 30px;
+        line-height: 30px;
+        color: #fff;
+        text-align: center;
+        width: 100%;
+        margin-top: 30px;
+        bottom: 0;
+      }
     </style>
   </head>
   <body>
@@ -73,7 +91,7 @@
         <li>Responsive design for mobile and desktop</li>
       </ul>
       <h3>Credits:</h3>
-      <p>Developed by Nico, Maximilian, David and Leon (Team Loewenrot).</p>
+      <p>Developed by Nico, Maximilian and Leon (Team Loewenrot).</p>
       <p>
         For more information, visit our
         <a href="https://github.com/Team-Loewenrot/" target="_blank">GitHub</a>.
@@ -81,7 +99,9 @@
       <p><a href="index.html">Back to Home</a></p>
     </div>
 
+    <div class="copyright">Copyright © Kotzapp 2024</div>
     <script>
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
       if (!sessionStorage.getItem("loggedIn")) {
         window.location.href = "/login.html";
       }
@@ -89,7 +109,14 @@
       window.onload = () => {
         if (!sessionStorage.getItem("loggedIn")) {
           sessionStorage.setItem("loggedIn", "true");
-        }}
+        }
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === 'banned') {
+          window.location.href = "/banned.html";
+      }
+      };if (role === 'banned') {
+          window.location.href = "/banned.html";
+      }
       document
         .getElementById("backBtn")
         .addEventListener("click", function (event) {

@@ -85,7 +85,7 @@
       }
       #clear-chat-status,
       #kick-user-status,
-      #ban-user-status,
+      #make-admin-status,
       #delete-user-status {
         color: #2ecc71;
       }
@@ -105,6 +105,49 @@
         position: fixed; /* Make squares absolute for random placement */
         animation: spin 3s linear infinite;
       }
+
+      .message-menu {
+        position: absolute;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        z-index: 1000;
+        white-space: nowrap;
+      }
+
+      .menu-option {
+        border-radius: 5px;
+        color: #2ecc71;
+      }
+
+      .message-menu .menu-option {
+        padding: 6px 9px;
+        cursor: pointer;
+      }
+
+      #banUserAdmin,
+      #clearHistory {
+        color: #ff8800;
+      }
+
+      #deleteUser,
+      #closeLobby {
+        color: #e41c0c;
+      }
+      
+      .role-separator {
+        color: #666; 
+        font-weight: bold;
+        text-align: center;
+        padding: 11px 0 11px 0;
+      }
+
+      .message-menu .menu-option:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -134,14 +177,21 @@
     <script src="admin.js" defer></script>
   </head>
   <body>
-    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+    <a
+      href="/index.html"
+      style="position: absolute; color: white; z-index: 100000000"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; right: 0; margin: 20px"
         >home</span
       >
     </a>
-    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+    <a
+      href="#"
+      style="position: absolute; color: white; z-index: 100000000"
+      id="backBtn"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; left: 0; margin: 20px"
@@ -151,47 +201,23 @@
 
     <div class="container">
       <h1>Admin Panel</h1>
-      <p>Welcome to the admin page. Only root users can see this.</p>
+      <p>Welcome to the admin page. Only Admin users can see this.</p>
 
       <h2>Fetch All Users</h2>
       <button id="fetch-users">Fetch All Users</button>
       <ul id="user-list"></ul>
+      <div id="messageMenu" class="message-menu">
+        <div class="menu-option" id="makeAdmin">Make Admin</div>
+        <div class="menu-option" id="makeUser">Make User</div>
+        <div class="menu-option" id="banUserAdmin">Ban User/Admin</div>
+        <div class="menu-option" id="deleteUser">Delete User/Admin</div>
+        <!-- Add other options here -->
+      </div>
 
-      <h2>Delete a User</h2>
-      <input
-        type="text"
-        id="delete-username"
-        placeholder="Enter username to delete"
-      />
-            <button id="delete-user">Delete User</button>
-      <p id="delete-user-status"></p>
-      <h2>Make a User Admin</h2>
-      <input
-        type="text"
-        id="make-admin-username"
-        placeholder="Enter username to make admin"
-      />
-      <button id="make-admin">Make Admin</button>
-      <p id="make-admin-status"></p>
-
-
-      <h2>Ban a User</h2>
-      <input
-        type="text"
-        id="ban-username"
-        placeholder="Enter username to ban"
-      />
-      <button id="ban-user">Ban User</button>
-      <p id="ban-user-status"></p>
-
-      <h2>Clear Chat History</h2>
-      <input
-        type="text"
-        id="clear-lobby"
-        placeholder="Enter lobby name to clear"
-      />
-      <button id="clear-chat">Clear Chat</button>
-      <p id="clear-chat-status"></p>
+      <div id="lobbyMenu" class="message-menu">
+        <div class="menu-option" id="clearHistory">Clear History</div>
+        <div class="menu-option" id="closeLobby">Close Lobby</div>
+      </div>
 
       <h2>Active Lobbies</h2>
       <button id="view-lobbies">View Active Lobbies</button>
@@ -204,10 +230,9 @@
         placeholder="Enter username to kick"
       />
       <input type="text" id="kick-lobby" placeholder="Enter lobby name" />
-      <button id="kick-user">Kick User</button>
+      <button id="kick-user" type="submit">Kick User</button>
       <p id="kick-user-status"></p>
     </div>
-
     <script>
       const numberOfSquares = 30; // Total number of squares
       const squares = [];
@@ -242,6 +267,10 @@
       // Check if the user is logged in
       if (!sessionStorage.getItem("loggedIn")) {
         window.location.href = "/login.html";
+      }
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+      if (role === "banned") {
+        window.location.href = "/banned.html";
       }
 
       document

@@ -207,6 +207,14 @@
     </div>
 
     <script>
+      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+      window.onload = () => {
+        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === 'banned') {
+          window.location.href = "/banned.html";
+      }
+      }
+      
       const scrollingLine = document.getElementById("scrollingLine");
 
       function createSquares() {
@@ -243,7 +251,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password}),
+            body: JSON.stringify({ username, password }),
           });
 
           const result = await response.json();
@@ -252,6 +260,7 @@
             // Store the username and login status
             sessionStorage.setItem("loggedIn", "true");
             sessionStorage.setItem("username", username);
+            sessionStorage.setItem("role", result.role); 
             window.location.href = "/index.html";
           } else {
             alert("Invalid username or password");

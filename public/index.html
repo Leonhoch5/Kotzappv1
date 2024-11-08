@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Application</title>
     <link
       rel="icon"
@@ -17,7 +18,7 @@
   </head>
   <body>
     <div id="tooltip" class="tooltip"></div>
-    <!-- Navbar Section with Lobby Selection -->
+    <!-- Navbar Section -->
     <nav>
       <ul>
         <p id="clock" data-tooltip="Current Time"></p>
@@ -35,7 +36,12 @@
           >
             <span class="material-symbols-outlined">sports_esports</span>
           </a>
-          <a href="admin.html" class="icon" id="adminLink" data-tooltip="Admin">
+          <a
+            href="admin.html"
+            id="adminLink"
+            class="icon adminLink"
+            data-tooltip="Admin"
+          >
             <span class="material-symbols-outlined">manage_accounts</span>
           </a>
           <a href="weather.html" class="icon" data-tooltip="Weather">
@@ -51,53 +57,139 @@
         <p id="count" data-tooltip="Time till 16:00">XXh XXm XXs</p>
       </ul>
     </nav>
+    <div id="mobile-nav">
+      <button id="menuButton" class="menu-button" onclick="toggleMobileMenu()">
+        MENU
+      </button>
+    </div>
+
+    <div class="mobile-menu">
+      <a href="profile.html" class="icon icon-mobile" data-tooltip="Profile">
+        <span class="material-symbols-outlined">person</span>
+        <div style="margin: 10px">Profile</div>
+      </a>
+      <a href="settings.html" class="icon icon-mobile" data-tooltip="Settings">
+        <span class="material-symbols-outlined">settings</span>
+        <div style="margin: 10px">Settings</div>
+      </a>
+      <a
+        href="https://games-hub.glitch.me/"
+        class="icon icon-mobile"
+        data-tooltip="Games"
+      >
+        <span class="material-symbols-outlined">sports_esports</span>
+        <div style="margin: 10px">Games</div>
+      </a>
+      <a
+        href="admin.html"
+        id="adminLinkMobile"
+        class="icon adminLink icon-mobile"
+        data-tooltip="Admin"
+      >
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <div style="margin: 10px">Admin</div>
+      </a>
+      <a href="weather.html" class="icon icon-mobile" data-tooltip="Weather">
+        <span class="material-symbols-outlined">rainy</span>
+        <div style="margin: 10px">Weather</div>
+      </a>
+      <a href="about.html" class="icon icon-mobile" data-tooltip="About">
+        <span class="material-symbols-outlined">info</span>
+        <div style="margin: 10px">About</div>
+      </a>
+      <a href="login.html" class="icon icon-mobile" data-tooltip="Logout">
+        <span class="material-symbols-outlined">logout</span>
+        <div style="margin: 10px">Logout</div>
+      </a>
+    </div>
 
     <div id="statuslobby" data-tooltip="Rejoin?"></div>
     <div id="status" data-tooltip="Online Users"></div>
 
     <!-- Chat Area -->
-
-    <div id="chat-container">
-      <input id="burger" type="checkbox" style="display: none" />
-
-      <label for="burger">
-        <div id="span-container" data-tooltip="Lobbys">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </label>
-
-      <div id="lobby-selection" class="lobby-selection">
-        <ul>
-          <li>
-            <a href="#" class="lobby-option" data-lobby="lobby 1" data-tooltip="Lobby 1">Lobby 1</a>
-          </li>
-          <li>
-            <a href="#" class="lobby-option" data-lobby="lobby 2" data-tooltip="Lobby 2">Lobby 2</a>
-          </li>
-          <li>
-            <a href="#" class="lobby-option" data-lobby="lobby 3" data-tooltip="Lobby 3">Lobby 3</a>
-          </li>
-          <li>
-            <a href="#" class="lobby-option" data-lobby="Programming" data-tooltip="Programming">Programming</a>
-          </li>
-        </ul>
+    <div id="main-container">
+      <div class="toggle-switch">
+        <input type="checkbox" id="alwaysOnCheckbox" class="toggle-checkbox" />
+        <label for="alwaysOnCheckbox" class="toggle-label"></label>
       </div>
-      <div id="chat"></div>
+      <div id="statusText"></div>
+
+      <div id="chat-container">
+        <input id="burger" type="checkbox" style="display: none" />
+
+        <label for="burger">
+          <div id="span-container" data-tooltip="Lobbys">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </label>
+
+        <div id="lobby-selection" class="lobby-selection">
+          <ul id="lobby-list">
+            <li>
+              <a
+                href="#"
+                class="lobby-option"
+                data-lobby="lobby 1"
+                data-tooltip="Lobby 1"
+                >Lobby 1</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="lobby-option"
+                data-lobby="lobby 2"
+                data-tooltip="Lobby 2"
+                >Lobby 2</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="lobby-option"
+                data-lobby="lobby 3"
+                data-tooltip="Lobby 3"
+                >Lobby 3</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="lobby-option"
+                data-lobby="Programming"
+                data-tooltip="Programming"
+                >Programming</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div id="chat"></div>
+        <div id="messageMenu" class="message-menu">
+          <div class="menu-option" id="pinMessage">Pin Message</div>
+          <div class="menu-option" id="deleteMessage">Delete Message</div>
+          <!-- Add other options here -->
+        </div>
+        <div class="selected-message-container"></div>
+      </div>
     </div>
 
     <div id="MessageSend">
-      <input id="message" type="text" placeholder="Enter message" />
-      <button type="button" id="send" style="margin: 5px">Send</button>
-
-      <input
+            <input
         type="file"
         id="imageInput"
         accept="image/*"
         style="display: none"
       />
-      <button id="sendImage" style="margin: 5px">Send Image</button>
+      <button type="button" id="sendImage" style="margin: 5px">
+        <span class="material-symbols-outlined"> attach_file </span>
+      </button>
+      
+      <input id="message" type="text" placeholder="Enter message" />
+      <button type="button" id="send" style="margin: 5px">
+        <span class="material-symbols-outlined"> send </span>
+      </button>
     </div>
 
     <script>
@@ -112,12 +204,16 @@
 
         // Check for admin privileges
         const adminLink = document.getElementById("adminLink");
-        const username = sessionStorage.getItem("username");
-        if (username !== "root") {
-          adminLink.style.display = "none"; // Hide the admin link if username is root
+        const adminLinkMobile = document.getElementById("adminLinkMobile");
+        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === "banned") {
+          window.location.href = "/banned.html";
+        }
+        if (role !== "admin") {
+          adminLink.style.display = "none"; // Hide the admin link if role is not admin
+          adminLinkMobile.style.display = "none"; // Hide the admin link if role is not admin
         }
       };
-
       // Theme Management
       const theme = sessionStorage.getItem("theme"); // Default to DarkMode
       applyTheme(theme);
@@ -185,7 +281,7 @@
       status.addEventListener("mouseleave", () => {
         tooltip.style.display = "none"; // Hide the tooltip when not hovering
       });
-      
+
       const clock = document.getElementById("clock");
       clock.addEventListener("mouseenter", (event) => {
         const iconText = event.target.getAttribute("data-tooltip");
@@ -201,7 +297,7 @@
       clock.addEventListener("mouseleave", () => {
         tooltip.style.display = "none"; // Hide the tooltip when not hovering
       });
-      
+
       const count = document.getElementById("count");
       count.addEventListener("mouseenter", (event) => {
         const iconText = event.target.getAttribute("data-tooltip");
@@ -217,7 +313,7 @@
       count.addEventListener("mouseleave", () => {
         tooltip.style.display = "none"; // Hide the tooltip when not hovering
       });
-      
+
       const lobbyOption = document.querySelectorAll(".lobby-option");
 
       // Show tooltip and position it based on mouse movement for icons
@@ -237,7 +333,7 @@
           tooltip.style.display = "none"; // Hide the tooltip when not hovering
         });
       });
-      
+
       const Lobbys = document.getElementById("span-container");
       Lobbys.addEventListener("mouseenter", (event) => {
         const iconText = event.target.getAttribute("data-tooltip");
@@ -312,6 +408,24 @@
 
       // Start the countdown when the page loads
       startCountdown();
+    </script>
+    <script>
+      function toggleMobileMenu() {
+        const mobileMenu = document.querySelector(".mobile-menu");
+        const body = document.querySelector("body");
+
+        if (mobileMenu.classList.contains("show")) {
+          // Hide the menu with slide-up animation
+          mobileMenu.classList.remove("show");
+          mobileMenu.classList.add("hide");
+          body.style.overflow = "auto"; // Restore scroll
+        } else {
+          // Show the menu with slide-down animation
+          mobileMenu.classList.remove("hide");
+          mobileMenu.classList.add("show");
+          body.style.overflow = "hidden"; // Disable scroll
+        }
+      }
     </script>
     <script src="script.js" defer></script>
   </body>
