@@ -462,6 +462,9 @@ wss.on("connection", (ws) => {
           makeUser(args[1]);
         }
         break;
+      case "/close":
+          closeLobby(lobby);
+        break;
       case "/delete":
         if (args[1]) {
           const target = args[1];
@@ -486,7 +489,7 @@ wss.on("connection", (ws) => {
         `Chat history for lobby '${lobby}' has been cleared by Admin.`
       );
       // Broadcast clear message to all clients in the lobby
-      broadcastToLobby({ type: "clear" }, lobby);
+      broadcastToLobby({ type: "AdminClear" }, lobby);
     }
   }
 
@@ -906,6 +909,7 @@ app.post("/admin/clear-chat", (req, res) => {
   const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
 
   if (fs.existsSync(chatHistoryFile)) {
+    broadcastToLobby({ type: "clear" }, lobby);
     fs.unlinkSync(chatHistoryFile); // Remove the chat history file
     res.json({
       success: true,
@@ -979,21 +983,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

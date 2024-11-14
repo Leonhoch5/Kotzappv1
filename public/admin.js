@@ -73,90 +73,100 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const updateUserRole = (url, successMessage) => {
-    const targetUsername = selectedUserElement.dataset.username;
-    fetch(url, {
+  const targetUsername = selectedUserElement.dataset.username;
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: targetUsername }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        alert(`Error: ${data.message}`);
+      }
+      fetchUsers(); 
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("An error occurred while processing the request.");
+    });
+  closeUserMenu();
+};
+
+document.getElementById("makeAdmin").addEventListener("click", () => {
+  if (window.confirm(`Are you sure you want to make ${selectedUserElement.dataset.username} an Admin?`)) {
+    updateUserRole(
+      "/admin/make-admin",
+      `${selectedUserElement.dataset.username} is now an admin.`
+    );
+  }
+});
+
+document.getElementById("makeUser").addEventListener("click", () => {
+  if (window.confirm(`Are you sure you want to make ${selectedUserElement.dataset.username} a User?`)) {
+    updateUserRole(
+      "/admin/make-user",
+      `${selectedUserElement.dataset.username} is now a user.`
+    );
+  }
+});
+
+document.getElementById("banUserAdmin").addEventListener("click", () => {
+  if (window.confirm(`Are you sure you want to ban ${selectedUserElement.dataset.username}?`)) {
+    updateUserRole(
+      "/admin/ban-user",
+      `${selectedUserElement.dataset.username} has been banned.`
+    );
+  }
+});
+
+document.getElementById("deleteUser").addEventListener("click", () => {
+  const targetUsername = selectedUserElement.dataset.username;
+  if (window.confirm(`Are you sure you want to delete ${targetUsername}?`)) {
+    fetch("/admin/delete-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: targetUsername }),
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(data.success ? successMessage : `Error: ${data.message}`);
-        fetchUsers(); 
+        if (data.success) {
+          console.log(`${targetUsername} has been deleted.`);
+          selectedUserElement.remove(); 
+        } else {
+          console.error(`Error: ${data.message}`);
+        }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error("Error deleting user:", error));
     closeUserMenu();
-  };
-
-  document.getElementById("makeAdmin").addEventListener("click", () => {
-    updateUserRole(
-      "/admin/make-admin",
-      `${selectedUserElement.dataset.username} is now an admin.`
-    );
-  });
-
-  document.getElementById("makeUser").addEventListener("click", () => {
-    updateUserRole(
-      "/admin/make-user",
-      `${selectedUserElement.dataset.username} is now a user.`
-    );
-  });
-
-  document.getElementById("banUserAdmin").addEventListener("click", () => {
-    updateUserRole(
-      "/admin/ban-user",
-      `${selectedUserElement.dataset.username} has been banned.`
-    );
-  });
-
-  document.getElementById("deleteUser").addEventListener("click", () => {
-    const targetUsername = selectedUserElement.dataset.username;
-    if (confirm(`Are you sure you want to delete ${targetUsername}?`)) {
-      fetch("/admin/delete-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: targetUsername }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log(`${targetUsername} has been deleted.`);
-            selectedUserElement.remove(); 
-          } else {
-            alert(`Error: ${data.message}`);
-          }
-        })
-        .catch((error) => console.error("Error deleting user:", error));
-
-      closeUserMenu();
-    }
-  });
+  }
+});
 
 const openLobbyMenu = (lobbyElement, lobbyName) => {
-    const lobbyMenu = document.getElementById("lobbyMenu");
-    selectedLobbyElement = lobbyElement;
-    const rect = lobbyElement.getBoundingClientRect();
+  const lobbyMenu = document.getElementById("lobbyMenu");
+  selectedLobbyElement = lobbyElement;
+  const rect = lobbyElement.getBoundingClientRect();
 
-    lobbyMenu.style.position = "fixed";
-    lobbyMenu.style.top = `${rect.bottom}px`;
-    lobbyMenu.style.left = `${rect.left}px`;
-    lobbyMenu.style.display = "block";
+  lobbyMenu.style.position = "fixed";
+  lobbyMenu.style.top = `${rect.bottom}px`;
+  lobbyMenu.style.left = `${rect.left}px`;
+  lobbyMenu.style.display = "block";
 
+  document.removeEventListener("click", closeLobbyMenu);
+  document.addEventListener("click", closeLobbyMenu);
+};
+
+const closeLobbyMenu = (event) => {
+  const lobbyMenu = document.getElementById("lobbyMenu");
+  if (!lobbyMenu.contains(event?.target)) {
+    lobbyMenu.style.display = "none";
     document.removeEventListener("click", closeLobbyMenu);
-    document.addEventListener("click", closeLobbyMenu);
-  };
+  }
+};
 
-  const closeLobbyMenu = (event) => {
-    const lobbyMenu = document.getElementById("lobbyMenu");
-    if (!lobbyMenu.contains(event?.target)) {
-      lobbyMenu.style.display = "none";
-      document.removeEventListener("click", closeLobbyMenu);
-    }
-  };
-
-  // Clear History functionality
-  document.getElementById("clearHistory").addEventListener("click", () => {
-    const lobbyName = selectedLobbyElement.textContent;
+document.getElementById("clearHistory").addEventListener("click", () => {
+  const lobbyName = selectedLobbyElement.textContent;
+  if (window.confirm(`Are you sure you want to clear the chat history for lobby '${lobbyName}'?`)) {
     fetch("/admin/clear-chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -164,36 +174,35 @@ const openLobbyMenu = (lobbyElement, lobbyName) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(
-          data.success
-            ? `Chat history cleared for lobby '${lobbyName}'.`
-            : `Error: ${data.message}`
-        );
+        if (!data.success) {
+          console.error(`Error: ${data.message}`);
+        }
       })
       .catch((error) => console.error("Error:", error));
     closeLobbyMenu();
-  });
+  }
+});
 
 document.getElementById("closeLobby").addEventListener("click", () => {
   const lobbyName = selectedLobbyElement.textContent;
-  fetch("/admin/close-lobby", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lobby: lobbyName }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      alert(
-        data.success
-          ? `Lobby '${lobbyName}' has been closed.`
-          : `Error: ${data.message}`
-      );
-      if (data.success) {
-        selectedLobbyElement.remove(); 
-      }
+  if (window.confirm(`Are you sure you want to close the lobby '${lobbyName}'?`)) {
+    fetch("/admin/close-lobby", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lobby: lobbyName }),
     })
-    .catch((error) => console.error("Error:", error));
-  closeLobbyMenu();
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.success) {
+          console.error(`Error: ${data.message}`);
+        }
+        if (data.success) {
+          selectedLobbyElement.remove();
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+    closeLobbyMenu();
+  }
 });
 
   document.getElementById("view-lobbies").addEventListener("click", () => {

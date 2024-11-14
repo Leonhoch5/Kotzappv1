@@ -49,7 +49,7 @@
       .material-icons:hover {
         color: #25d366;
       }
-      
+
       .copyright {
         font-size: 14px;
         max-height: 30px;
@@ -63,14 +63,21 @@
     </style>
   </head>
   <body>
-    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+    <a
+      href="/index.html"
+      style="position: absolute; color: white; z-index: 100000000"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; right: 0; margin: 20px"
         >home</span
       >
     </a>
-    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+    <a
+      href="#"
+      style="position: absolute; color: white; z-index: 100000000"
+      id="backBtn"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; left: 0; margin: 20px"
@@ -96,6 +103,12 @@
         For more information, visit our
         <a href="https://github.com/Team-Loewenrot/" target="_blank">GitHub</a>.
       </p>
+      <p>
+        Or ask to our E-mail:
+        <a href="kotzapp@outlook.com" onclick="copyURI(event)"
+          >kotzapp@outlook.com</a
+        >
+      </p>
       <p><a href="index.html">Back to Home</a></p>
     </div>
 
@@ -110,12 +123,13 @@
         if (!sessionStorage.getItem("loggedIn")) {
           sessionStorage.setItem("loggedIn", "true");
         }
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-        if (role === 'banned') {
+        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+        if (role === "banned") {
           window.location.href = "/banned.html";
-      }
-      };if (role === 'banned') {
-          window.location.href = "/banned.html";
+        }
+      };
+      if (role === "banned") {
+        window.location.href = "/banned.html";
       }
       document
         .getElementById("backBtn")
@@ -123,6 +137,18 @@
           event.preventDefault(); // Prevent the default anchor behavior
           window.history.back(); // Go back to the last visited page
         });
+
+      function copyURI(evt) {
+        evt.preventDefault();
+        navigator.clipboard.writeText(evt.target.getAttribute("href")).then(
+          () => {
+            alert("E-Mail copied!");
+          },
+          () => {
+            alert("Failed to copy E-Mail :(");
+          }
+        );
+      }
     </script>
   </body>
 </html>

@@ -111,13 +111,11 @@ input[type="text"]:focus {
   height: 100%;
   border: 1px solid #555;
   border-radius: 20px;
-  background-image: url("https://4kwallpapers.com/images/wallpapers/desert-doom-sand-dunes-dark-background-monochrome-landscape-3840x2160-6409.jpg");
   background-size: cover;
   background-position: center; /* Center the background image */
   background-repeat: no-repeat;
   overflow-y: auto;
-  padding: 10px 5px 10px 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 10px;
   display: flex;
   flex-direction: column-reverse;
   align-items: stretch; /* Allow messages to take full width */
@@ -200,7 +198,7 @@ input[type="text"]:focus {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
-  z-index: 1000;
+  z-index: 11;
   margin-top: 5px;
   white-space: nowrap;
 }
@@ -343,7 +341,6 @@ input[type="text"]:focus {
   padding: 0;
   margin: 0;
   max-width: 40px;
-  flex: 1;
 }
 
 #sendImage {
@@ -355,7 +352,6 @@ input[type="text"]:focus {
   padding: 0;
   margin: 0;
   max-width: 40px;
-  flex: 1;
 }
 
 nav {
@@ -369,7 +365,7 @@ nav {
   border-radius: 20px;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 12;
 }
 
 nav ul {
@@ -472,7 +468,7 @@ nav ul li select:hover {
   position: absolute;
   width: 19px;
   height: 18px;
-  z-index: 20;
+  z-index: 15;
   align-self: flex-end;
   transform: translate(-30px, 10px);
 }
@@ -653,7 +649,7 @@ input:checked ~ .lobby-selection > ul > li {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
   transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Add transitions for effects */
   display: none; /* Hide button by default */
-  z-index: 100000;
+  z-index: 20;
 }
 
 #menuButton:hover {
@@ -671,7 +667,7 @@ input:checked ~ .lobby-selection > ul > li {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
-  z-index: 100; /* Ensure it appears above other elements */
+  z-index: 19; /* Ensure it appears above other elements */
   flex-direction: column;
   align-items: center; /* Center the icons horizontally */
   justify-content: center; /* Center the icons vertically */
@@ -733,7 +729,7 @@ input:checked ~ .lobby-selection > ul > li {
   border-radius: 20px;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1000000000000000000000000000;
 }
 
 /* Scrollbar Styling */
@@ -757,15 +753,7 @@ body::-webkit-scrollbar-thumb:hover {
 /* Scrollbar Styling */
 #chat::-webkit-scrollbar {
   width: 10px;
-}
-
-#chat::-webkit-scrollbar-track {
-  background: none;
-}
-
-#chat::-webkit-scrollbar-thumb {
-  background: darkgray;
-  border-radius: 50px;
+  display: none;
 }
 
 @-moz-document url-prefix() {
@@ -790,7 +778,10 @@ body::-webkit-scrollbar-thumb:hover {
 
   #send {
     width: 100%;
-    margin-top: 10px;
+  }
+  
+  #sendImage {
+    width: 100%;
   }
 
   input[type="text"],
@@ -826,9 +817,4 @@ body::-webkit-scrollbar-thumb:hover {
     margin-left: 10px; /* Add margin for spacing */
     margin-right: 10px; /* Add margin for spacing */
   }
-}
-
-.light-mode {
-  background-color: #f0f0f0;
-  color: #000;
 }

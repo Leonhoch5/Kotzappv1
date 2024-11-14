@@ -15,6 +15,75 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
     />
+    <style>
+      #leftPanel {
+        display: none;
+        position: absolute; /* or relative if contained in a specific element */
+        top: 85px; /* Adjust based on desired alignment */
+        left: 20px; /* Adjust to align with your layout */
+        max-width: 410px;
+        min-width: 200px;
+        width: 15%; /* Set appropriate width */
+        height: 90%; /* Set appropriate height */
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.2
+        ); /* Semi-transparent dark background */
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        font-size: 14px;
+        z-index: 10000;
+      }
+
+      .settings-container {
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: #2e2e2e; /* Dark Mode */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .input-group {
+        margin-bottom: 30px;
+      }
+      .input-group select {
+        width: 100%;
+        padding: 10px;
+        background-color: #333;
+        border: 1px solid #4d4d4d;
+        border-radius: 5px;
+        color: #fff;
+      }
+      .submit-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #00b300;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .submit-btn:hover {
+        background-color: #009900;
+      }
+      /* Light Mode Styles */
+      .light-mode {
+        background-color: #f0f0f0;
+        color: #000;
+      }
+      .light-mode .settings-container {
+        background-color: #ffffff;
+        color: #000;
+      }
+      #themesel {
+        font-weight: bolder;
+        text-size: 2em;
+      }
+    </style>
   </head>
   <body>
     <div id="tooltip" class="tooltip"></div>
@@ -26,7 +95,7 @@
           <a href="profile.html" class="icon" data-tooltip="Profile">
             <span class="material-symbols-outlined">person</span>
           </a>
-          <a href="settings.html" class="icon" data-tooltip="Settings">
+          <a href="#" class="settings icon" data-tooltip="Settings">
             <span class="material-symbols-outlined">settings</span>
           </a>
           <a
@@ -68,7 +137,7 @@
         <span class="material-symbols-outlined">person</span>
         <div style="margin: 10px">Profile</div>
       </a>
-      <a href="settings.html" class="icon icon-mobile" data-tooltip="Settings">
+      <a href="#" class="icon icon-mobile settings" data-tooltip="Settings">
         <span class="material-symbols-outlined">settings</span>
         <div style="margin: 10px">Settings</div>
       </a>
@@ -105,6 +174,26 @@
 
     <div id="statuslobby" data-tooltip="Rejoin?"></div>
     <div id="status" data-tooltip="Online Users"></div>
+
+    <div id="leftPanel">
+      <div class="settings-container">
+        <h2>Settings</h2>
+        <div class="input-group">
+          <label id="themesel">Theme:</label>
+          <select id="theme">
+            <option value="DarkMode">Dark Mode</option>
+            <option value="LightMode">Light Mode</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" id="notifications" />
+          <label for="notifications">Enable Notifications</label>
+        </div>
+        <button type="button" class="submit-btn" id="saveSettingsBtn">
+          Save Settings
+        </button>
+      </div>
+    </div>
 
     <!-- Chat Area -->
     <div id="main-container">
@@ -176,18 +265,18 @@
     </div>
 
     <div id="MessageSend">
-            <input
+      <input
         type="file"
         id="imageInput"
         accept="image/*"
         style="display: none"
       />
-      <button type="button" id="sendImage" style="margin: 5px">
+      <button type="button" id="sendImage">
         <span class="material-symbols-outlined"> attach_file </span>
       </button>
-      
+
       <input id="message" type="text" placeholder="Enter message" />
-      <button type="button" id="send" style="margin: 5px">
+      <button type="button" id="send">
         <span class="material-symbols-outlined"> send </span>
       </button>
     </div>
@@ -410,6 +499,7 @@
       startCountdown();
     </script>
     <script>
+      const MessageSend = document.querySelector(".MessageSend");
       function toggleMobileMenu() {
         const mobileMenu = document.querySelector(".mobile-menu");
         const body = document.querySelector("body");
@@ -428,5 +518,58 @@
       }
     </script>
     <script src="script.js" defer></script>
+    <script>
+      const settings = document.querySelector(".settings");
+
+      settings.addEventListener("click", () => {
+        leftPanel.style.display = "block";
+      });
+
+      const themeSelect = document.getElementById("theme");
+      const notificationsCheckbox = document.getElementById("notifications");
+      const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+
+      // Load saved settings
+      document.addEventListener("DOMContentLoaded", () => {
+        const theme = localStorage.getItem("theme") || "Dark-Mode";
+        const notifications = localStorage.getItem("notifications") === "true";
+
+        themeSelect.value = theme;
+        notificationsCheckbox.checked = notifications;
+
+        // Apply the saved theme
+        applyTheme(theme);
+      });
+
+      saveSettingsBtn.addEventListener("click", () => {
+        const selectedTheme = themeSelect.value;
+        const notificationsEnabled = notificationsCheckbox.checked;
+
+        // Save settings
+        localStorage.setItem("theme", selectedTheme);
+        localStorage.setItem("notifications", notificationsEnabled);
+
+        // Apply the selected theme
+        applyTheme(selectedTheme);
+
+        // Demonstrate notifications
+        if (notificationsEnabled) {
+          alert("Notifications are enabled!");
+        } else {
+        }
+
+        alert("Settings saved successfully!");
+
+        leftPanel.style.display = "none";
+      });
+
+      function applyTheme(theme) {
+        if (theme === "LightMode") {
+          document.body.classList.add("light-mode");
+        } else {
+          document.body.classList.remove("light-mode");
+        }
+      }
+    </script>
   </body>
 </html>

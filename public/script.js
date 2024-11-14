@@ -8,7 +8,9 @@ const statusDiv = document.getElementById("status");
 const statuslobbyDiv = document.getElementById("statuslobby");
 
 let ws;
-let currentLobby = document.getElementsByClassName("lobby-option")[0].getAttribute("data-lobby");
+let currentLobby = document
+  .getElementsByClassName("lobby-option")[0]
+  .getAttribute("data-lobby");
 
 // Retrieve username from sessionStorage
 let username = sessionStorage.getItem("username");
@@ -33,14 +35,114 @@ sendButton.onclick = () => {
           username: username,
           timestamp: timestamp,
           message: message,
+          lobby: currentLobby,
         })
       );
       messageInput.value = "";
     } else {
-      console.error("WebSocket is not open. Cannot send message.");
+      alert("Not connected. Cannot send message.");
     }
   }
 };
+
+function shuffle(array) {
+  let currentIndex = array.length;
+
+  while (currentIndex != 0) {
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+}
+
+let arr = [
+  "https://4kwallpapers.com/images/wallpapers/desert-doom-sand-dunes-dark-background-monochrome-landscape-3840x2160-6409.jpg",
+  "https://4kwallpapers.com/images/wallpapers/plant-leaves-macro-3840x2160-19158.jpg",
+  "https://4kwallpapers.com/images/wallpapers/snowy-mountains-3840x2160-19361.jpg",
+  "https://4kwallpapers.com/images/wallpapers/poland-landscape-3840x2160-19135.jpg",
+  "https://4kwallpapers.com/images/wallpapers/serene-lake-sunset-3840x2160-18728.jpg",
+  "https://4kwallpapers.com/images/wallpapers/butterfly-fairies-3840x2160-17273.jpg",
+  "https://4kwallpapers.com/images/wallpapers/spring-magical-3840x2160-16778.jpg",
+  "https://4kwallpapers.com/images/wallpapers/midnight-blue-3840x2160-16226.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mystical-foggy-3840x2160-12991.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunlight-bavarian-3840x2160-12679.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mountain-peak-alps-3840x2160-11501.jpg",
+  "https://4kwallpapers.com/images/wallpapers/forest-railway-3840x2160-10959.jpg",
+  "https://4kwallpapers.com/images/wallpapers/lake-forest-wilderness-pine-trees-cold-evening-3840x2160-1100.jpg",
+  "https://4kwallpapers.com/images/wallpapers/vestrahorn-mountain-3840x2160-16288.jpg",
+  "https://4kwallpapers.com/images/wallpapers/foggy-autumn-forest-3840x2160-16624.jpg",
+  "https://4kwallpapers.com/images/wallpapers/forest-path-white-3840x2160-16289.jpg",
+  "https://4kwallpapers.com/images/wallpapers/above-clouds-3840x2160-16072.jpg",
+  "https://4kwallpapers.com/images/wallpapers/waterfall-pink-3840x2160-15841.jpg",
+  "https://4kwallpapers.com/images/wallpapers/canadian-rockies-3840x2160-15823.jpg",
+  "https://4kwallpapers.com/images/wallpapers/uttakleiv-beach-3840x2160-15815.jpg",
+  "https://4kwallpapers.com/images/wallpapers/silhouette-3840x2160-15613.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mount-rainier-night-5120x3600-15487.jpg",
+  "https://4kwallpapers.com/images/wallpapers/thick-forest-5120x2880-14776.jpg",
+  "https://4kwallpapers.com/images/wallpapers/autumn-landscape-5120x3200-13484.jpg",
+  "https://4kwallpapers.com/images/wallpapers/aldeyjarfoss-5149x3436-13364.jpg",
+  "https://4kwallpapers.com/images/wallpapers/red-mountain-pass-5120x3834-13285.jpg",
+  "https://4kwallpapers.com/images/wallpapers/circle-light-5000x3750-13275.jpg",
+  "https://4kwallpapers.com/images/wallpapers/forest-walkway-6000x4000-13157.jpg",
+  "https://4kwallpapers.com/images/wallpapers/niagara-falls-6144x4096-13073.jpg",
+  "https://4kwallpapers.com/images/wallpapers/enchanting-autumn-7952x5304-12984.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunlight-bavarian-5472x3078-12679.jpg",
+  "https://4kwallpapers.com/images/wallpapers/fireflies-forest-8k-8064x5376-12527.jpg",
+  "https://4kwallpapers.com/images/wallpapers/bow-lake-canadian-3840x2160-12260.jpg",
+  "https://4kwallpapers.com/images/wallpapers/moon-aesthetic-6455x4142-12004.jpg",
+  "https://4kwallpapers.com/images/wallpapers/pragser-wildsee-5760x3840-11621.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mountain-peak-alps-7680x5120-11501.jpg",
+  "https://4kwallpapers.com/images/wallpapers/moon-mountains-9071x5669-11462.jpeg",
+  "https://4kwallpapers.com/images/wallpapers/mountains-milky-way-7680x4320-11448.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunset-underwater-9216x6144-11436.jpg",
+  "https://4kwallpapers.com/images/wallpapers/morning-sunrise-7680x4320-11431.jpg",
+  "https://4kwallpapers.com/images/wallpapers/heart-shaped-lake-5120x2880-11450.jpg",
+  "https://4kwallpapers.com/images/wallpapers/aurora-borealis-9216x6144-11435.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunset-arctic-7680x5120-11443.jpg",
+  "https://4kwallpapers.com/images/wallpapers/forest-autumn-fall-4368x2912-11210.jpg",
+  "https://4kwallpapers.com/images/wallpapers/beach-normandy-france-5k-5950x3967-11207.jpg",
+  "https://4kwallpapers.com/images/wallpapers/seascape-milky-way-3840x6771-11037.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunset-surreal-ufo-4829x3622-11031.png",
+  "https://4kwallpapers.com/images/wallpapers/mountain-peak-snow-7680x5353-10988.jpg",
+  "https://4kwallpapers.com/images/wallpapers/cold-blue-hour-6144x4101-11162.jpg",
+  "https://4kwallpapers.com/images/wallpapers/matterhorn-mountain-7680x5255-10965.jpg",
+  "https://4kwallpapers.com/images/wallpapers/scenery-body-of-7680x5122-11059.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mount-everest-6000x3375-11019.jpg",
+  "https://4kwallpapers.com/images/wallpapers/london-aesthetic-5120x3857-18772.jpeg",
+  "https://4kwallpapers.com/images/wallpapers/volcano-eruption-5120x3413-10957.jpg",
+  "https://4kwallpapers.com/images/wallpapers/futuristic-3d-5120x3413-13107.jpg",
+  "https://4kwallpapers.com/images/wallpapers/illuminated-luxury-white-background-3d-background-sci-fi-3840x2160-7624.jpg",
+  "https://4kwallpapers.com/images/wallpapers/cube-beach-surreal-sunset-moon-futuristic-digital-render-3d-3840x2400-6090.jpg",
+  "https://4kwallpapers.com/images/wallpapers/extraterrestrial-ocean-neon-sunlight-3840x2160-95.jpg",
+  "https://4kwallpapers.com/images/wallpapers/lost-in-space-404-5120x2880-18155.png",
+  "https://4kwallpapers.com/images/wallpapers/forest-pathway-5120x2880-10476.jpg",
+  "https://4kwallpapers.com/images/wallpapers/turku-cathedral-7007x3941-10144.jpg",
+  "https://4kwallpapers.com/images/wallpapers/moon-cold-night-3840x3268-10003.jpg", 
+  "https://4kwallpapers.com/images/wallpapers/svartifoss-5120x3108-9821.jpg",
+  "https://4kwallpapers.com/images/wallpapers/ural-mountains-5288x3025-9664.jpg",
+  "https://4kwallpapers.com/images/wallpapers/sunset-dusk-beach-seascape-7087x4724-9138.jpg",
+  "https://4kwallpapers.com/images/wallpapers/abraham-lake-alberta-canada-artificial-lake-sunset-glacial-5100x3400-8964.jpg",
+  "https://4kwallpapers.com/images/wallpapers/alien-pyramid-6146x7686-16012.jpg",
+  "https://4kwallpapers.com/images/wallpapers/dreamy-landscape-3840x2160-14973.jpg",
+  "https://4kwallpapers.com/images/wallpapers/mountains-green-3840x2160-12793.jpg",
+  "https://4kwallpapers.com/images/wallpapers/waterfalls-fog-light-birds-scenic-5k-8k-7087x4724-9076.jpg",
+  "https://4kwallpapers.com/images/wallpapers/lighthouse-sunset-seascape-dusk-clouds-sunlight-evening-sky-7087x4724-9064.jpg",
+  "https://4kwallpapers.com/images/wallpapers/hot-air-balloon-sunset-clouds-seascape-horizon-reflections-7087x4724-9001.jpg",
+  "https://4kwallpapers.com/images/wallpapers/seascape-waves-sunrays-5k-5710x3807-9016.jpg"
+];
+
+function changeBackground() {
+  shuffle(arr);
+  shuffle(arr);
+  shuffle(arr);
+  chat.style.backgroundImage = `url("${arr.at(Math.floor(Math.random() * arr.length))}")`;
+}
+
+changeBackground();
 
 function generateColor(username) {
   let hash = 0;
@@ -63,9 +165,9 @@ function formatDate(date) {
   yesterday.setDate(today.getDate() - 1);
 
   if (isNaN(date.getTime())) {
-    return null; 
+    return null;
   }
-  
+
   if (date.toDateString() === today.toDateString()) {
     return "Today";
   } else if (date.toDateString() === yesterday.toDateString()) {
@@ -81,23 +183,60 @@ function formatDate(date) {
 
 let lastMessageUsername = null;
 let selectedMessageContainer = null;
+let lobbyMessageData = {};
 
+function initializeLobbyData(lobbyName) {
+  if (lobbyName && !lobbyMessageData[lobbyName]) {
+    lobbyMessageData[lobbyName] = {
+      lastMessageDate: null,
+      lastMessageUsername: null,
+      lastMessageLobby: lobbyName,
+    };
+  }
+}
 
-function appendMessage({ id, username, timestamp, message, imageUrl }) {
+function appendMessage({
+  id,
+  username,
+  timestamp,
+  message,
+  imageUrl,
+  lobbyName,
+}) {
+  let lobby = lobbyName || currentLobby;
+
+  if (!lobby) {
+    console.error("No lobby passed to appendMessage function!");
+    return;
+  }
+
+  // Ensure lobby data is initialized
+  initializeLobbyData(lobby);
+
   const messageDate = new Date(timestamp);
   const formattedDate = formatDate(messageDate);
+  const lobbyData = lobbyMessageData[lobby];
 
+  // Mark this message as the first after joining the lobby
+  if (lobbyData.isFirstMessageAfterJoin === undefined) {
+    lobbyData.isFirstMessageAfterJoin = true;
+  }
+
+  // Check if we need to add a new date separator (only for the current lobby)
   if (
-    !lastMessageDate ||
-    lastMessageDate.toDateString() !== messageDate.toDateString()
+    !lobbyData.lastMessageDate ||
+    lobbyData.lastMessageDate.toDateString() !== messageDate.toDateString()
   ) {
     const dateSeparator = document.createElement("div");
     dateSeparator.setAttribute("data-timestamp", timestamp);
     dateSeparator.classList.add("date-separator", "message-container");
     dateSeparator.textContent = formattedDate;
     chat.prepend(dateSeparator);
-    lastMessageDate = messageDate;
-    lastMessageUsername = null;
+    lobbyData.lastMessageDate = messageDate; // Update the last message date for this lobby
+    lobbyData.lastMessageUsername = null; // Reset last username for a new date
+    if (formattedDate === null) {
+      dateSeparator.style.display = "none";
+    }
   }
 
   const messageContainer = document.createElement("div");
@@ -108,7 +247,7 @@ function appendMessage({ id, username, timestamp, message, imageUrl }) {
 
   if (isCurrentUser) {
     messageContainer.classList.add("you");
-    username = "You";
+    username = "You"; // Set 'You' for the current user
   } else {
     messageContainer.classList.add("others");
   }
@@ -118,12 +257,18 @@ function appendMessage({ id, username, timestamp, message, imageUrl }) {
   usernameDiv.textContent = username;
   usernameDiv.style.color = generateColor(username);
 
-  const isSameUser = username === lastMessageUsername;
+  // Display username if it's the first message after joining or if it's a different user
+  const isFirstMessageAfterJoin = lobbyData.isFirstMessageAfterJoin;
+  const isSameUser =
+    username === lobbyData.lastMessageUsername &&
+    lobby === lobbyData.lastMessageLobby &&
+    !isFirstMessageAfterJoin;
+
   if (isSameUser) {
-    usernameDiv.style.display = "none";
+    usernameDiv.style.display = "none"; // Hide username if it's the same as the previous message
     messageContainer.classList.add("same-user");
   } else {
-    usernameDiv.style.display = "block";
+    usernameDiv.style.display = "block"; // Show username for new messages or different users
     messageContainer.classList.remove("same-user");
   }
 
@@ -163,11 +308,16 @@ function appendMessage({ id, username, timestamp, message, imageUrl }) {
   });
 
   chat.prepend(messageContainer);
-  lastMessageUsername = username;
+
+  // Update the last message info for this specific lobby
+  lobbyData.lastMessageUsername = username; // Update the last username for this lobby
+  lobbyData.lastMessageLobby = lobby; // Set the current lobby as the last message's lobby
+
+  // Reset the isFirstMessageAfterJoin flag after the first message is appended
+  lobbyData.isFirstMessageAfterJoin = false;
 
   initializeStickyDateObserver();
 }
-
 
 // Function to handle the sticky date display
 function initializeStickyDateObserver() {
@@ -209,17 +359,17 @@ function initializeStickyDateObserver() {
 const messageMenu = document.getElementById("messageMenu");
 let selectedMessage = null;
 
-document.querySelectorAll('.chat-message').forEach(message => {
-  message.addEventListener('click', (event) => {
+document.querySelectorAll(".chat-message").forEach((message) => {
+  message.addEventListener("click", (event) => {
     selectedMessage = event.currentTarget;
     openMessageMenu(selectedMessage, event);
   });
 });
 
 function openMessageMenu(messageElement, clickEvent) {
-  const chat = document.getElementById('chat');
-  const chatContainer = document.getElementById('chat-container');
-  const messageMenu = document.getElementById('messageMenu');
+  const chat = document.getElementById("chat");
+  const chatContainer = document.getElementById("chat-container");
+  const messageMenu = document.getElementById("messageMenu");
 
   clickEvent.stopPropagation();
 
@@ -227,64 +377,73 @@ function openMessageMenu(messageElement, clickEvent) {
   const chatRect = chat.getBoundingClientRect();
 
   const currentUser = sessionStorage.getItem("username");
-  const isCurrentUser = messageElement.classList.contains('you');
+  const isCurrentUser = messageElement.classList.contains("you");
 
   const topPosition = messageRect.bottom - chatRect.top;
-  const leftPosition = isCurrentUser ? messageRect.right - chatRect.left - messageMenu.offsetWidth : messageRect.left - chatRect.left;
+  const leftPosition = isCurrentUser
+    ? messageRect.right - chatRect.left - messageMenu.offsetWidth
+    : messageRect.left - chatRect.left;
 
   messageMenu.style.top = `${topPosition}px`;
   messageMenu.style.left = `${leftPosition}px`;
 
-  messageMenu.style.display = 'block';
+  messageMenu.style.display = "block";
 
-  chat.classList.add('blur');
+  chat.classList.add("blur");
 
-  let selectedMessageContainer = document.querySelector('.selected-message-container');
+  let selectedMessageContainer = document.querySelector(
+    ".selected-message-container"
+  );
 
   const clonedMessageContainer = messageElement.parentNode.cloneNode(true);
-  const usernameDiv = clonedMessageContainer.querySelector('.username');
+  const usernameDiv = clonedMessageContainer.querySelector(".username");
   if (usernameDiv) {
     usernameDiv.remove();
   }
 
-  clonedMessageContainer.style.maxWidth = '100%';
-  clonedMessageContainer.style.margin = '0';
-  clonedMessageContainer.style.boxSizing = 'border-box';
+  clonedMessageContainer.style.maxWidth = "100%";
+  clonedMessageContainer.style.margin = "0";
+  clonedMessageContainer.style.boxSizing = "border-box";
 
   if (!selectedMessageContainer) {
-    selectedMessageContainer = document.createElement('div');
-    selectedMessageContainer.className = 'selected-message-container';
+    selectedMessageContainer = document.createElement("div");
+    selectedMessageContainer.className = "selected-message-container";
     chatContainer.appendChild(selectedMessageContainer);
   } else {
-    selectedMessageContainer.innerHTML = '';
+    selectedMessageContainer.innerHTML = "";
   }
 
-  selectedMessageContainer.style.position = 'absolute';
+  selectedMessageContainer.style.position = "absolute";
   selectedMessageContainer.style.top = `${messageRect.top - chatRect.top}px`;
   selectedMessageContainer.style.left = `${leftPosition}px`;
 
   selectedMessageContainer.appendChild(clonedMessageContainer);
 
-  document.addEventListener('click', (event) => {
-    if (!messageMenu.contains(event.target) && !selectedMessageContainer.contains(event.target)) {
+  document.addEventListener("click", (event) => {
+    if (
+      !messageMenu.contains(event.target) &&
+      !selectedMessageContainer.contains(event.target)
+    ) {
       closeMessageMenu();
     }
   });
 }
 
 function closeMessageMenu() {
-  const messageMenu = document.getElementById('messageMenu');
-  messageMenu.style.display = 'none';
+  const messageMenu = document.getElementById("messageMenu");
+  messageMenu.style.display = "none";
 
-  const chat = document.getElementById('chat');
-  chat.classList.remove('blur');
+  const chat = document.getElementById("chat");
+  chat.classList.remove("blur");
 
-  const selectedMessageContainer = document.querySelector('.selected-message-container');
+  const selectedMessageContainer = document.querySelector(
+    ".selected-message-container"
+  );
   if (selectedMessageContainer) {
     selectedMessageContainer.remove();
   }
 
-  document.removeEventListener('click', closeMessageMenu);
+  document.removeEventListener("click", closeMessageMenu);
 }
 
 document.getElementById("pinMessage").addEventListener("click", () => {
@@ -303,18 +462,46 @@ document.getElementById("deleteMessage").addEventListener("click", () => {
     const originalUsername = selectedMessageContainer.dataset.username;
     const currentUser = sessionStorage.getItem("username");
     const role = sessionStorage.getItem("role"); // Retrieve the user's role
-    const isMessageOwner = originalUsername === currentUser || selectedMessageContainer.classList.contains("you");
+    const isMessageOwner =
+      originalUsername === currentUser ||
+      selectedMessageContainer.classList.contains("you");
 
     if (isMessageOwner || role === "admin") {
-      const messageText = selectedMessageContainer.querySelector('.message-bubble').childNodes[0].nodeValue.trim();
+      const messageText = selectedMessageContainer
+        .querySelector(".message-bubble")
+        .childNodes[0].nodeValue.trim();
       if (confirm(`Delete message: "${messageText}"?`)) {
         ws.send(JSON.stringify({ type: "delete", id, timestamp }));
+
+        // Remove the selected message container
+        const nextMessageContainer =
+          selectedMessageContainer.previousElementSibling;
+        const previousMessageContainer =
+          selectedMessageContainer.nextElementSibling;
         selectedMessageContainer.remove();
         selectedMessageContainer = null;
         closeMessageMenu();
+
+        // Check if the next message has the class `same-user`
+        if (
+          nextMessageContainer &&
+          nextMessageContainer.classList.contains("same-user") &&
+          (!previousMessageContainer ||
+            !previousMessageContainer.classList.contains("same-user"))
+        ) {
+          // Remove `same-user` class
+          nextMessageContainer.classList.remove("same-user");
+
+          // Find the username element and display it
+          const usernameElement =
+            nextMessageContainer.querySelector(".username");
+          if (usernameElement) {
+            usernameElement.style.display = "block"; // Show the username
+          }
+        }
       }
     } else {
-      alert("You can only delete your own messages.");
+      alert("You don't have permission to delete this message.");
     }
   } else {
     alert("No message selected for deletion.");
@@ -389,8 +576,6 @@ chatContainer.addEventListener("scroll", () => {
     dateSeparator.classList.remove("active");
   }, 1500); // Adjust timeout duration as needed
 
-
-
   const baseLine = document
     .getElementsByClassName("sticky-date-container")[0]
     .getBoundingClientRect().y;
@@ -436,7 +621,6 @@ function updateStatusText() {
 // Add event listener for the checkbox
 alwaysOnCheckbox.addEventListener("change", updateStatusText);
 
-
 const PING_INTERVAL = 150000; // 2.5 min.
 const PONG_TIMEOUT = 10000; // 10 seconds
 
@@ -453,8 +637,8 @@ function startPing() {
         }
       } else {
         if (alwaysOnCheckbox.checked) {
-        console.warn("WebSocket is not open. Current state:", ws.readyState);
-        reconnect();
+          console.warn("WebSocket is not open. Current state:", ws.readyState);
+          reconnect();
         }
       }
     }, PING_INTERVAL);
@@ -481,7 +665,7 @@ function reconnect() {
   join(); // Call join to reconnect
 }
 
-function join () {
+function join() {
   if (ws) {
     ws.close();
   }
@@ -493,10 +677,18 @@ function join () {
   ws.onopen = () => {
     console.log("Connected to the server");
     ws.send(
-      JSON.stringify({ type: "join", lobby: currentLobby, username: username, role: role })
+      JSON.stringify({
+        type: "join",
+        lobby: currentLobby,
+        username: username,
+        role: role,
+      })
     );
+
     chat.innerHTML = "";
-    
+
+    initializeLobbyData(currentLobby);
+
     if (alwaysOnCheckbox.checked) {
       startPing();
     }
@@ -509,21 +701,20 @@ function join () {
 
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    
+
     if (data.type === "pong") {
       clearTimeout(pongTimeout); // Clear pong timeout on receiving pong
       if (alwaysOnCheckbox.checked) {
-      startPing();
-    }
-    }
-    else if (data.type === 'ROLE_CHANGE') {
+        startPing();
+      }
+    } else if (data.type === "ROLE_CHANGE") {
       const { username, role } = data;
 
       // Update sessionStorage for the specific user
       sessionStorage.setItem(`role`, role);
-      
-      if (role === 'banned') {
-          window.location.href = "/banned.html";
+
+      if (role === "banned") {
+        window.location.href = "/banned.html";
       }
 
       // Optional: Log to confirm the change
@@ -541,6 +732,8 @@ function join () {
       data.messages.forEach(appendMessage);
     } else if (data.type === "clear") {
       chat.innerHTML = "";
+    } else if (data.type === "AdminClear") {
+      chat.innerHTML = "";
       // Append a system message to indicate that the chat was cleared
       appendMessage({
         id: Date.now(), // Unique ID for the notice
@@ -557,10 +750,10 @@ function join () {
     console.log("Connection closed");
     statusDiv.textContent = "Connection closed.";
     clearInterval(pingInterval); // Clear ping interval on close
-  }
+  };
 
-  console.log(`Joined lobby: ${currentLobby} as ${username}`);
-};
+  console.log(`Joining ${currentLobby} as ${username}`);
+}
 
 messageInput.addEventListener("keypress", (event) => {
   if (event.key === "Enter") {
@@ -583,30 +776,50 @@ alwaysOnCheckbox.addEventListener("change", () => {
   }
 });
 
-document.querySelectorAll('.lobby-option').forEach(link => {
-    link.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default anchor behavior
-        const lobbyName = this.getAttribute("data-lobby");
-      
-        if (lobbyName !== currentLobby) {
-        
-        // Update currentLobby to the new lobby name
-        currentLobby = lobbyName; 
-        
-        // Call the join function with the updated lobby name
-        join();
-        document.getElementById('burger').checked = false;
+document.querySelectorAll(".lobby-option").forEach((link) => {
+  link.addEventListener("click", function (event) {
+    event.preventDefault(); // Prevent default anchor behavior
+    const lobbyName = this.getAttribute("data-lobby");
+
+    if (lobbyName !== currentLobby) {
+      if (lobbyName === "Programming") {
+        let PasswortInput = prompt("Please enter Passwort!");
+        if (PasswortInput !== "Passwort123!" ) {
+          document.getElementById("burger").checked = false;
+          return; 
+        } else {
+          // Update currentLobby to the new lobby name
+          currentLobby = lobbyName;
+          //change background randomly
+          changeBackground();
+
+          // Call the join function with the updated lobby name
+          join();
+          document.getElementById("burger").checked = false;
         }
-      else {console.log ("Already connected to this lobby!")}
-    });
+      } else {
+      // Update currentLobby to the new lobby name
+      currentLobby = lobbyName;
+      //change background randomly
+      changeBackground();
+
+      // Call the join function with the updated lobby name
+      join();
+      document.getElementById("burger").checked = false;
+      }
+    } else {
+      console.log("Already connected to this lobby!");
+    }
+  });
 });
 
-document.querySelectorAll('#statuslobby').forEach(link => {
-    link.addEventListener('click', function(event) {
-        event.preventDefault(); 
-      
-        reconnect();
-    });
+document.querySelectorAll("#statuslobby").forEach((link) => {
+  link.addEventListener("click", function (event) {
+    event.preventDefault();
+    //change background randomly
+    changeBackground();
+    reconnect();
+  });
 });
 
 document.addEventListener("DOMContentLoaded", () => {
