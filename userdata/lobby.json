@@ -1,0 +1,66 @@
+[
+  {
+    "lobby": "Public",
+    "active": true,
+    "status": "public",
+    "lobbyOwner": "",
+    "members": []
+  },
+  {
+    "lobby": "Announcements",
+    "active": true,
+    "status": "public",
+    "lobbyOwner": "",
+    "members": []
+  },
+  {
+    "lobby": "Memes",
+    "active": true,
+    "status": "public",
+    "lobbyOwner": "",
+    "members": []
+  },
+  {
+    "lobby": "Programming",
+    "active": true,
+    "status": "private",
+    "lobbyOwner": "Maximilian",
+    "members": [
+      "Maximilian",
+      "Leon",
+      "Nico",
+      "System"
+    ]
+  },
+  {
+    "lobby": "Hallo",
+    "active": true,
+    "status": "private",
+    "lobbyOwner": "Lennart",
+    "members": [
+      "Maximilian",
+      "Lennart"
+    ]
+  },
+  {
+    "lobby": "Ok",
+    "active": true,
+    "status": "private",
+    "lobbyOwner": "Root",
+    "members": [
+      "Root",
+      "root"
+    ]
+  },
+  {
+    "lobby": "frfr working",
+    "active": true,
+    "status": "private",
+    "lobbyOwner": "Leon",
+    "members": [
+      "Leon",
+      "root"
+    ],
+    "password": "123"
+  }
+]

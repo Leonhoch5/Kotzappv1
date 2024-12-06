@@ -1,7 +1,7 @@
 {
   "name": "kotzapp",
-  "version": "0.1.1",
-  "description": "A Node app with SQLite database, instantly up and running.",
+  "version": "0.1.2",
+  "description": "Nico will Sterben",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,18 +9,16 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
-    "multer": "^1.4.4",
-    "express": "^4.17.1",
-    "sqlite3": "^5.1.6",
-    "ws": "^8.0.0",
-    "body-parser": "^2.0.1",
-    "bcrypt": "^5.1.0",
-    "axios": "^0.27.2"
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.1",
+    "multer": "^1.4.5-lts.1",
+    "sqlite3": "^5.1.7",
+    "ws": "^8.18.0"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
-  "homepage": {"https://Leonhoch5.github.io/Kotzappv1/"},
   "repository": {
     "url": "https://github.com/Team-Loewenrot/"
   },

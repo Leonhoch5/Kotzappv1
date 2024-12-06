@@ -123,6 +123,22 @@
       .opfa {
         text-size: 10em;
       }
+      #hahahaha{
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        border-radius: 15px;
+        display: none;
+      }
+      a {
+        color: #00b300;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
@@ -133,7 +149,10 @@
       <br />
       <p>You have been banned from accessing this Application</p>
       <br />
-      <p id="opfa" class="opfa">Haha lol xd noob trash easy you banned lol</p>
+      <p id="opfa" class="opfa">because of your existence</p>
+      <br />
+      <p><a href="#" onclick="toggleVisible()">Click to get unbaned</a></p>
+      <img id="hahahaha" src="https://cdn.glitch.global/1ddf113e-5310-4cdb-989d-7e3470d41b09/IMG_0754.png?v=1732019429076">
     </div>
 
     <script>
@@ -153,6 +172,16 @@
 
       window.addEventListener("resize", createSquares);
       createSquares();
+      
+      const image = document.getElementById("hahahaha");
+
+      function toggleVisible() {
+        image.style.display = "block";
+
+        setTimeout(() => {
+            image.style.display = "none";
+          }, 2000);
+        }
     </script>
   </body>
 </html>

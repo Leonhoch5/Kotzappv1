@@ -63,7 +63,7 @@
         max-width: 400px;
         border-radius: 10px;
         box-shadow: 0px 0px 20px 2px rgba(0, 255, 0, 0.5);
-        z-index: 1; 
+        z-index: 1;
       }
 
       h2 {
@@ -83,7 +83,7 @@
       label {
         color: #fff;
       }
-      
+
       .input-group input {
         width: calc(100% - 23px);
         padding: 10px;
@@ -178,14 +178,21 @@
   </head>
   <body>
     <div class="scrolling-line" id="scrollingLine"></div>
-    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+    <a
+      href="/index.html"
+      style="position: absolute; color: white; z-index: 100000000"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; right: 0; margin: 20px"
         >home</span
       > </a
     ><br />
-    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+    <a
+      href="#"
+      style="position: absolute; color: white; z-index: 100000000"
+      id="backBtn"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; left: 0; margin: 20px"
@@ -241,19 +248,32 @@
     </div>
 
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-      if (!sessionStorage.getItem("loggedIn")) {
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            throw new Error("Invalid encrypted data format");
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          console.error("Error decrypting data:", error);
+          return null;
+        }
+      }
+
+      const username = decryptData(sessionStorage.getItem("username"));
+      const role = decryptData(sessionStorage.getItem("role")); // Get the role from sessionStorage
+      if (!username) {
         window.location.href = "/login.html";
       }
 
       window.onload = () => {
-        if (!sessionStorage.getItem("loggedIn")) {
-          sessionStorage.setItem("loggedIn", "true");
-        }const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-        if (role === 'banned') {
+        if (role === "banned") {
           window.location.href = "/banned.html";
-      }};if (role === 'banned') {
-          window.location.href = "/banned.html";
+        }
+      };
+      if (role === "banned") {
+        window.location.href = "/banned.html";
       }
       document
         .getElementById("backBtn")
@@ -261,7 +281,7 @@
           event.preventDefault(); // Prevent the default anchor behavior
           window.history.back(); // Go back to the last visited page
         });
-      
+
       const scrollingLine = document.getElementById("scrollingLine");
 
       function createSquares() {
@@ -289,7 +309,7 @@
       const messageDiv = document.getElementById("message");
 
       // Set the username from session storage
-      usernameField.value = sessionStorage.getItem("username");
+      usernameField.value = decryptData(sessionStorage.getItem("username"));
 
       // Change Username
       changeUsernameBtn.addEventListener("click", async () => {
@@ -330,7 +350,7 @@
       });
 
       // Retrieve the username from sessionStorage
-      const username = sessionStorage.getItem("username");
+      const username = decryptData(sessionStorage.getItem("username"));
 
       if (!username) {
         messageDiv.innerText =

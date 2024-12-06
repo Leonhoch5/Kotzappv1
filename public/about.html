@@ -96,6 +96,7 @@
         <li>User authentication and account management</li>
         <li>Secure password handling</li>
         <li>Responsive design for mobile and desktop</li>
+        <li>Can be getting banned by disregarding our <a href="rules.html">Rules</a></li>
       </ul>
       <h3>Credits:</h3>
       <p>Developed by Nico, Maximilian and Leon (Team Loewenrot).</p>
@@ -104,26 +105,33 @@
         <a href="https://github.com/Team-Loewenrot/" target="_blank">GitHub</a>.
       </p>
       <p>
-        Or ask to our E-mail:
-        <a href="kotzapp@outlook.com" onclick="copyURI(event)"
-          >kotzapp@outlook.com</a
-        >
+        Or contact us via E-mail:
+        <a href="mailto:kotzapp@outlook.com">kotzapp@outlook.com</a>
       </p>
-      <p><a href="index.html">Back to Home</a></p>
     </div>
 
     <div class="copyright">Copyright © Kotzapp 2024</div>
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-      if (!sessionStorage.getItem("loggedIn")) {
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            throw new Error("Invalid encrypted data format");
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          console.error("Error decrypting data:", error);
+          return null;
+        }
+      }
+
+      const username = decryptData(sessionStorage.getItem("username"));
+      const role = decryptData(sessionStorage.getItem("role")); // Get the role from sessionStorage
+      if (!username) {
         window.location.href = "/login.html";
       }
 
       window.onload = () => {
-        if (!sessionStorage.getItem("loggedIn")) {
-          sessionStorage.setItem("loggedIn", "true");
-        }
-        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
         if (role === "banned") {
           window.location.href = "/banned.html";
         }
@@ -137,18 +145,6 @@
           event.preventDefault(); // Prevent the default anchor behavior
           window.history.back(); // Go back to the last visited page
         });
-
-      function copyURI(evt) {
-        evt.preventDefault();
-        navigator.clipboard.writeText(evt.target.getAttribute("href")).then(
-          () => {
-            alert("E-Mail copied!");
-          },
-          () => {
-            alert("Failed to copy E-Mail :(");
-          }
-        );
-      }
     </script>
   </body>
 </html>

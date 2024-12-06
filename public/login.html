@@ -115,7 +115,11 @@
       }
 
       .forgot-password {
-        margin-top: 10px;
+        margin: 10px 5px 15px 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
       }
 
       .forgot-password a {
@@ -199,22 +203,20 @@
             required
           />
         </div>
-        <button type="submit" class="submit-btn">Login</button>
-        <div class="forgot-password">
+        <div class="forgot-password" style="justify-content: space-between;">
+          <div>
+            <input type="checkbox" id="rules" required>
+            <label for="rules" style="margin-left: 5px;">I accept the <a href="rules.html">Rules</a></label><br>
+           <!-- <input type="checkbox" id="cookies" required>
+            <label for="cookies" style="margin-left: 5px;">I accept the Cooki</label> -->
+          </div>
           <a href="register.html">Signup</a>
         </div>
+        <button type="submit" class="submit-btn">Login</button>
       </form>
     </div>
 
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-      window.onload = () => {
-        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-        if (role === 'banned') {
-          window.location.href = "/banned.html";
-      }
-      }
-      
       const scrollingLine = document.getElementById("scrollingLine");
 
       function createSquares() {
@@ -243,7 +245,6 @@
 
         const username = document.getElementById("loginUsername").value;
         const password = document.getElementById("loginPassword").value;
-       
 
         try {
           const response = await fetch("/login", {
@@ -257,10 +258,15 @@
           const result = await response.json();
 
           if (result.success) {
+            const encryptedUserDataLoggedIn = encryptData("true");
+            const encryptedUserDataUsername = encryptData(username);
+            const encryptedUserDataRole = encryptData(result.role);
+            const encryptedKickedStatus = encryptData("false");
             // Store the username and login status
-            sessionStorage.setItem("loggedIn", "true");
-            sessionStorage.setItem("username", username);
-            sessionStorage.setItem("role", result.role); 
+            sessionStorage.setItem("loggedIn", encryptedUserDataLoggedIn);
+            sessionStorage.setItem("username", encryptedUserDataUsername);
+            sessionStorage.setItem("role", encryptedUserDataRole);
+            sessionStorage.setItem("kicked", encryptedKickedStatus);
             window.location.href = "/index.html";
           } else {
             alert("Invalid username or password");
@@ -270,6 +276,28 @@
           alert("An error occurred while logging in. Please try again later.");
         }
       });
+      function encryptData(data) {
+        return btoa(JSON.stringify(data)); // Simple base64 encoding
+      }
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            return null;
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          return null;
+        }
+      }
+      window.onload = () => {
+        if (decryptData(sessionStorage.getItem("role")) === "banned") {
+          window.location.href = "/banned.html";
+        }
+      };
+      if (decryptData(sessionStorage.getItem("role")) === "banned") {
+          window.location.href = "/banned.html";
+        }
     </script>
   </body>
 </html>

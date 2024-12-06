@@ -30,11 +30,11 @@
         padding: 20px;
         position: relative; /* For positioning squares */
       }
-      #container{
+      #container {
         max-width: fit-content;
         margin: 0 40px 0 0;
       }
-      #weatherContainer{
+      #weatherContainer {
         max-width: calc(fit-content + 10px);
       }
       #weather-nav {
@@ -47,7 +47,7 @@
         border-radius: 15px;
         justify-content: center;
         font-weight: bolder;
-        font-size: 2em; 
+        font-size: 2em;
       }
       .weatherForm {
         margin-top: 20px;
@@ -207,31 +207,42 @@
         >arrow_back</span
       >
     </a>
-    
-    <div id="container">
-    <div id="weather-nav">
-      <span id="weather-icon" class="material-symbols-outlined"></span>
-      <span id="temperature" style="padding: 5px"></span>
-    </div>
 
-    <form class="weatherForm">
-      <div id="weatherContainer">
-      <input
-        type="text"
-        class="cityInput"
-        placeholder="Enter city"
-      /><br /><br />
-      <button type="submit">Get Weather</button>
-      <div class="card" style="display: none"></div>
+    <div id="container">
+      <div id="weather-nav">
+        <span id="weather-icon" class="material-symbols-outlined"></span>
+        <span id="temperature" style="padding: 5px"></span>
       </div>
-    </form>
-      
+
+      <form class="weatherForm">
+        <div id="weatherContainer">
+          <input
+            type="text"
+            class="cityInput"
+            placeholder="Enter city"
+          /><br /><br />
+          <button type="submit">Get Weather</button>
+          <div class="card" style="display: none"></div>
+        </div>
+      </form>
     </div>
 
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            throw new Error("Invalid encrypted data format");
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          console.error("Error decrypting data:", error);
+          return null;
+        }
+      }
+
+      const role = decryptData(sessionStorage.getItem("role")); // Get the role from sessionStorage
       window.onload = () => {
-        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
         if (role === "banned") {
           window.location.href = "/banned.html";
         }

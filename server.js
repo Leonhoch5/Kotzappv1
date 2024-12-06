@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const sqlite3 = require("sqlite3").verbose();
-const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
@@ -15,8 +14,15 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const upload = multer({ dest: "uploads/" });
 
+const settingsFilePath = path.join(__dirname, "userdata", "settings.json");
+const lobbyFilePath = path.join(__dirname, "userdata", "lobby.json");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use(bodyParser.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/userdata", express.static("userdata"));
+app.use("/blacklist", express.static(path.join(__dirname, "blacklist")));
 
 // Directory for storing chat history
 const chatHistoryDir = "./chat_history";
@@ -46,6 +52,399 @@ const db = new sqlite3.Database("./users.db", (err) => {
       }
     );
   }
+});
+
+function changeUserRole(username, newRole) {
+  const sql = `UPDATE users SET role = ? WHERE username = ?`;
+  db.run(sql, [newRole, username], (err) => {
+    if (err) {
+      console.error("Error changing user role", err.message);
+    } else {
+      console.log("User role updated successfully");
+    }
+  });
+}
+
+// Endpoint to update the lobby status
+app.post("/update-lobby-status", (req, res) => {
+  const { lobbyName, status } = req.body;
+
+  if (!lobbyName || status === undefined) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Lobby name and status are required" });
+  }
+
+  const lobbyFilePath = path.join(__dirname, "userdata", "lobby.json");
+
+  fs.readFile(lobbyFilePath, "utf8", (err, data) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Error reading lobby data" });
+    }
+
+    let lobbies;
+    try {
+      lobbies = JSON.parse(data);
+    } catch (parseError) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Error parsing lobby data" });
+    }
+
+    // Find the lobby in the array
+    const lobbyIndex = lobbies.findIndex((lobby) => lobby.lobby === lobbyName);
+    if (lobbyIndex === -1) {
+      return res
+        .status(404)
+        .json({ success: false, message: `Lobby '${lobbyName}' not found` });
+    }
+
+    // Update the status of the lobby
+    lobbies[lobbyIndex].active = status;
+
+    // Save the updated lobbies to the file
+    fs.writeFile(
+      lobbyFilePath,
+      JSON.stringify(lobbies, null, 2),
+      (writeError) => {
+        if (writeError) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Error saving lobby data" });
+        }
+
+        res.json({
+          success: true,
+          message: `Lobby '${lobbyName}' status updated to ${
+            status ? "active" : "inactive"
+          }`,
+        });
+      }
+    );
+  });
+});
+
+// Function to read the existing lobby data
+function getLobbies() {
+  try {
+    // Read the file synchronously
+    const data = fs.readFileSync(lobbyFilePath, "utf8"); // 'utf8' ensures it's read as a string
+
+    // Parse the JSON data
+    const lobbies = JSON.parse(data);
+
+    // Ensure all lobbies have the 'active', 'status', and 'members' properties
+    lobbies.forEach((lobby) => {
+      if (typeof lobby.active === "undefined") {
+        lobby.active = false; // Default to false if 'active' is missing
+      }
+      if (typeof lobby.status === "undefined") {
+        lobby.status = "private"; // Default to 'private' if 'status' is missing
+      }
+      if (!Array.isArray(lobby.members)) {
+        lobby.members = []; // Default to an empty array if 'members' is missing
+      }
+    });
+
+    return lobbies;
+  } catch (error) {
+    // Log detailed error information
+    console.error("Error reading or parsing lobbies:", error);
+    return [];
+  }
+}
+
+// Function to save updated lobbies to the JSON file
+function saveLobbies(lobbies) {
+  try {
+    fs.writeFileSync(lobbyFilePath, JSON.stringify(lobbies, null, 2));
+  } catch (error) {
+    console.error("Error saving lobby data:", error);
+  }
+}
+
+function deleteLobbyAndRedirect(lobbyName) {
+  const lobbies = getLobbies();
+  const updatedLobbies = lobbies.filter((lobby) => lobby.lobby !== lobbyName);
+  saveLobbies(updatedLobbies);
+
+  clearChatHistory(lobbyName);
+
+  // Prepare a message to send to users in the deleted lobby
+  const message = {
+    type: "lobby-deleted",
+    lobbyName,
+    redirectTo: updatedLobbies[0]?.lobby || "default-lobby", // Redirect to the first lobby or a default
+  };
+
+  // Broadcast to users in the deleted lobby
+  broadcastToLobby(message, lobbyName);
+  // Broadcast to active lobbies only
+  const activeLobbies = getActiveLobbies(); // Get the list of active lobbies
+  activeLobbies.forEach((activeLobby) => {
+    broadcastToLobby(
+      { type: "newLobby", lobbyName }, // Include the new lobby name in the message
+      activeLobby // Broadcast to each active lobby
+    );
+  });
+}
+
+// Endpoint to handle lobby deletion
+app.post("/delete-lobby", (req, res) => {
+  const { lobbyName } = req.body;
+  if (!lobbyName) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Lobby name is required" });
+  }
+
+  const lobbies = getLobbies();
+  const lobbyExists = lobbies.some((lobby) => lobby.lobby === lobbyName);
+
+  if (lobbyExists) {
+    deleteLobbyAndRedirect(lobbyName);
+    closeLobby(lobbyName);
+    res.json({
+      success: true,
+      message: `Lobby '${lobbyName}' deleted successfully.`,
+    });
+  } else {
+    res
+      .status(404)
+      .json({ success: false, message: `Lobby '${lobbyName}' not found.` });
+  }
+});
+
+// Function to add a new lobby with active set to false, members as an empty array, and status as private
+function addLobby(lobbyName, username, password = null) {
+  const lobbies = getLobbies();
+
+  // Check if the lobby already exists
+  if (lobbies.some((lobby) => lobby.lobby === lobbyName)) {
+    throw new Error("Lobby already exists");
+  }
+
+  // Add the new lobby to the list with the provided details
+  lobbies.push({
+    lobby: lobbyName,
+    active: false,
+    status: "private",
+    lobbyOwner: username,
+    members: [username, "root"],
+    password, // Add password field, null if no password provided
+  });
+
+  saveLobbies(lobbies);
+
+  // Broadcast to active lobbies only
+  const activeLobbies = getActiveLobbies();
+  activeLobbies.forEach((activeLobby) => {
+    broadcastToLobby({ type: "newLobby" }, activeLobby);
+  });
+}
+
+
+// Endpoint to create a new lobby
+app.post("/create-lobby", (req, res) => {
+  const { lobbyName, username, password } = req.body;
+
+  try {
+    addLobby(lobbyName, username, password || null);
+    res.json({ message: "Lobby created successfully", lobbies: getLobbies() });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+// Add member to lobby
+app.post("/add-member", (req, res) => {
+  const { lobbyName, username } = req.body;
+
+  if (!lobbyName || !username) {
+    return res.status(400).json({
+      success: false,
+      message: "Lobby name and username are required",
+    });
+  }
+
+  const lobbies = getLobbies();
+  const lobby = lobbies.find((lobby) => lobby.lobby === lobbyName);
+
+  if (!lobby) {
+    return res
+      .status(404)
+      .json({ success: false, message: `Lobby '${lobbyName}' not found` });
+  }
+
+  if (!lobby.members.includes(username)) {
+    lobby.members.push(username);
+    saveLobbies(lobbies);
+    res.json({
+      success: true,
+      message: `User '${username}' added to lobby '${lobbyName}'`,
+    });
+    // Broadcast to active lobbies only
+    const activeLobbies = getActiveLobbies();
+    activeLobbies.forEach((activeLobby) => {
+      broadcastToLobby({ type: "newLobby" }, activeLobby);
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: `User '${username}' is already a member of lobby '${lobbyName}'`,
+    });
+  }
+});
+
+// Remove member from lobby
+app.post("/remove-member", (req, res) => {
+  const { lobbyName, username } = req.body;
+
+  if (!lobbyName || !username) {
+    return res.status(400).json({
+      success: false,
+      message: "Lobby name and username are required",
+    });
+  }
+
+  const lobbies = getLobbies();
+  const lobby = lobbies.find((lobby) => lobby.lobby === lobbyName);
+
+  if (!lobby) {
+    return res
+      .status(404)
+      .json({ success: false, message: `Lobby '${lobbyName}' not found` });
+  }
+
+  const memberIndex = lobby.members.indexOf(username);
+  if (memberIndex !== -1) {
+    lobby.members.splice(memberIndex, 1);
+    saveLobbies(lobbies);
+    res.json({
+      success: true,
+      message: `User '${username}' removed from lobby '${lobbyName}'`,
+    });
+    // Broadcast to active lobbies only
+    const activeLobbies = getActiveLobbies();
+    activeLobbies.forEach((activeLobby) => {
+      broadcastToLobby({ type: "newLobby" }, activeLobby);
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: `User '${username}' is not a member of lobby '${lobbyName}'`,
+    });
+  }
+});
+
+// Get lobbies visible to the user
+app.get("/get-lobbies", (req, res) => {
+  const username = req.query.username;
+  const role = req.query.role;
+
+  try {
+    const lobbies = getLobbies();
+    let visibleLobbies;
+
+    if (role === "owner") {
+      visibleLobbies = lobbies; // Return all lobbies if the role is "owner"
+    } else {
+      visibleLobbies = lobbies.filter(
+        (lobby) => lobby.status === "public" || lobby.members.includes(username)
+      );
+    }
+
+    res.json({ lobbies: visibleLobbies });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch lobbies" });
+  }
+});
+
+// Endpoint to get user settings
+app.get("/api/user-settings/:username", (req, res) => {
+  const username = req.params.username;
+
+  fs.readFile(settingsFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading settings file:", err);
+      return res.status(500).json({ error: "Failed to load user settings" });
+    }
+
+    let settings = [];
+    try {
+      settings = JSON.parse(data); // Parse the existing settings if available
+    } catch (parseErr) {
+      console.error("Error parsing settings file:", parseErr);
+      return res.status(500).json({ error: "Failed to parse settings file" });
+    }
+
+    const userSettings = settings.find((s) => s.username === username);
+
+    if (userSettings) {
+      res.json(userSettings);
+    } else {
+      // Send default settings if user settings do not exist
+      res.json({
+        username,
+        theme: true, // Default to Light Mode
+        notifications: true, // Default notifications on
+        randomBackground: true, // Default random background off
+        currentBackgroundId: 1, // Default background ID (1 if not set)
+      });
+    }
+  });
+});
+
+// Endpoint to save user settings
+app.post("/api/user-settings", (req, res) => {
+  const newSettings = req.body;
+
+  fs.readFile(settingsFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading settings file:", err);
+      return res
+        .status(500)
+        .json({ error: "Failed to save user settings due to file read error" });
+    }
+
+    let settings = [];
+    try {
+      if (data) {
+        settings = JSON.parse(data); // Parse existing settings
+      }
+    } catch (parseErr) {
+      console.error("Error parsing settings JSON:", parseErr);
+      return res.status(500).json({ error: "Failed to parse settings JSON" });
+    }
+
+    const existingIndex = settings.findIndex(
+      (s) => s.username === newSettings.username
+    );
+    if (existingIndex >= 0) {
+      settings[existingIndex] = newSettings; // Update existing settings
+    } else {
+      settings.push(newSettings); // Add new settings for the user
+    }
+
+    // Write the updated settings back to the file
+    fs.writeFile(
+      settingsFilePath,
+      JSON.stringify(settings, null, 2),
+      "utf8",
+      (writeErr) => {
+        if (writeErr) {
+          console.error("Error writing settings file:", writeErr);
+          return res.status(500).json({
+            error: "Failed to save user settings due to file write error",
+          });
+        }
+        res.json({ message: "Settings saved successfully" });
+      }
+    );
+  });
 });
 
 // Register route
@@ -235,6 +634,7 @@ app.post("/delete-account", (req, res) => {
       .json({ success: false, message: "Username is required." });
   }
 
+  // Delete user from the database
   db.run(`DELETE FROM users WHERE username = ?`, [username], function (err) {
     if (err) {
       console.error("Error deleting user:", err);
@@ -251,14 +651,109 @@ app.post("/delete-account", (req, res) => {
         .json({ success: false, message: "User not found." });
     }
 
+    // Delete settings from the settings.json file
+    const settingsFilePath = path.join(__dirname, "userdata", "settings.json");
+
+    fs.readFile(settingsFilePath, "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading settings file:", err);
+        return res.status(500).json({
+          success: false,
+          message: "An error occurred while reading the settings file.",
+        });
+      }
+
+      let settings = [];
+      try {
+        settings = JSON.parse(data); // Parse the settings JSON
+      } catch (parseErr) {
+        console.error("Error parsing settings file:", parseErr);
+        return res.status(500).json({
+          success: false,
+          message: "An error occurred while parsing the settings file.",
+        });
+      }
+
+      // Filter out the settings for the deleted user
+      settings = settings.filter((setting) => setting.username !== username);
+
+      // Write the updated settings back to the file
+      fs.writeFile(
+        settingsFilePath,
+        JSON.stringify(settings, null, 2),
+        "utf8",
+        (err) => {
+          if (err) {
+            console.error("Error updating settings file:", err);
+            return res.status(500).json({
+              success: false,
+              message: "An error occurred while updating the settings file.",
+            });
+          }
+        }
+      );
+    });
+
     // If the deletion was successful
-    res.json({ success: true, message: "User account deleted successfully." });
+    res.json({
+      success: true,
+      message: "User account and settings deleted successfully.",
+    });
   });
 });
 
+// Get role route
+app.get("/getRole", (req, res) => {
+  const { username } = req.query;
+
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    (err, row) => {
+      if (err) {
+        res
+          .status(500)
+          .send({ success: false, message: "Error retrieving role" });
+        return;
+      }
+
+      if (row) {
+        res.send({ success: true, role: row.role });
+      } else {
+        res.status(404).send({ success: false, message: "User not found" });
+      }
+    }
+  );
+});
+
+function clearChatHistory(lobby) {
+  const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
+  const lobbyFolder = path.join(__dirname, "uploads", lobby);
+
+  // Delete chat history file if it exists
+  if (fs.existsSync(chatHistoryFile)) {
+    fs.unlinkSync(chatHistoryFile);
+    console.log(`Chat history for lobby '${lobby}' has been cleared by Admin.`);
+  }
+
+  // Delete all images in the lobby folder
+  if (fs.existsSync(lobbyFolder)) {
+    fs.readdirSync(lobbyFolder).forEach((file) => {
+      const filePath = path.join(lobbyFolder, file);
+      if (fs.statSync(filePath).isFile()) {
+        fs.unlinkSync(filePath);
+        console.log(`Image ${file} deleted from lobby folder.`);
+      }
+    });
+  }
+
+  // Broadcast clear message to all clients in the lobby
+  broadcastToLobby({ type: "AdminClear" }, lobby);
+}
+
 function isValidDate(dateString) {
   const date = new Date(dateString);
-  return !isNaN(date.getTime()); 
+  return !isNaN(date.getTime());
 }
 
 // WebSocket connection handling
@@ -297,16 +792,22 @@ wss.on("connection", (ws) => {
       ws.send(JSON.stringify({ type: "pong" }));
     } else if (parsedMessage.type === "message" && currentLobby) {
       // Handle admin commands
-      if (role === "admin" && parsedMessage.message.startsWith("/")) {
+      if (
+        (role === "admin" && parsedMessage.message.startsWith("/")) ||
+        (role === "owner" && parsedMessage.message.startsWith("/"))
+      ) {
         handleAdminCommand(parsedMessage.message, currentLobby);
       } else {
+        const id = getNextMessageId(currentLobby);
         const timestamp = new Date().toISOString(); // Assuming this is how timestamp is set
         if (isValidDate(timestamp)) {
           const fullMessage = {
-            id: parsedMessage.id,
+            id: id,
             username: username,
             timestamp: timestamp,
             message: parsedMessage.message,
+            type: "message",
+            lobby: currentLobby,
           };
 
           broadcastToLobby(fullMessage, currentLobby);
@@ -317,11 +818,15 @@ wss.on("connection", (ws) => {
         }
       }
     } else if (data.type === "image") {
-      const imagePath = path.join(
-        __dirname,
-        "uploads",
-        `${data.timestamp}.png`
-      );
+      const id = getNextMessageId(currentLobby);
+      const lobbyFolder = path.join(__dirname, "uploads", currentLobby);
+
+      // Ensure the lobby folder exists
+      if (!fs.existsSync(lobbyFolder)) {
+        fs.mkdirSync(lobbyFolder, { recursive: true });
+      }
+
+      const imagePath = path.join(lobbyFolder, `${data.timestamp}.png`);
       const imageBuffer = Buffer.from(data.data, "base64");
 
       fs.writeFile(imagePath, imageBuffer, (err) => {
@@ -330,9 +835,58 @@ wss.on("connection", (ws) => {
           ws.send(JSON.stringify({ error: "Error saving image" }));
         } else {
           console.log("Image saved successfully");
-          ws.send(JSON.stringify({ message: "Image uploaded successfully" }));
+
+          const imageMessage = {
+            id: id, // Unique ID for the image
+            username: username,
+            timestamp: data.timestamp,
+            type: "picture",
+            imageUrl: `/uploads/${currentLobby}/${data.timestamp}.png`, // Updated image URL
+          };
+
+          saveToChatHistory(imageMessage, currentLobby);
+          broadcastToLobby(imageMessage, currentLobby);
         }
       });
+    } else if (parsedMessage.type === "edit" && currentLobby) {
+      const messageId = parseInt(parsedMessage.id, 10);
+      const timestamp = parsedMessage.timestamp;
+      const newText = parsedMessage.newText;
+
+      console.log(
+        `User ${username} attempting to edit message ID: ${messageId} at ${timestamp}`
+      );
+
+      // Get the message to be edited
+      const messageToEdit = getMessageById(messageId, timestamp, currentLobby);
+
+      // Check if the message exists
+      if (!messageToEdit) {
+        console.log(
+          `Message with ID ${messageId} and timestamp ${timestamp} not found.`
+        );
+        ws.send(
+          JSON.stringify({ type: "error", message: "Message not found." })
+        );
+        return;
+      }
+
+      // Update the message text and save to the file
+      messageToEdit.message = newText; // Ensure the message property is updated
+
+      // Save the updated message to the chat history file
+      saveToChatHistory(messageToEdit, currentLobby);
+
+      const fullMessage = {
+        id: messageId,
+        username: messageToEdit.username,
+        timestamp: messageToEdit.timestamp,
+        message: newText,
+        type: "edit",
+      };
+
+      // Broadcast the edit to all clients in the lobby
+      broadcastToLobby(fullMessage, currentLobby);
     } else if (parsedMessage.type === "delete" && currentLobby) {
       const messageId = parseInt(parsedMessage.id, 10);
       const timestamp = parsedMessage.timestamp; // Extract timestamp for validation
@@ -362,12 +916,33 @@ wss.on("connection", (ws) => {
       const messageOwnerUsername = messageToDelete.username;
 
       // Allow deletion if the role is "Admin" or if they own the message
-      if (role === "admin" || messageOwnerUsername === username) {
+      if (role === "admin" || role === "owner" || messageOwnerUsername === username) {
         console.log(
           `User ${username} is deleting message ID: ${messageId} from ${messageOwnerUsername}.`
         );
+
+        // Attempt to delete message from file
         if (deleteMessageFromFile(messageId, timestamp, currentLobby)) {
           console.log(`Message ID: ${messageId} deleted successfully.`);
+
+          // If the message is an image, delete the file from the lobby's folder
+          if (messageToDelete.type === "picture") {
+            const imagePath = path.join(
+              __dirname,
+              "uploads",
+              currentLobby,
+              `${timestamp}.png`
+            );
+            fs.unlink(imagePath, (err) => {
+              if (err) {
+                console.error(`Failed to delete image at ${imagePath}:`, err);
+              } else {
+                console.log(`Image ${imagePath} deleted successfully.`);
+              }
+            });
+          }
+
+          // Broadcast the deletion to the lobby
           broadcastToLobby(
             { type: "delete", id: messageId, timestamp: timestamp },
             currentLobby
@@ -418,21 +993,15 @@ wss.on("connection", (ws) => {
     }
   });
 
-  function broadcastOnlineUsers(lobby) {
-    const onlineUsers = [...lobbies[lobby]].map((client) => client.username);
-    const message = JSON.stringify({ type: "onlineUsers", users: onlineUsers });
-    lobbies[lobby].forEach((client) => client.ws.send(message));
-  }
-
-  function sendChatHistory(client, lobby) {
+  function getNextMessageId(lobby) {
     const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
-    const chatHistory = fs.existsSync(chatHistoryFile)
-      ? JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"))
-      : [];
-
-    client.send(JSON.stringify({ type: "chatHistory", messages: chatHistory }));
+    if (fs.existsSync(chatHistoryFile)) {
+      const chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      const lastMessage = chatHistory[chatHistory.length - 1];
+      return lastMessage ? lastMessage.id + 1 : 0;
+    }
+    return 0;
   }
-
   // Handle admin commands
   function handleAdminCommand(command, lobby) {
     const args = command.split(" ");
@@ -463,7 +1032,28 @@ wss.on("connection", (ws) => {
         }
         break;
       case "/close":
-          closeLobby(lobby);
+        closeLobby(lobby);
+        break;
+      case "/system":
+        if (args.length > 1) {
+          const id = getNextMessageId(currentLobby);
+          const timestamp = new Date().toISOString();
+          if (isValidDate(timestamp)) {
+            const messageContent = args.slice(1).join(" ");
+            const fullMessage = {
+              id: id,
+              username: "System",
+              timestamp: timestamp,
+              message: messageContent,
+              type: "message",
+              lobby: currentLobby,
+            };
+
+            broadcastToLobby(fullMessage, currentLobby);
+            saveToChatHistory(fullMessage, currentLobby);
+            console.log("Received message:", fullMessage); 
+          }
+        }
         break;
       case "/delete":
         if (args[1]) {
@@ -480,285 +1070,320 @@ wss.on("connection", (ws) => {
         ws.send(JSON.stringify({ type: "error", message: "Unknown command" }));
     }
   }
-  function clearChatHistory(lobby) {
-    const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
-
-    if (fs.existsSync(chatHistoryFile)) {
-      fs.unlinkSync(chatHistoryFile);
-      console.log(
-        `Chat history for lobby '${lobby}' has been cleared by Admin.`
-      );
-      // Broadcast clear message to all clients in the lobby
-      broadcastToLobby({ type: "AdminClear" }, lobby);
-    }
-  }
-
-  function kickUserFromLobby(username, lobby) {
-    if (lobbies[lobby]) {
-      lobbies[lobby] = new Set(
-        [...lobbies[lobby]].filter((client) => client.username !== username)
-      );
-      broadcastToLobby(
-        { type: "system", message: `User ${username} was kicked by Admin.` },
-        lobby
-      );
-    }
-  }
-
-  // Route to make a user an admin
-  function makeAdmin(username, res) {
-    db.run(
-      `UPDATE users SET role = 'admin' WHERE username = ?`,
-      [username],
-      function (err) {
-        if (err) {
-          console.error("Error promoting user to admin:", err.message);
-          return res.status(500).json({
-            success: false,
-            message: "Error promoting user to admin.",
-          });
-        }
-        if (this.changes > 0) {
-          sendRoleChangeToClient(username, "admin"); // Send role change to the specific client
-          broadcastToLobby({
-            type: "system",
-            message: `User ${username} is now an admin.`,
-          });
-        } else {
-          res.status(404).json({ success: false, message: "User not found." });
-        }
-      }
-    );
-  }
-
-  // Route to make a user a regular user
-  function makeUser(username, res) {
-    db.run(
-      `UPDATE users SET role = 'user' WHERE username = ?`,
-      [username],
-      function (err) {
-        if (err) {
-          return res
-            .status(500)
-            .json({ success: false, message: "Error promoting user to user." });
-        }
-        if (this.changes > 0) {
-          sendRoleChangeToClient(username, "user"); // Send role change to the specific client
-          broadcastToLobby({
-            type: "system",
-            message: `User ${username} is now a user.`,
-          });
-        } else {
-          res.status(404).json({ success: false, message: "User not found." });
-        }
-      }
-    );
-  }
-
-  // Route to ban a user
-  function banUser(username, res) {
-    db.run(
-      'UPDATE users SET role = "banned" WHERE username = ?',
-      [username],
-      function (err) {
-        if (err) {
-          return res
-            .status(500)
-            .json({ success: false, message: "Error banning user." });
-        }
-        if (this.changes > 0) {
-          sendRoleChangeToClient(username, "banned"); // Send role change to the specific client
-          broadcastToLobby({
-            type: "system",
-            message: "User banned successfully.",
-          });
-        } else {
-          res.status(404).json({ success: false, message: "User not found." });
-        }
-      }
-    );
-  }
-
-  function deleteMessage(messageId, timestamp, lobby) {
-    if (deleteMessageFromFile(messageId, timestamp, lobby)) {
-      broadcastToLobby({ type: "delete", id: messageId }, lobby);
-      broadcastToLobby(
-        { type: "system", message: `Message ${messageId} deleted by Admin.` },
-        lobby
-      );
-    }
-  }
-
-  function deleteMessagesByUsername(targetUsername, lobby) {
-    const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
-    if (fs.existsSync(chatHistoryFile)) {
-      let chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-
-      // Log the messages being deleted for reference
-      const messagesToDelete = chatHistory.filter(
-        (message) => message.username === targetUsername
-      );
-      const messageIdsToDelete = messagesToDelete.map((message) => message.id);
-
-      const filteredHistory = chatHistory.filter(
-        (message) => message.username !== targetUsername
-      );
-      fs.writeFileSync(chatHistoryFile, JSON.stringify(filteredHistory));
-
-      // Notify the lobby of the deletions
-      broadcastToLobby(
-        {
-          type: "system",
-          message: `All messages from user ${targetUsername} deleted by Admin.`,
-        },
-        lobby
-      );
-
-      // Optionally log what was deleted
-      console.log(
-        `Deleted messages from user ${targetUsername}: ${messageIdsToDelete.join(
-          ", "
-        )}`
-      );
-    }
-  }
-
-  function deleteMessageFromFile(messageId, timestamp, lobby) {
-    const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
-    if (fs.existsSync(chatHistoryFile)) {
-      let chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      // Filter out the message with the matching id and timestamp
-      const updatedHistory = chatHistory.filter(
-        (msg) => !(msg.id === messageId && msg.timestamp === timestamp)
-      );
-      // Only write back to the file if the history has changed
-      if (updatedHistory.length !== chatHistory.length) {
-        fs.writeFileSync(chatHistoryFile, JSON.stringify(updatedHistory));
-        return true;
-      }
-    }
-    return false; // Return false if the file doesn't exist or no message was deleted
-  }
-
-  function saveToChatHistory(message, lobby) {
-    const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
-    let chatHistory = [];
-
-    // Check if the chat history file exists
-    if (fs.existsSync(chatHistoryFile)) {
-      chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8")); // Read existing chat history
-    }
-
-    // Push the new message object into chat history
-    chatHistory.push(message); // Ensure the message object includes the username as owner
-
-    // Write back to the file, formatted for readability
-    fs.writeFileSync(chatHistoryFile, JSON.stringify(chatHistory, null, 2));
-    console.log(
-      `Chat history for ${lobby} updated. Current entries: ${chatHistory.length}`
-    ); // Log the update
-  }
 });
 
-function broadcastToLobby(message, lobbyName) {
-  if (lobbies[lobbyName]) {
-    lobbies[lobbyName].forEach((client) => {
-      if (client.ws.readyState === WebSocket.OPEN) {
-        client.ws.send(JSON.stringify(message));
+function broadcastOnlineUsers(lobby) {
+  const onlineUsers = [...lobbies[lobby]].map((client) => client.username);
+  const message = JSON.stringify({ type: "onlineUsers", users: onlineUsers });
+  lobbies[lobby].forEach((client) => client.ws.send(message));
+}
+
+function sendChatHistory(client, lobby) {
+  const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
+  const chatHistory = fs.existsSync(chatHistoryFile)
+    ? JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"))
+    : [];
+
+  client.send(JSON.stringify({ type: "chatHistory", messages: chatHistory }));
+}
+
+// Route to make a user an admin
+function makeAdmin(username, res) {
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    function (err, row) {
+      if (err) {
+        console.error("Error fetching user role:", err.message);
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching user role.",
+        });
       }
-    });
+      if (row && row.role !== "owner") {
+        db.run(
+          `UPDATE users SET role = 'admin' WHERE username = ?`,
+          [username],
+          function (err) {
+            if (err) {
+              console.error("Error promoting user to admin:", err.message);
+              return res.status(500).json({
+                success: false,
+                message: "Error promoting user to admin.",
+              });
+            }
+            if (this.changes > 0) {
+              sendRoleChangeToClient(username, "admin"); // Send role change to the specific client
+              broadcastToLobby({
+                type: "system",
+                message: `User ${username} is now an admin.`,
+              });
+            } else {
+              res
+                .status(404)
+                .json({ success: false, message: "User not found." });
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+// Route to make a user a regular user
+function makeUser(username, res) {
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    function (err, row) {
+      if (err) {
+        console.error("Error fetching user role:", err.message);
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching user role.",
+        });
+      }
+      if (row && row.role !== "owner") {
+        db.run(
+          `UPDATE users SET role = 'user' WHERE username = ?`,
+          [username],
+          function (err) {
+            if (err) {
+              return res
+                .status(500)
+                .json({
+                  success: false,
+                  message: "Error promoting user to user.",
+                });
+            }
+            if (this.changes > 0) {
+              sendRoleChangeToClient(username, "user"); // Send role change to the specific client
+              broadcastToLobby({
+                type: "system",
+                message: `User ${username} is now a user.`,
+              });
+            } else {
+              res
+                .status(404)
+                .json({ success: false, message: "User not found." });
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+// Route to ban a user
+function banUser(username, res) {
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    function (err, row) {
+      if (err) {
+        console.error("Error fetching user role:", err.message);
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching user role.",
+        });
+      }
+      if (row && row.role !== "owner") {
+        db.run(
+          'UPDATE users SET role = "banned" WHERE username = ?',
+          [username],
+          function (err) {
+            if (err) {
+              return res
+                .status(500)
+                .json({ success: false, message: "Error banning user." });
+            }
+            if (this.changes > 0) {
+              sendRoleChangeToClient(username, "banned"); // Send role change to the specific client
+              broadcastToLobby({
+                type: "system",
+                message: "User banned successfully.",
+              });
+            } else {
+              res
+                .status(404)
+                .json({ success: false, message: "User not found." });
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+function deleteMessage(messageId, timestamp, lobby) {
+  if (deleteMessageFromFile(messageId, timestamp, lobby)) {
+    broadcastToLobby({ type: "delete", id: messageId }, lobby);
+    broadcastToLobby(
+      { type: "system", message: `Message ${messageId} deleted by Admin.` },
+      lobby
+    );
   }
 }
 
-function closeLobby(lobbyName) {
-  // Check if the lobby exists
-  if (lobbies[lobbyName]) {
-    // Step 1: Broadcast the "clear" message to notify users about the chat history being cleared
-    broadcastToLobby({ type: "clear" }, lobbyName);
+function deleteMessagesByUsername(targetUsername, lobby) {
+  const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
+  if (fs.existsSync(chatHistoryFile)) {
+    let chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
 
-    // Step 2: Delete the chat history file for the lobby
-    const chatHistoryFile = path.join(chatHistoryDir, `${lobbyName}.json`);
-    if (fs.existsSync(chatHistoryFile)) {
-      fs.unlinkSync(chatHistoryFile);
-      console.log(`Chat history for lobby '${lobbyName}' has been deleted.`);
+    // Log the messages being deleted for reference
+    const messagesToDelete = chatHistory.filter(
+      (message) => message.username === targetUsername
+    );
+    const messageIdsToDelete = messagesToDelete.map((message) => message.id);
+
+    const filteredHistory = chatHistory.filter(
+      (message) => message.username !== targetUsername
+    );
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(filteredHistory));
+
+    // Notify the lobby of the deletions
+    broadcastToLobby(
+      {
+        type: "system",
+        message: `All messages from user ${targetUsername} deleted by Admin.`,
+      },
+      lobby
+    );
+
+    // Optionally log what was deleted
+    console.log(
+      `Deleted messages from user ${targetUsername}: ${messageIdsToDelete.join(
+        ", "
+      )}`
+    );
+  }
+}
+
+function deleteMessageFromFile(messageId, timestamp, lobby) {
+  const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
+  if (fs.existsSync(chatHistoryFile)) {
+    let chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    // Filter out the message with the matching id and timestamp
+    const updatedHistory = chatHistory.filter(
+      (msg) => !(msg.id === messageId && msg.timestamp === timestamp)
+    );
+    // Only write back to the file if the history has changed
+    if (updatedHistory.length !== chatHistory.length) {
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(updatedHistory));
+      return true;
     }
+  }
+  return false; // Return false if the file doesn't exist or no message was deleted
+}
 
-    // Step 3: Disconnect all users in the lobby
-    lobbies[lobbyName].forEach((client) => {
+function saveToChatHistory(message, lobby) {
+  const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
+
+  // Read the existing chat history
+  let chatHistory = [];
+  if (fs.existsSync(chatHistoryFile)) {
+    chatHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+  }
+
+  // Check if the message already exists in the chat history array
+  const messageIndex = chatHistory.findIndex(
+    (msg) => msg.id === message.id && msg.timestamp === message.timestamp
+  );
+
+  if (messageIndex !== -1) {
+    // Update the existing message
+    chatHistory[messageIndex] = message;
+  } else {
+    // Add new message with type ("message" or "picture")
+    chatHistory.push({ ...message, type: message.type || "message" });
+  }
+
+  // Save the updated chat history back to the file
+  fs.writeFileSync(chatHistoryFile, JSON.stringify(chatHistory, null, 2));
+}
+
+function broadcastToLobby(message, lobbyName) {
+  // Ensure the lobby exists
+  if (!lobbies[lobbyName]) {
+    console.error("Lobby not found: " + lobbyName);
+    return; // Stop execution if the lobby doesn't exist
+  }
+
+  // Iterate through all clients in the lobby
+  lobbies[lobbyName].forEach((client) => {
+    try {
+      // Only send the message to clients with an open WebSocket connection
       if (client.ws.readyState === WebSocket.OPEN) {
-        const message = { type: "system", message: `Lobby '${lobbyName}' has been closed.` };
-        client.ws.send(JSON.stringify(message)); // Notify user of lobby closure
-        client.ws.close(); // Disconnect the user from the lobby
+        client.ws.send(JSON.stringify(message)); // Send the message to the client
       }
-    });
+    } catch (error) {
+      console.error("Error sending message to client:", error);
+    }
+  });
+}
 
-    // Step 4: Remove the lobby from the list of active lobbies
-    delete lobbies[lobbyName];
-    console.log(`Lobby '${lobbyName}' has been closed and removed from memory.`);
+function closeLobby(lobbyName) {
+  // Step 1: Get the current list of lobbies
+  let lobbiesList = getLobbies(); // Assuming you have a function that gets the list of lobbies
+
+  // Step 2: Find the lobby in the list
+  const selectedLobbyIndex = lobbiesList.findIndex(
+    (lobby) => lobby.lobby === lobbyName
+  );
+
+  if (selectedLobbyIndex !== -1) {
+    // Step 3: Update the lobby's active status to false
+    lobbiesList[selectedLobbyIndex].active = false; // Update only the active status
+
+    // Step 4: Save the updated lobbies list
+    saveLobbies(lobbiesList); // Save the updated lobbies array
+
+    // Step 5: Disconnect all users in the lobby
+    if (lobbies[lobbyName]) {
+      lobbies[lobbyName].forEach((client) => {
+        // Iterate over the Set of clients
+        if (client.ws.readyState === WebSocket.OPEN) {
+          client.ws.close();
+        }
+      });
+
+      console.log(
+        `Lobby '${lobbyName}' is now inactive and all users are disconnected.`
+      );
+    } else {
+      console.error(`No users found in lobby '${lobbyName}'`);
+    }
+  } else {
+    console.error(`Lobby '${lobbyName}' not found.`);
   }
 }
 
 app.post("/admin/close-lobby", (req, res) => {
-  const { lobby } = req.body;
+  const { lobby } = req.body; // Extract the lobby name from the request body
 
-  // Check if the lobby exists
-  if (lobbies[lobby]) {
-    closeLobby(lobby); // Call the function to close the lobby
+  // Check if lobby name exists in the request body
+  if (!lobby) {
+    return res
+      .status(400)
+      .json({ success: false, message: "No lobby name provided" });
+  }
+
+  // Get the lobbies list
+  const lobbies = getLobbies();
+
+  // Find the lobby in the lobbies list (ensure to trim the names and avoid any whitespace issues)
+  const selectedLobby = lobbies.find((l) => l.lobby.trim() === lobby.trim());
+
+  if (selectedLobby) {
+    // Call the closeLobby function
+    closeLobby(lobby);
+
     res.json({ success: true, message: `Lobby '${lobby}' has been closed.` });
   } else {
+    console.log(`Lobby not found: ${lobby}`); // Debugging
     res.status(404).json({ success: false, message: "Lobby not found." });
   }
 });
-
-
-// Set up the directory for storing images
-const imagesDir = path.join(__dirname, "images");
-if (!fs.existsSync(imagesDir)) {
-  fs.mkdirSync(imagesDir);
-}
-
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, imagesDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  },
-});
-
-app.post("/upload", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded");
-  }
-
-  const imagePath = path.join(imagesDir, req.file.filename);
-
-  // Move the uploaded file to a permanent location
-  fs.rename(req.file.path, imagePath, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error saving image");
-    }
-
-    // Prepare the message data to save to chat history
-    const message = {
-      id: Date.now().toString(), // unique id
-      username: req.body.username,
-      timestamp: new Date().toISOString(),
-      message: null, // no text message
-      imageUrl: `/images/${req.file.filename}` // URL of the saved image
-    };
-
-    // Send response with message data to confirm success
-    res.json(message);
-  });
-});
-
-
-// Serve images statically from /images
-app.use("/images", express.static(imagesDir));
 
 // Checking if user is Admin
 function isAdmin(req, res, next) {
@@ -920,21 +1545,46 @@ app.post("/admin/clear-chat", (req, res) => {
   }
 });
 
-// Route to get the list of active lobbies
-app.get("/admin/active-lobbies", (req, res) => {
-  const activeLobbies = Object.keys(lobbies); // Assuming lobbies are stored in memory
-  res.json({ success: true, lobbies: activeLobbies });
-});
+function kickUserFromLobby(username, lobby) {
+  if (lobbies[lobby]) {
+    // Find the user object from the Set
+    const userToKick = [...lobbies[lobby]].find(
+      (client) => client.username === username
+    );
+
+    if (userToKick) {
+      // Check if the user is not an owner
+      if (userToKick.role !== "owner") {
+        // Broadcast the kick event to the remaining users in the lobby
+        broadcastToLobby({ type: "kick", username: username }, lobby);
+
+        // Check if the WebSocket is open before closing
+        if (userToKick.ws.readyState === WebSocket.OPEN) {
+          userToKick.ws.close(); // Close the WebSocket connection of the user being kicked
+          console.log(`WebSocket connection for ${username} is now closed.`);
+        }
+
+        // Remove the user from the lobby
+        lobbies[lobby] = new Set(
+          [...lobbies[lobby]].filter((client) => client.username !== username)
+        );
+
+        console.log(`${username} has been kicked from the lobby.`);
+      } else {
+        console.log(`Cannot kick the owner (${username}) from the lobby.`);
+      }
+    }
+  }
+}
 
 // Route to kick a user from a lobby
 app.post("/admin/kick-user", (req, res) => {
   const { username, lobby } = req.body;
 
   if (lobbies[lobby]) {
-    // Remove the user from the lobby
-    lobbies[lobby] = new Set(
-      [...lobbies[lobby]].filter((client) => client.username !== username)
-    );
+    // Call the kick function to kick the user
+    kickUserFromLobby(username, lobby);
+
     res.json({
       success: true,
       message: `User '${username}' kicked from lobby '${lobby}'.`,
@@ -946,32 +1596,60 @@ app.post("/admin/kick-user", (req, res) => {
   }
 });
 
+// Route to get the list of all lobbies and mark active ones
 app.get("/admin/active-lobbies", (req, res) => {
-  const activeLobbies = getActiveLobbies();
+  const lobbyFilePath = path.join(__dirname, "userdata", "lobby.json");
 
-  if (activeLobbies.length === 0) {
-    return res.json({ success: true, lobbies: [] });
-  }
+  fs.readFile(lobbyFilePath, "utf8", (err, data) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Error reading lobby data" });
+    }
 
-  res.json({ success: true, lobbies: activeLobbies });
+    let lobbies;
+    try {
+      lobbies = JSON.parse(data); // Assuming lobbies are stored as an array in the lobby.json file
+    } catch (parseError) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Error parsing lobby data" });
+    }
+
+    // Get active lobbies
+    const activeLobbies = getActiveLobbies(); // Get active lobbies from the function
+
+    // Combine the lobbies from the file with the active status
+    const combinedLobbies = lobbies.map((lobby) => ({
+      ...lobby,
+      active: activeLobbies.includes(lobby.lobby), // Add active status if lobby is in activeLobbies
+    }));
+
+    res.json({ success: true, lobbies: combinedLobbies }); // Send the combined lobbies
+  });
 });
 
 // Function to get active lobbies from the DOM
 function getActiveLobbies() {
-  const lobbies = [];
+  const lobbyFilePath = path.join(__dirname, "userdata", "lobby.json");
 
-  // Select all elements with the data-lobby attribute
-  const lobbyElements = document.querySelectorAll("[data-lobby]");
+  try {
+    // Read the lobby.json file where the lobbies are stored
+    const data = fs.readFileSync(lobbyFilePath, "utf8");
 
-  // Iterate over the selected elements and push their values to the lobbies array
-  lobbyElements.forEach((element) => {
-    const lobbyName = element.getAttribute("data-lobby");
-    if (lobbyName) {
-      lobbies.push(lobbyName); // Add lobby name to the array
-    }
-  });
+    // Parse the lobby data (assuming it's in the format you've mentioned earlier)
+    const lobbies = JSON.parse(data);
 
-  return lobbies; // Return the list of lobby names
+    // Filter out the active lobbies (assuming you have an 'active' property for each lobby)
+    const activeLobbies = lobbies
+      .filter((lobby) => lobby.active === true)
+      .map((lobby) => lobby.lobby);
+
+    return activeLobbies; // Return an array of active lobby names
+  } catch (error) {
+    console.error("Error reading or parsing lobby file:", error);
+    return [];
+  }
 }
 
 // Error handling for invalid routes

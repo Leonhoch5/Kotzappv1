@@ -66,22 +66,28 @@
     </style>
   </head>
   <body>
-    
-    <a href="/index.html" style="position: absolute; color: white; z-index: 100000000;">
+    <a
+      href="/index.html"
+      style="position: absolute; color: white; z-index: 100000000"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; right: 0; margin: 20px"
         >home</span
       >
     </a>
-    <a href="#" style="position: absolute; color: white; z-index: 100000000;" id="backBtn">
+    <a
+      href="#"
+      style="position: absolute; color: white; z-index: 100000000"
+      id="backBtn"
+    >
       <span
         class="material-icons"
         style="position: fixed; top: 0; left: 0; margin: 20px"
         >arrow_back</span
       >
     </a>
-    
+
     <div id="countdown"></div>
     <div id="easterEgg"></div>
     <canvas id="spiralCanvas" class="spiral"></canvas>
@@ -91,13 +97,13 @@
     <div id="surpriseCharacter">🎉</div>
 
     <script>
-      
-      document.getElementById("backBtn").addEventListener("click", function(event) {
-  event.preventDefault(); // Prevent the default anchor behavior
-  window.history.back(); // Go back to the last visited page
-});
+      document
+        .getElementById("backBtn")
+        .addEventListener("click", function (event) {
+          event.preventDefault(); // Prevent the default anchor behavior
+          window.history.back(); // Go back to the last visited page
+        });
 
-      
       // Timer settings
       let targetHour = 16;
       let countdownElem = document.getElementById("countdown");

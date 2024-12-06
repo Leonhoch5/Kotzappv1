@@ -78,6 +78,11 @@
         cursor: pointer;
         color: #25d366;
       }
+      li:hover .activeSpan {
+        text-decoration: underline;
+        cursor: pointer;
+        color: #25d366;
+      }
       #status {
         margin-top: 10px;
         font-weight: bold;
@@ -128,17 +133,17 @@
       }
 
       #banUserAdmin,
-      #clearHistory {
+      #closeLobby {
         color: #ff8800;
       }
 
       #deleteUser,
-      #closeLobby {
+      #deleteLobby{
         color: #e41c0c;
       }
-      
+
       .role-separator {
-        color: #666; 
+        color: #666;
         font-weight: bold;
         text-align: center;
         padding: 11px 0 11px 0;
@@ -217,6 +222,7 @@
       <div id="lobbyMenu" class="message-menu">
         <div class="menu-option" id="clearHistory">Clear History</div>
         <div class="menu-option" id="closeLobby">Close Lobby</div>
+        <div class="menu-option" id="deleteLobby">Delete Lobby</div>
       </div>
 
       <h2>Active Lobbies</h2>
@@ -264,11 +270,24 @@
 
       createSquares();
 
-      // Check if the user is logged in
-      if (!sessionStorage.getItem("loggedIn")) {
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            throw new Error("Invalid encrypted data format");
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          console.error("Error decrypting data:", error);
+          return null;
+        }
+      }
+
+      const username = decryptData(sessionStorage.getItem("username"));
+      const role = decryptData(sessionStorage.getItem("role")); // Get the role from sessionStorage
+      if (!username) {
         window.location.href = "/login.html";
       }
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
       if (role === "banned") {
         window.location.href = "/banned.html";
       }

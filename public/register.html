@@ -201,7 +201,7 @@
             required
           />
           <input
-            style="display: none;"
+            style="display: none"
             type="user"
             id="user"
             name="user"
@@ -217,13 +217,6 @@
     </div>
 
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-      window.onload = () => {
-        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-        if (role === 'banned') {
-          window.location.href = "/banned.html";
-      }
-      }
       const scrollingLine = document.getElementById("scrollingLine");
 
       function createSquares() {
@@ -276,6 +269,26 @@
           alert("An error occurred while registering. Please try again later.");
         }
       });
+      
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            return null;
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          return null;
+        }
+      }
+      window.onload = () => {
+        if (decryptData(sessionStorage.getItem("role")) === "banned") {
+          window.location.href = "/banned.html";
+        }
+      };
+      if (decryptData(sessionStorage.getItem("role")) === "banned") {
+          window.location.href = "/banned.html";
+        }
     </script>
   </body>
 </html>

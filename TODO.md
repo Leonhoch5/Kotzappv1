@@ -1,36 +1,39 @@
-     ——————————————————————
-     |        TODO        |
-     ——————————————————————
+# 📋 TODO List
 
+---
 
+## 🕒 General Tasks
 
-    ——> fetch-user and view-active-lobbys toggable.
-    ——> timer/countdown till "Schule-aus" fridays not showing correctly (saturday/sunday ?) ???
-    ——> front-end of pictures.
-    ——> Working Notifications
-    ——> Lobbys: Set password for Programming lobby
+- **Reply Messages**: Add functionality for replying to messages.
+- **Pin Messages**: Implement message pinning feature.
 
+---
 
-    ——————>>>> LOBBY CREATION
+## 🏛️ Lobby Creation
 
-              ——> role owner (root)(can access evry lobby)(can choose if current user with role owner is hidden(default === true))(just an owner can verteilen role owner, admins not).
+- <a href="https://codepen.io/PXJesse/pen/zYZBmYW" target="_blank">Lobby Creation Menu Animation Codepen</a>
 
-Animation:
+- **Role: Owner (Root)**
+  - Lobby Members
+  - Passwort Lock
+  - Has access to every lobby.
+  - Can decide if the current user with the "owner" role is hidden (`default === true`) inside of settings.
+  - Only an owner can assign the "owner" role; admins do not have this privilege.
 
-    https://codepen.io/romagny13/pen/dXbqJg/
+---
 
-    https://codepen.io/mp_graphic/pen/qByVrK
+## 🎨 Animations
 
-    https://codepen.io/rp20/pen/MjbZPZ
+Here are some code samples and inspirations for animations:
 
-    https://codepen.io/coreyroth/pen/BaEPKK
+- [Animation Example 1 For Settings](https://codepen.io/romagny13/pen/dXbqJg/)
+- [Animation Example 2 For Settings](https://codepen.io/mp_graphic/pen/qByVrK)
+- [Animation Example 3 For Settings](https://codepen.io/rp20/pen/MjbZPZ)
+- [Animation Example 4 For Settings](https://codepen.io/coreyroth/pen/BaEPKK)
+- [Animation Example 5 For Settings](https://codepen.io/florian-gropp/pen/wLGrqj/)
 
-    https://codepen.io/florian-gropp/pen/wLGrqj/
+---
 
+---
 
-
-Notification:
-
-    https://dev.to/oluwatobi_/sending-notifications-in-your-web-apps-3iof
-
-    https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
+---

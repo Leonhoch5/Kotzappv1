@@ -203,16 +203,26 @@
     </div>
 
     <script>
-      const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
-      if (!sessionStorage.getItem("loggedIn")) {
+      function decryptData(encryptedData) {
+        try {
+          // Basic validation check
+          if (!encryptedData || typeof encryptedData !== "string") {
+            throw new Error("Invalid encrypted data format");
+          }
+          return JSON.parse(atob(encryptedData)); // Decode from base64, then parse JSON
+        } catch (error) {
+          console.error("Error decrypting data:", error);
+          return null;
+        }
+      }
+
+      const username = decryptData(sessionStorage.getItem("username"));
+      const role = decryptData(sessionStorage.getItem("role")); // Get the role from sessionStorage
+      if (!username) {
         window.location.href = "/login.html";
       }
 
       window.onload = () => {
-        if (!sessionStorage.getItem("loggedIn")) {
-          sessionStorage.setItem("loggedIn", "true");
-        }
-        const role = sessionStorage.getItem("role"); // Get the role from sessionStorage
         if (role === "banned") {
           window.location.href = "/banned.html";
         }
@@ -250,9 +260,6 @@
 
       const deleteAccountBtn = document.getElementById("deleteAccountBtn");
       const messageDiv = document.getElementById("message");
-
-      // Retrieve the username from sessionStorage
-      const username = sessionStorage.getItem("username");
 
       if (!username) {
         messageDiv.innerText =
