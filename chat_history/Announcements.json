@@ -1,0 +1,17 @@
+[
+  {
+    "id": 0,
+    "username": "System",
+    "timestamp": "2024-11-23T17:22:41.435Z",
+    "message": "This is an Announcements Lobby",
+    "type": "message"
+  },
+  {
+    "id": 1,
+    "username": "System",
+    "timestamp": "2024-11-23T17:22:42.435Z",
+    "message": "Useful Announcements are announced here",
+    "type": "message",
+    "lobby": "Announcements"
+  }
+]

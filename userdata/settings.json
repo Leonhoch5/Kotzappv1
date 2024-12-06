@@ -1,0 +1,26 @@
+[
+  {
+    "username": "Maximilian",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 6
+  },
+  {
+    "username": "Leon",
+    "theme": true,
+    "notifications": false,
+    "randomBackground": false,
+    "autoJoin": false,
+    "currentBackgroundId": 1
+  },
+  {
+    "username": "System",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 14
+  }
+]
