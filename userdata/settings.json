@@ -1,26 +1,93 @@
 [
   {
-    "username": "Maximilian",
-    "theme": true,
-    "notifications": true,
-    "randomBackground": true,
-    "autoJoin": false,
-    "currentBackgroundId": 6
-  },
-  {
-    "username": "Leon",
-    "theme": true,
-    "notifications": false,
-    "randomBackground": false,
-    "autoJoin": false,
-    "currentBackgroundId": 1
-  },
-  {
     "username": "System",
     "theme": true,
     "notifications": true,
     "randomBackground": true,
     "autoJoin": false,
-    "currentBackgroundId": 14
+    "currentBackgroundId": 22
+  },
+  {
+    "username": "Lennart",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": false,
+    "autoJoin": false,
+    "currentBackgroundId": 2
+  },
+  {
+    "username": "Maximilian",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": false,
+    "autoJoin": false,
+    "currentBackgroundId": 55,
+    "hideOwner": false
+  },
+  {
+    "username": "Rafa",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 21
+  },
+  {
+    "username": "Mitchell",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 25
+  },
+  {
+    "username": "Robin",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 31
+  },
+  {
+    "username": "Nico",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 22
+  },
+  {
+    "username": "Thörtchen",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 35
+  },
+  {
+    "username": "Leon",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": false,
+    "autoJoin": false,
+    "currentBackgroundId": 1,
+    "hideOwner": false
+  },
+  {
+    "username": "Julian",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 2
+  },
+  {
+    "username": "root",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 53,
+    "hideOwner": false
   }
 ]

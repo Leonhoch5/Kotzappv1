@@ -13,5 +13,21 @@
     "message": "Useful Announcements are announced here",
     "type": "message",
     "lobby": "Announcements"
+  },
+  {
+    "id": 2,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T13:25:36.371Z",
+    "message": "Pls write useful features, you'd like to have in \"Kotzapp\" to the E-Mail: ",
+    "type": "message",
+    "lobby": "Announcements"
+  },
+  {
+    "id": 3,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T13:26:04.016Z",
+    "message": "kotzapp@outlook.com",
+    "type": "message",
+    "lobby": "Announcements"
   }
 ]

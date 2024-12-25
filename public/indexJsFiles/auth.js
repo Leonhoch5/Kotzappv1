@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (role !== "admin" && role !== "owner") {
     adminLink.style.display = "none";
     adminLinkMobile.style.display = "none";
-    createLobby.style.display = "none";
   }
+  document.getElementById("currentUserDisplay").textContent = `-- User: ${decryptData(sessionStorage.getItem("username"))} --`;
 });
 
 const tooltip = document.getElementById("tooltip");

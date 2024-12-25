@@ -1,0 +1,114 @@
+[
+  {
+    "id": 2,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:37:19.005Z",
+    "message": "Sei glücklich mit dem was du hast, denn es geht immer schlechter !",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 4,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:38:01.142Z",
+    "message": "Glücklich sein ist eine Entscheidung",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 5,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:40:30.826Z",
+    "message": "Kleine Schritte sind besser als keine Schritte",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 6,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:40:57.993Z",
+    "message": "Glück lässt sich nicht erzwingen",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 7,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:41:31.238Z",
+    "message": "Mach das Beste aus dir, etwas Besseres kannst du nicht tun",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 8,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:42:44.304Z",
+    "message": "Der Weg zum Erfolg beginnt mit einem Schritt, also wage ihn mutig!",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 10,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:44:28.863Z",
+    "message": "Traurig sein ist okay, aber kein Ausweg also mach weiter und lass dich nicht runter ziehen!",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 11,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:45:43.046Z",
+    "message": "Auf schlechte Tage werden noch viele schöne folgen, also sei nicht traurig und gehe mit guter Erwartung in den neuen Tag.",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 12,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:47:44.038Z",
+    "message": "Wenn du traurig bist liegt es daran das du nicht zufrieden mit dir bist, also erweise dir gnädigkeit.",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 14,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:48:33.598Z",
+    "message": "Selbst wenn Tage dunkel scheinen werden sie wie eine Wolke nach einiger Zeit vorbeiziehen",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 16,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:49:44.748Z",
+    "message": "Du wirst es weit schaffen, das WEIß ich",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 17,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:52:37.080Z",
+    "message": "Bist du glücklich? Wenn ja mach weiter so wenn nein frage dich warum und versuch genau das zu verändern",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 18,
+    "username": "Robin",
+    "timestamp": "2024-12-11T14:55:20.708Z",
+    "message": "Sei Glücklich und denk nicht das es früher besser war denn so schafst du deine bessere Zukunft",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  },
+  {
+    "id": 19,
+    "username": "Leon",
+    "timestamp": "2024-12-16T20:50:07.491Z",
+    "message": "Ist traurig sein wirklich ok? Weil ich bin traurig...ich habe depressionen und will sterebn (dank maxi), ist das jetzt ok?",
+    "type": "message",
+    "lobby": "Glück-Projekt"
+  }
+]

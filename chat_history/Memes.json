@@ -1,1 +1,808 @@
-[{"id":1,"username":"Leon","timestamp":"2024-11-18T14:44:58.986Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-18T14:44:58.986Z.png"},{"id":2,"username":"Nico","timestamp":"2024-11-19T12:40:50.662Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-19T12:40:50.662Z.png"},{"id":3,"username":"Leon","timestamp":"2024-11-20T09:38:40.156Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-20T09:38:40.156Z.png"},{"id":4,"username":"Lennart","timestamp":"2024-11-20T13:59:10.484Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-20T13:59:10.484Z.png"},{"id":5,"username":"Nico","timestamp":"2024-11-20T21:35:26.713Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-20T21:35:26.713Z.png"},{"id":7,"username":"Lennart","timestamp":"2024-11-21T12:46:03.325Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:46:03.325Z.png"},{"id":8,"username":"Lennart","timestamp":"2024-11-21T12:47:08.058Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:47:08.058Z.png"},{"id":10,"username":"Lennart","timestamp":"2024-11-21T12:47:21.157Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:47:21.157Z.png"},{"id":14,"username":"Nico","timestamp":"2024-11-21T12:48:19.509Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:48:19.509Z.png"},{"id":15,"username":"Nico","timestamp":"2024-11-21T12:48:29.895Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:48:29.895Z.png"},{"id":16,"username":"Nico","timestamp":"2024-11-21T12:48:39.103Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:48:39.103Z.png"},{"id":17,"username":"Nico","timestamp":"2024-11-21T12:48:58.056Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T12:48:58.056Z.png"},{"id":18,"username":"Lennart","timestamp":"2024-11-21T13:21:43.378Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T13:21:43.378Z.png"},{"id":19,"username":"Leon","timestamp":"2024-11-21T14:10:42.833Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T14:10:42.833Z.png"},{"id":20,"username":"Leon","timestamp":"2024-11-21T14:10:51.632Z","message":"Falschparkee woohoo","type":"message"},{"id":21,"username":"Leon","timestamp":"2024-11-21T14:12:17.865Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-21T14:12:17.865Z.png"},{"id":22,"username":"Leon","timestamp":"2024-11-22T10:16:29.536Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-22T10:16:29.536Z.png"},{"id":24,"username":"Lennart","timestamp":"2024-11-29T09:35:52.174Z","type":"picture","imageUrl":"/uploads/Memes/2024-11-29T09:35:52.174Z.png"}]
+[
+  {
+    "id": 1,
+    "username": "Leon",
+    "timestamp": "2024-11-18T14:44:58.986Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-18T14:44:58.986Z.png"
+  },
+  {
+    "id": 2,
+    "username": "Nico",
+    "timestamp": "2024-11-19T12:40:50.662Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-19T12:40:50.662Z.png"
+  },
+  {
+    "id": 3,
+    "username": "Leon",
+    "timestamp": "2024-11-20T09:38:40.156Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-20T09:38:40.156Z.png"
+  },
+  {
+    "id": 4,
+    "username": "Lennart",
+    "timestamp": "2024-11-20T13:59:10.484Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-20T13:59:10.484Z.png"
+  },
+  {
+    "id": 5,
+    "username": "Nico",
+    "timestamp": "2024-11-20T21:35:26.713Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-20T21:35:26.713Z.png"
+  },
+  {
+    "id": 7,
+    "username": "Lennart",
+    "timestamp": "2024-11-21T12:46:03.325Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:46:03.325Z.png"
+  },
+  {
+    "id": 8,
+    "username": "Lennart",
+    "timestamp": "2024-11-21T12:47:08.058Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:47:08.058Z.png"
+  },
+  {
+    "id": 10,
+    "username": "Lennart",
+    "timestamp": "2024-11-21T12:47:21.157Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:47:21.157Z.png"
+  },
+  {
+    "id": 14,
+    "username": "Nico",
+    "timestamp": "2024-11-21T12:48:19.509Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:48:19.509Z.png"
+  },
+  {
+    "id": 15,
+    "username": "Nico",
+    "timestamp": "2024-11-21T12:48:29.895Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:48:29.895Z.png"
+  },
+  {
+    "id": 16,
+    "username": "Nico",
+    "timestamp": "2024-11-21T12:48:39.103Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:48:39.103Z.png"
+  },
+  {
+    "id": 17,
+    "username": "Nico",
+    "timestamp": "2024-11-21T12:48:58.056Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T12:48:58.056Z.png"
+  },
+  {
+    "id": 18,
+    "username": "Lennart",
+    "timestamp": "2024-11-21T13:21:43.378Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T13:21:43.378Z.png"
+  },
+  {
+    "id": 19,
+    "username": "Leon",
+    "timestamp": "2024-11-21T14:10:42.833Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T14:10:42.833Z.png"
+  },
+  {
+    "id": 20,
+    "username": "Leon",
+    "timestamp": "2024-11-21T14:10:51.632Z",
+    "message": "Falschparkee woohoo",
+    "type": "message"
+  },
+  {
+    "id": 21,
+    "username": "Leon",
+    "timestamp": "2024-11-21T14:12:17.865Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-21T14:12:17.865Z.png"
+  },
+  {
+    "id": 22,
+    "username": "Leon",
+    "timestamp": "2024-11-22T10:16:29.536Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-22T10:16:29.536Z.png"
+  },
+  {
+    "id": 24,
+    "username": "Lennart",
+    "timestamp": "2024-11-29T09:35:52.174Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-11-29T09:35:52.174Z.png"
+  },
+  {
+    "id": 25,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T13:44:16.381Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T13:44:16.381Z.png"
+  },
+  {
+    "id": 26,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T13:44:30.843Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T13:44:30.843Z.png"
+  },
+  {
+    "id": 27,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T13:44:59.990Z",
+    "message": "👍",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 28,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T13:46:36.270Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T13:46:36.270Z.png"
+  },
+  {
+    "id": 29,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T13:46:54.698Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T13:46:54.698Z.png"
+  },
+  {
+    "id": 30,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T13:49:07.277Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T13:49:07.277Z.png"
+  },
+  {
+    "id": 31,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:06:48.026Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:06:48.026Z.png"
+  },
+  {
+    "id": 32,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:06:55.331Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:06:55.331Z.png"
+  },
+  {
+    "id": 33,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:07:03.047Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:07:03.047Z.png"
+  },
+  {
+    "id": 34,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:07:49.604Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:07:49.604Z.png"
+  },
+  {
+    "id": 35,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:07:54.736Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:07:54.736Z.png"
+  },
+  {
+    "id": 36,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:44:55.896Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:44:55.896Z.png"
+  },
+  {
+    "id": 37,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:04.412Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:04.412Z.png"
+  },
+  {
+    "id": 38,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:11.200Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:11.200Z.png"
+  },
+  {
+    "id": 39,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:16.831Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:16.831Z.png"
+  },
+  {
+    "id": 40,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:22.745Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:22.745Z.png"
+  },
+  {
+    "id": 41,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T14:45:26.155Z",
+    "message": "👍",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 42,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:28.520Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:28.520Z.png"
+  },
+  {
+    "id": 43,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:38.095Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:38.095Z.png"
+  },
+  {
+    "id": 44,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:45:45.401Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:45:45.401Z.png"
+  },
+  {
+    "id": 45,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:46:15.963Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:46:15.963Z.png"
+  },
+  {
+    "id": 46,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T14:46:33.384Z",
+    "message": "👍",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 47,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:46:37.078Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:46:37.078Z.png"
+  },
+  {
+    "id": 48,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:46:54.236Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:46:54.236Z.png"
+  },
+  {
+    "id": 49,
+    "username": "Lennart",
+    "timestamp": "2024-12-10T14:49:34.814Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:49:34.814Z.png"
+  },
+  {
+    "id": 50,
+    "username": "Lennart",
+    "timestamp": "2024-12-10T14:50:49.600Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:50:49.600Z.png"
+  },
+  {
+    "id": 51,
+    "username": "Maximilian",
+    "timestamp": "2024-12-10T14:51:16.876Z",
+    "message": "🤭",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 52,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:55:08.628Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:55:08.628Z.png"
+  },
+  {
+    "id": 53,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:55:15.780Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:55:15.780Z.png"
+  },
+  {
+    "id": 54,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:55:20.898Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-10T14:55:20.898Z.png"
+  },
+  {
+    "id": 55,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:58:09.427Z",
+    "message": "Ich habe einen Joghurt fallen gelassen. Denn er war nicht mehr haltbar.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 56,
+    "username": "Mitchell",
+    "timestamp": "2024-12-10T14:58:39.194Z",
+    "message": "Im Zoo: \"Mama, ich mag es nicht, wie der Gorilla da hinter der Scheibe mich anguckt.\" \"Psst, das ist erst das Kassenhäuschen!\"",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 57,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T08:02:48.378Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-11T08:02:48.378Z.png"
+  },
+  {
+    "id": 58,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T08:02:57.342Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-11T08:02:57.342Z.png"
+  },
+  {
+    "id": 59,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:03:37.856Z",
+    "message": "„Warum hat das Mathematikbuch Selbstmord begangen? — Weil es zu viele Probleme hatte.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 60,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:03:58.862Z",
+    "message": "„Was sucht ein Einarmiger in der Fußgängerzone?” — „Einen Secondhand-Shop.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 61,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:04:21.966Z",
+    "message": "„Meine Frau sagt, ich würde die Kinder unfair behandeln. Ich weiß nicht einmal, welches sie meint: Lisa, Felix oder das Hässliche.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 62,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:04:31.696Z",
+    "message": "„Welche Autofahrer sind besonders nett?” — „Geisterfahrer, sie sind immer entgegenkommend.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 63,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:04:43.639Z",
+    "message": "„Wenn meine Frau singt, gehe ich immer vor die Tür und spreche mit den Nachbarn. So wissen alle, dass ich sie nicht schlage.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 64,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:04:56.499Z",
+    "message": "Eine dicke Frau steht vorm Spiegel und fragt „Spieglein, Spieglein an der Wand — wer ist die Schönste im ganzen Land?“. Darauf antwortet der Spiegel: „Geh mal zur Seite, ich kann ja gar nichts sehen.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 65,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:05:09.402Z",
+    "message": "„Wie heißt ein Hund ohne Beine?“ — Egal, der kommt eh nicht, wenn man ihn ruft.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 66,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:05:26.706Z",
+    "message": "„Ein Mann ist letztens an einem Pfannkuchen erstickt. Er ist im wahrsten Sinne des Wortes crêpiert.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 67,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:05:40.607Z",
+    "message": "Fragt ein Passant: „Entschuldigen Sie, wie komme ich am schnellsten zum Krankenhaus?“  — „Stellen Sie sich einfach in die Mitte der Straße.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 68,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:05:53.910Z",
+    "message": "„Ich habe dir ein Geschenk mitgebracht. Ich weiß, das ist keine Entschuldigung dafür, dass ich deine Katze überfahren habe…“ — „Du hast WAS getan???“  — „Dir ein Geschenk mitgebracht.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 69,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:06:14.705Z",
+    "message": "Ein Bergführer in Österreich sagt zu den Touristen: „Der nächste Grat am Felsen vorbei ist sehr steil und gefährlich! Halten Sie sich gut fest und passen Sie auf! Wenn Sie trotzdem abstürzen sollten, vergessen Sie nicht, nach links zu schauen, dort haben Sie eine tolle Aussicht!“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 70,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:06:31.148Z",
+    "message": "„Ich kann an einer Hand abzählen, wie oft ich schon in Tschernobyl war.“ — „Wie oft?“ — „Sieben mal.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 71,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:06:45.638Z",
+    "message": "Fragt der Enkel den Großvater: „Opa, warum hast du keine Lebensversicherung?“ — „Damit ihr alle sehr traurig seid, wenn ich eines Tages sterbe.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 72,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:07:00.935Z",
+    "message": "„Biete Fallschirm; noch nie geöffnet; paar rote Flecken.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 73,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:07:18.402Z",
+    "message": "Arzt: „Übergewicht ist nicht gut für die Gesundheit, sie sind eindeutig viel zu dick.“  — Patient: „Ich würde gerne noch eine zweite Meinung hören.“ — Arzt: „Sie sind außerdem hässlich.“",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 74,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:08:22.625Z",
+    "message": "Wenn Du Nudeln auf den Rand eines Bildes legst... ... werden sie dan automatisch Ramen?",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 75,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:08:31.846Z",
+    "message": "Wie nennt man einen Cowboy ohne Pferd? Einen Sattelschlepper",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 76,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:08:42.093Z",
+    "message": "Warum hat man im Wald schlechten Handyempfang? Überall nur Zwei-ge",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 77,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:08:49.678Z",
+    "message": "Welcher Bär kann fliegen? Der Hubschraubär",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 78,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:08:59.410Z",
+    "message": "Warum können Seeräuber kein Mathe? Weil sie Pi raten sind",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 79,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:08.387Z",
+    "message": "Was macht ein Clown im Büro? Faxen",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 80,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:16.498Z",
+    "message": "Ein Igel in der Kondomfabrik?`Kinderüberraschung",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 81,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:23.612Z",
+    "message": "Warum steht ein Pils im Wald? Weil die Tannenzapfen",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 82,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:30.082Z",
+    "message": "Was grüßt freundlich vom Baum herunter? Ein Huh Huh",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 83,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:36.217Z",
+    "message": "Warum fliegt der Vogel so langsam? Das ist eine Drossel",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 84,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:44.149Z",
+    "message": "Wer schummelt im Dschungel? Mogli",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 85,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:09:52.282Z",
+    "message": "Wie nennt man Lettlands Einwohner seit dem EU-Beitritt? Europaletten",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 86,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:10:40.384Z",
+    "message": "Wohin soll man gehen, wenn einem kalt ist? In die Ecke, da sind 90 Grad.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 87,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:10:49.666Z",
+    "message": "Was trinkt die nationalsozialistische Führungskräfte? Leitungswasser.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 88,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:11:38.187Z",
+    "message": "Vater: “Bist du per Anhalter gekommen?” Kind: “Wieso?” Vater: “Siehst so mitgenommen aus.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 89,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:11:46.267Z",
+    "message": "Wer sollte einem nie die Daumen drücken? Der Folterknecht.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 90,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:11:52.256Z",
+    "message": "Sie: “Heute Nacht werden die Uhren vorgestellt.” Er: “Ok! Darf ich vorstellen: Wecker! Wecker, das ist meine Frau!”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 91,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:12:25.139Z",
+    "message": "Sie: “Heute Nacht werden die Uhren vorgestellt.” Er: “Ok! Darf ich vorstellen: Wecker! Wecker, das ist meine Frau!”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 92,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:12:49.916Z",
+    "message": "Wie heißt der Gott der Ungeduld? Hammersbald.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 93,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:12:57.759Z",
+    "message": "Was essen Sanitäter besonders gern? Rettich.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 94,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:13:06.206Z",
+    "message": "Ich hatte heute mit meiner Frau eine Diskussion im Aufzug. Lag auf so vielen Ebenen falsch.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 95,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:13:18.339Z",
+    "message": "Was findet man im Urwald auf dem Boden? Urlaub.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 96,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:13:43.344Z",
+    "message": "Die Würde eines Mannes ist unten tastbar.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 97,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:13:56.060Z",
+    "message": "Was ist ein Keks unterm Baum? Ein schattiges Plätzchen.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 98,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:14:10.620Z",
+    "message": "Frage an Papa: “Wann bist du Zuhause?” Papas SMS-Antwort: “=”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 99,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:04.433Z",
+    "message": "Warum summen Bienen? Weil sie den Text nicht kennen.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 100,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:19.327Z",
+    "message": "Geht ein Neutron in die Disco. Sagt der Türsteher: “Nur für geladene Gäste.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 101,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:29.515Z",
+    "message": "Kind: “Papa, was ist das Beste an der Schweiz?” Vater: “Ich weiß es nicht, aber die Flagge ist ein großes Plus.”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 102,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:39.616Z",
+    "message": "Was ist rechtlich geschützt und schwimmt auf dem See? Die Patente.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 103,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:48.449Z",
+    "message": "Stiftung Warentest hat Besteck getestet. Das Messer hat am besten abgeschnitten.",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 104,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:15:56.858Z",
+    "message": "Was sagt der große Stift zum kleinen Stift? “Wachsmalstift!”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 105,
+    "username": "Maximilian",
+    "timestamp": "2024-12-11T08:16:04.354Z",
+    "message": "Treffen sich zwei Kerzen: Sagt die eine zur anderen: “Gehen wir heute aus?”",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 106,
+    "username": "Lennart",
+    "timestamp": "2024-12-11T14:52:09.496Z",
+    "message": "Warum hat die Kerze angst vor der Kuchen? Es ist ein Pustekuchen",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 107,
+    "username": "Maximilian",
+    "timestamp": "2024-12-16T10:52:00.031Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-16T10:52:00.031Z.png"
+  },
+  {
+    "id": 108,
+    "username": "Mitchell",
+    "timestamp": "2024-12-16T13:40:14.381Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-16T13:40:14.381Z.png"
+  },
+  {
+    "id": 109,
+    "username": "Lennart",
+    "timestamp": "2024-12-17T08:03:27.994Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-17T08:03:27.994Z.png"
+  },
+  {
+    "id": 110,
+    "username": "Lennart",
+    "timestamp": "2024-12-17T08:03:37.720Z",
+    "type": "picture",
+    "imageUrl": "/uploads/Memes/2024-12-17T08:03:37.720Z.png"
+  },
+  {
+    "id": 111,
+    "username": "Leon",
+    "timestamp": "2024-12-19T13:26:34.683Z",
+    "message": "Du furz",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 112,
+    "username": "Leon",
+    "timestamp": "2024-12-19T13:28:09.375Z",
+    "message": "Mein **** tut weh",
+    "type": "message",
+    "lobby": "Memes"
+  },
+  {
+    "id": 113,
+    "username": "Leon",
+    "timestamp": "2024-12-19T13:30:32.704Z",
+    "message": "Du *****",
+    "type": "message",
+    "lobby": "Memes"
+  }
+]

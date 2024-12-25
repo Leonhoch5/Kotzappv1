@@ -219,45 +219,82 @@ app.post("/delete-lobby", (req, res) => {
 
 // Function to add a new lobby with active set to false, members as an empty array, and status as private
 function addLobby(lobbyName, username, password = null) {
-  const lobbies = getLobbies();
+  try {
+    const lobbies = getLobbies();
 
-  // Check if the lobby already exists
-  if (lobbies.some((lobby) => lobby.lobby === lobbyName)) {
-    throw new Error("Lobby already exists");
+    // Check if the lobby already exists
+    if (lobbies.some((lobby) => lobby.lobby === lobbyName)) {
+      return { error: "Lobby already exists" };
+    }
+
+    // Add the new lobby to the list
+    const newLobby = {
+      lobby: lobbyName,
+      active: false,
+      status: "private",
+      password, 
+      lobbyOwner: username,
+      members: [username],
+    };
+    lobbies.push(newLobby);
+
+    saveLobbies(lobbies);
+
+    // Broadcast the new lobby to active lobbies only
+    const activeLobbies = getActiveLobbies();
+    activeLobbies.forEach((activeLobby) => {
+      broadcastToLobby({ type: "newLobby", lobby: newLobby }, activeLobby);
+    });
+
+    return { success: true, lobby: newLobby }; // Ensure success is returned
+  } catch (error) {
+    console.error("Error in addLobby:", error);
+    return { error: "Internal server error" }; // Graceful error handling
   }
-
-  // Add the new lobby to the list with the provided details
-  lobbies.push({
-    lobby: lobbyName,
-    active: false,
-    status: "private",
-    lobbyOwner: username,
-    members: [username, "root"],
-    password, // Add password field, null if no password provided
-  });
-
-  saveLobbies(lobbies);
-
-  // Broadcast to active lobbies only
-  const activeLobbies = getActiveLobbies();
-  activeLobbies.forEach((activeLobby) => {
-    broadcastToLobby({ type: "newLobby" }, activeLobby);
-  });
 }
 
+app.post("/join-lobby", (req, res) => {
+  const { lobbyName, username, role, password } = req.body;
+
+  const lobbies = JSON.parse(fs.readFileSync(lobbyFilePath, "utf8"));
+  const lobby = lobbies.find((lobby) => lobby.lobby === lobbyName);
+  
+  if (!role) {
+    return res.status(404).json({ success: false, message: `Role of user '${username}' not found` });
+  }
+  
+  if (role === "owner") {
+    return res.json({ success: true, message: `Joined lobby '${lobbyName}'`, lobbies });
+  }
+
+  if (!lobby) {
+    return res.status(404).json({ success: false, message: `Lobby '${lobbyName}' not found` });
+  }
+
+  if (lobby.password && lobby.password !== password) {
+    return res.status(403).json({ success: false, message: "Incorrect password" });
+  }
+
+  if (!lobby.members.includes(username)) {
+    lobby.members.push(username);
+    fs.writeFileSync(lobbyFilePath, JSON.stringify(lobbies, null, 2));
+  }
+
+  res.json({ success: true, message: `Joined lobby '${lobbyName}'`, lobbies });
+});
 
 // Endpoint to create a new lobby
 app.post("/create-lobby", (req, res) => {
   const { lobbyName, username, password } = req.body;
 
-  try {
-    addLobby(lobbyName, username, password || null);
-    res.json({ message: "Lobby created successfully", lobbies: getLobbies() });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+  const result = addLobby(lobbyName, username, password || null);
 
+  if (result.error) {
+    return res.status(400).json({ error: result.error });
+  }
+
+  res.json({ message: "Lobby created successfully", lobbies: getLobbies() });
+});
 
 // Add member to lobby
 app.post("/add-member", (req, res) => {
@@ -392,6 +429,7 @@ app.get("/api/user-settings/:username", (req, res) => {
         theme: true, // Default to Light Mode
         notifications: true, // Default notifications on
         randomBackground: true, // Default random background off
+        autoJoin: false, // Default autoJoin off
         currentBackgroundId: 1, // Default background ID (1 if not set)
       });
     }
@@ -770,25 +808,35 @@ wss.on("connection", (ws) => {
     const data = JSON.parse(message);
 
     if (parsedMessage.type === "join") {
-      clients.set(ws, data.username);
-      console.log(`${data.username} joined the chat.`);
-      currentLobby = parsedMessage.lobby;
-      username = parsedMessage.username;
-      role = parsedMessage.role;
+  clients.set(ws, {
+    username: data.username,
+    role: data.role
+  });
+  
+  console.log(`${data.username} joined the chat.`);
+  currentLobby = parsedMessage.lobby;
+  username = parsedMessage.username;
+  role = parsedMessage.role;
 
-      // Initialize lobby if it doesn't exist
-      if (!lobbies[currentLobby]) {
-        lobbies[currentLobby] = new Set();
-      }
-      lobbies[currentLobby].add({ ws, username });
+  // Initialize lobby if it doesn't exist
+  if (!lobbies[currentLobby]) {
+    lobbies[currentLobby] = new Set();
+  }
 
-      sendChatHistory(ws, currentLobby);
-      broadcastOnlineUsers(currentLobby);
-      console.log(`Client ${username} joined lobby: ${currentLobby}`);
+  // Store complete client info in lobby
+  lobbies[currentLobby].add({
+    ws,
+    username,
+    role
+  });
 
-      // Set username as a property on the WebSocket object
-      ws.username = username; // Store username on the ws object
-    } else if (parsedMessage.type === "ping") {
+  sendChatHistory(ws, currentLobby);
+  broadcastOnlineUsers(currentLobby);
+  console.log(`Client ${username} (${role}) joined lobby: ${currentLobby}`);
+
+  ws.username = username;
+  ws.role = role;
+} else if (parsedMessage.type === "ping") {
       ws.send(JSON.stringify({ type: "pong" }));
     } else if (parsedMessage.type === "message" && currentLobby) {
       // Handle admin commands
@@ -984,14 +1032,16 @@ wss.on("connection", (ws) => {
   }
 
   ws.on("close", () => {
-    clients.delete(ws); // Remove the client from the map
-    if (currentLobby && lobbies[currentLobby]) {
-      lobbies[currentLobby] = new Set(
-        [...lobbies[currentLobby]].filter((client) => client.ws !== ws)
-      );
-      broadcastOnlineUsers(currentLobby);
-    }
-  });
+  const clientInfo = clients.get(ws);
+  clients.delete(ws);
+  
+  if (currentLobby && lobbies[currentLobby]) {
+    lobbies[currentLobby] = new Set(
+      [...lobbies[currentLobby]].filter(client => client.ws !== ws)
+    );
+    broadcastOnlineUsers(currentLobby);
+  }
+});
 
   function getNextMessageId(lobby) {
     const chatHistoryFile = path.join(chatHistoryDir, `${lobby}.json`);
@@ -1073,9 +1123,39 @@ wss.on("connection", (ws) => {
 });
 
 function broadcastOnlineUsers(lobby) {
-  const onlineUsers = [...lobbies[lobby]].map((client) => client.username);
-  const message = JSON.stringify({ type: "onlineUsers", users: onlineUsers });
-  lobbies[lobby].forEach((client) => client.ws.send(message));
+  if (!lobbies[lobby]) return;
+
+  fs.readFile(settingsFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading settings:', err);
+      return;
+    }
+
+    try {
+      const settings = JSON.parse(data);
+      const lobbyUsers = Array.from(lobbies[lobby]);
+
+      // Create filtered list - include non-owners and visible owners
+      const filteredUsers = lobbyUsers
+        .filter(client => {
+          if (client.role !== 'owner') return true;
+          const ownerSettings = settings.find(s => s.username === client.username);
+          return ownerSettings?.hideOwner === false;
+        })
+        .map(client => client.username);
+
+      // Broadcast same filtered list to everyone
+      lobbyUsers.forEach(({ws}) => {
+        ws.send(JSON.stringify({
+          type: 'onlineUsers',
+          users: filteredUsers
+        }));
+      });
+
+    } catch (error) {
+      console.error('Error processing online users:', error);
+    }
+  });
 }
 
 function sendChatHistory(client, lobby) {
@@ -1085,6 +1165,49 @@ function sendChatHistory(client, lobby) {
     : [];
 
   client.send(JSON.stringify({ type: "chatHistory", messages: chatHistory }));
+}
+
+// Route to make a user an owner
+function makeOwner(username, res) {
+  db.get(
+    `SELECT role FROM users WHERE username = ?`,
+    [username],
+    function (err, row) {
+      if (err) {
+        console.error("Error fetching user role:", err.message);
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching user role.",
+        });
+      }
+      if (row && row.role !== "owner") {
+        db.run(
+          `UPDATE users SET role = 'admin' WHERE username = ?`,
+          [username],
+          function (err) {
+            if (err) {
+              console.error("Error promoting user to admin:", err.message);
+              return res.status(500).json({
+                success: false,
+                message: "Error promoting user to admin.",
+              });
+            }
+            if (this.changes > 0) {
+              sendRoleChangeToClient(username, "owner"); // Send role change to the specific client
+              broadcastToLobby({
+                type: "system",
+                message: `User ${username} is now an admin.`,
+              });
+            } else {
+              res
+                .status(404)
+                .json({ success: false, message: "User not found." });
+            }
+          }
+        );
+      }
+    }
+  );
 }
 
 // Route to make a user an admin
@@ -1305,7 +1428,6 @@ function saveToChatHistory(message, lobby) {
 function broadcastToLobby(message, lobbyName) {
   // Ensure the lobby exists
   if (!lobbies[lobbyName]) {
-    console.error("Lobby not found: " + lobbyName);
     return; // Stop execution if the lobby doesn't exist
   }
 

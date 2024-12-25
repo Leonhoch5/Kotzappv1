@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         clock.style.color = color;
         count.style.color = color;
         isGreen = !isGreen;
-      }, 1000); // Toggle every 500ms
+      }, 500); // Toggle every 500ms
     }
   }
 });

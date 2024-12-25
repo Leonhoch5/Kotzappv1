@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Application</title>
+    <title>Kotzapp</title>
     <link
       rel="icon"
       type="image/x-icon"
@@ -170,6 +170,12 @@
           <input type="checkbox" id="autoJoin" />
           <label for="autoJoin">Auto Join Lobby Onload</label>
         </div>
+        <div class="owner-settings" style="display: none">
+          <div class="input-group">
+            <input type="checkbox" id="hideOwner" checked />
+            <label for="hideOwner">Vanish</label>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -214,6 +220,7 @@
                 >
               </div>
             </label>
+            <div id="currentUserDisplay">-- Writing as: XXXXX --</div>
             <div id="chat"></div>
 
             <div id="moreMenu" class="more-menu" style="display: none">
@@ -275,35 +282,34 @@
       </div>
     </div>
 
-<div id="lobbyMenu" class="modal">
-  <div class="modal-content">
-    <!-- Close Button with Material Icon -->
-    <span class="material-symbols-outlined close-modal">close</span>
-    <h2>Create a New Lobby</h2>
-    <input
-      type="text"
-      id="lobbyNameInput"
-      class="lobby-input"
-      placeholder="Enter lobby name..."
-    />
-    <div class="password-toggle">
-      <input type="checkbox" id="enablePassword" />
-      <label for="enablePassword">Require Password</label>
+    <div id="lobbyMenu" class="modal">
+      <div class="modal-content">
+        <!-- Close Button with Material Icon -->
+        <span class="material-symbols-outlined close-modal">close</span>
+        <h2>Create a New Lobby</h2>
+        <input
+          type="text"
+          id="lobbyNameInput"
+          class="lobby-input"
+          placeholder="Enter lobby name..."
+        />
+        <div class="password-toggle">
+          <input type="checkbox" id="enablePassword" />
+          <label for="enablePassword">Require Password</label>
+        </div>
+        <input
+          type="password"
+          id="lobbyPasswordInput"
+          class="lobby-input"
+          placeholder="Enter password..."
+          style="display: none"
+        />
+        <button type="submit" id="createLobbySubmit" class="create-button">
+          <span class="material-symbols-outlined">check</span>
+          Create Lobby
+        </button>
+      </div>
     </div>
-    <input
-      type="password"
-      id="lobbyPasswordInput"
-      class="lobby-input"
-      placeholder="Enter password..."
-      style="display: none;"
-    />
-    <button type="submit" id="createLobbySubmit" class="create-button">
-      <span class="material-symbols-outlined">check</span>
-      Create Lobby
-    </button>
-  </div>
-</div>
-
 
     <script src="indexJsFiles/auth.js"></script>
     <script src="indexJsFiles/theme.js"></script>
@@ -311,5 +317,8 @@
     <script src="indexJsFiles/countdown.js"></script>
     <script src="indexJsFiles/kicked.js"></script>
     <script src="indexJsFiles/christmasMode.js"></script>
+    
+    <!-- imports -->
+
   </body>
 </html>
