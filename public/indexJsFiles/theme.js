@@ -1,8 +1,3 @@
-var script = document.createElement('script');
-script.src = 'https://code.jquery.com/jquery-3.6.3.min.js'; // Check https://jquery.com/ for the current version
-document.getElementsByTagName('head')[0].appendChild(script);
-
-
 const MessageSend = document.querySelector(".MessageSend");
 function toggleMobileMenu() {
   const mobileMenu = document.querySelector(".mobile-menu");
@@ -124,17 +119,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const autoJoinCheckbox = document.getElementById("autoJoin");
   const hideOwnerToggle = document.getElementById("hideOwner");
 
-  if (username) {
-    loadUserSettings(username);
+  function InitiallyCalls() {
+    loadUserSettings(username).then(() => {
+      document.getElementById("ThemeJS").checked = true;
+    });
   }
-  
+
+  if (username) {
+    InitiallyCalls();
+  }
+
   // Save settings on theme change
   themeSelect.addEventListener("change", saveUserSettings);
   notificationsToggle.addEventListener("change", saveUserSettings);
   randomBackgroundToggle.addEventListener("change", saveUserSettings);
   autoJoinCheckbox.addEventListener("change", saveUserSettings);
   hideOwnerToggle.addEventListener("change", saveUserSettings);
-
 
   // Listen for background changes
   backgroundSelector.addEventListener("click", (event) => {
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadUserSettings(username) {
-  fetch("/userdata/background.json")
+  return fetch("/userdata/background.json")
     .then((response) => response.json())
     .then((data) => {
       array = data;
@@ -164,7 +164,8 @@ function loadUserSettings(username) {
         .then((settings) => {
           const themeSelect = document.getElementById("theme");
           const notificationsToggle = document.getElementById("notifications");
-          const randomBackgroundToggle = document.getElementById("randomBackground");
+          const randomBackgroundToggle =
+            document.getElementById("randomBackground");
           const autoJoinCheckbox = document.getElementById("autoJoin");
           const hideOwnerToggle = document.getElementById("hideOwner");
           const ownerSection = document.querySelector(".owner-settings");
@@ -184,7 +185,9 @@ function loadUserSettings(username) {
 
           applyTheme(themeSelect.value);
 
-          const backgroundSelector = document.getElementById("background-selector");
+          const backgroundSelector = document.getElementById(
+            "background-selector"
+          );
           if (!settings.randomBackground) {
             backgroundSelector.style.display = "block";
           }
@@ -196,16 +199,20 @@ function loadUserSettings(username) {
           // Add event listeners
           autoJoinCheckbox.addEventListener("change", () => {
             if (autoJoinCheckbox.checked) {
-              window.dispatchEvent(new CustomEvent("autoJoinChecked", {
-                detail: { checked: true }
-              }));
+              window.dispatchEvent(
+                new CustomEvent("autoJoinChecked", {
+                  detail: { checked: true },
+                })
+              );
             }
           });
 
           if (autoJoinCheckbox.checked) {
-            window.dispatchEvent(new CustomEvent("autoJoinChecked", {
-              detail: { checked: true }
-            }));
+            window.dispatchEvent(
+              new CustomEvent("autoJoinChecked", {
+                detail: { checked: true },
+              })
+            );
           }
         })
         .catch((error) => console.error("Error loading user settings:", error));
@@ -221,14 +228,14 @@ function saveUserSettings() {
   const randomBackground = document.getElementById("randomBackground").checked;
   const autoJoin = document.getElementById("autoJoin").checked;
   const hideOwner = document.getElementById("hideOwner").checked;
-  
+
   const settings = {
     username,
     theme,
     notifications,
     randomBackground,
     autoJoin,
-    currentBackgroundId: currentBackgroundId || 1
+    currentBackgroundId: currentBackgroundId || 1,
   };
 
   // Add hideOwner setting only for owner role
@@ -267,33 +274,27 @@ function setBackground(url) {
   saveUserSettings();
 }
 
-// Find the background ID based on the URL
 function findBackgroundIdByUrl(url) {
   const background = array.find((item) => item.url === url);
   return background ? background.id : 1; // Return the ID if a match is found
 }
 
-// Observe changes to the background of the chat element
 function observeBackgroundChange() {
   const chat = document.getElementById("chat");
 
-  // Create a MutationObserver to monitor changes to the 'backgroundImage' style
   const observer = new MutationObserver(() => {
     const backgroundUrl = chat.style.backgroundImage;
     if (backgroundUrl && backgroundUrl !== "none") {
       const match = backgroundUrl.match(/url\(["'](.*?)["']\)/); // Extract the URL from backgroundImage
       if (match && match[1]) {
-        // If the background URL changes, update the background ID
         currentBackgroundId = findBackgroundIdByUrl(match[1]);
         saveUserSettings(); // Save the updated background ID
       }
     }
   });
 
-  // Configure the observer to watch for changes in the 'backgroundImage' property
   observer.observe(chat, {
     attributes: true,
     attributeFilter: ["style"],
   });
 }
-

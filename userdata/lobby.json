@@ -6,9 +6,9 @@
     "password": null,
     "lobbyOwner": "",
     "members": [
-      "Lennart",
+      "admin",
       "Nico",
-      "Julian"
+      "QuizzityMC"
     ]
   },
   {
@@ -18,8 +18,7 @@
     "password": null,
     "lobbyOwner": "",
     "members": [
-      "Lennart",
-      "Julian"
+      "QuizzityMC"
     ]
   },
   {
@@ -30,8 +29,8 @@
     "lobbyOwner": "",
     "members": [
       "Lennart",
-      "Mitchell",
-      "Julian"
+      "Julian",
+      "admin"
     ]
   },
   {

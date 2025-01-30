@@ -288,10 +288,6 @@ nav ul li button:hover {
   transition-delay: 0s;
 }
 
-#burgerHelper:not(:checked) ~ #MessageSend {
-  opacity: 1;
-}
-
 #currentUserDisplay {
   align-self: center;
   position: absolute;
@@ -320,12 +316,17 @@ nav ul li button:hover {
   height: 100%;
   z-index: 8;
   border-radius: 20px;
-  transition: 0.5s;
-  transition-delay: 0.5s;
+  transition-delay: 0s;
   overflow: scroll;
   display: flex;
   justify-content: center;
   padding: 50px 30px 30px 30px;
+  transition: background 0.5s ease, transform 0.5s ease;
+}
+
+
+.lobby-selection:hover {
+  transform: scale(1.02);
 }
 
 .lobby-selection > ul {
@@ -334,16 +335,28 @@ nav ul li button:hover {
   padding: 0;
   margin: 0;
   width: 100%;
+  max-width: 800px;
 }
 
 .lobby-selection > ul > li {
   margin: 10px 0;
   padding: 20px 20px 20px 40px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  color: #333333;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  transition: background 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.lobby-selection > ul > li:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .lobby-option {
@@ -852,7 +865,7 @@ nav ul {
   border-radius: 20px;
   position: sticky;
   top: 0;
-  z-index: 1000000000000000000000000000;
+  z-index: 999999;
 }
 
 #rulesBackground {
@@ -1361,6 +1374,4 @@ body::-webkit-scrollbar-thumb:hover {
 @font-face {
   font-family: "Digital-7";
   src: url("https://cdn.glitch.global/8421a94e-4cd3-463a-adb8-c198f2a6ff98/digital-7.ttf?v=1732611338709");
-}
-.nav-time {
 }

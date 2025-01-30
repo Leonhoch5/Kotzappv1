@@ -9,6 +9,7 @@
       type="image/x-icon"
       href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
     />
+    <link rel="stylesheet" href="loadingScreen.css" />
     <link rel="stylesheet" href="style.css" />
     <!-- Include Material Symbols -->
     <link
@@ -19,8 +20,22 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
   </head>
   <body>
+    <div style="display: none">
+      <input type="checkbox" id="AuthJS" />
+      <input type="checkbox" id="CountdownJS" />
+      <input type="checkbox" id="ScriptJS" />
+      <input type="checkbox" id="ThemeJS" />
+    </div>
+
+    <div id="loading">
+      <div>
+        <span class="loader">Load&nbsp;ng</span><span class="loader1"></span>
+      </div>
+    </div>
+
     <div id="tooltip" class="tooltip"></div>
     <!-- Navbar Section -->
     <nav>
@@ -95,14 +110,7 @@
         <span class="material-symbols-outlined">settings</span>
         <div style="margin: 10px">Settings</div>
       </a>
-      <a
-        href="https://games-hub.glitch.me/"
-        class="icon icon-mobile"
-        data-tooltip="Games"
-      >
-        <span class="material-symbols-outlined">sports_esports</span>
-        <div style="margin: 10px">Games</div>
-      </a>
+      
       <a
         href="admin.html"
         id="adminLinkMobile"
@@ -154,7 +162,7 @@
           <label id="themesel">Theme:</label>
           <select id="theme">
             <option value="DarkMode">Dark Mode</option>
-            <option value="LightMode">Light Mode</option>
+            <option value="LightMode">Light Mode</option> 
           </select>
         </div>
         <div class="input-group">
@@ -317,8 +325,8 @@
     <script src="indexJsFiles/countdown.js"></script>
     <script src="indexJsFiles/kicked.js"></script>
     <script src="indexJsFiles/christmasMode.js"></script>
-    
-    <!-- imports -->
+    <script src="indexJsFiles/loadingScreen.js"></script>
 
+    <!-- imports -->
   </body>
 </html>

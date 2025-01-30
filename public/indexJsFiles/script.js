@@ -20,28 +20,32 @@ if (!username) {
   window.location.href = "/login.html";
 }
 
-window.onload = () => {
-  if (kicked === "true") {
-    toggleKickedStatus();
-  }
+function InitiallCallings() {
+  return new Promise((resolve) => {
+    if (kicked === "true") {
+      toggleKickedStatus();
+    }
 
-  loadOffensiveWords();
-  loadReplacements();
+    loadOffensiveWords();
+    loadReplacements();
 
-  fetch(`/get-lobbies?username=${username}&role=${role}`)
-    .then((response) => response.json())
-    .then((data) => {
-      const lobbies = data.lobbies;
-      loadLobbies(lobbies);
-    })
-    .then(() => {
-      document.getElementById("burger").checked = false;
-      document.getElementById("burgerHelper").checked = false;
-    })
-    .catch((error) => {
-      console.error("Error loading lobbies:", error);
-    });
-};
+    fetch(`/get-lobbies?username=${username}&role=${role}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const lobbies = data.lobbies;
+        loadLobbies(lobbies);
+      })
+      .then(() => {
+        document.getElementById("burger").checked = false;
+        document.getElementById("burgerHelper").checked = false;
+        resolve();
+      })
+      .catch((error) => {
+        console.error("Error loading lobbies:", error);
+        resolve(); // Resolve even on error to continue chain
+      });
+  });
+}
 
 function decryptData(encryptedData) {
   try {
@@ -380,7 +384,6 @@ function loadLobbies(lobbies) {
     a.href = "#";
     a.classList.add("lobby-option");
     a.setAttribute("data-lobby", lobby.lobby);
-    a.setAttribute("data-tooltip", lobby.lobby);
 
     const LobbyName = document.createElement("div");
     LobbyName.textContent = lobby.lobby;
@@ -707,7 +710,7 @@ function thumbnail() {
   );
 
   // Assume 'arr' is an array of URLs for the background images
-  arr.forEach((url) => {
+  arr.forEach((url, id) => {
     const thumbnailDiv = document.createElement("div");
     thumbnailDiv.className = "thumbnail";
     thumbnailDiv.setAttribute("data-url", url);
@@ -1621,6 +1624,8 @@ function join() {
         chat.innerHTML = "";
       } else if (data.type === "newLobby") {
         updateLobbies();
+      } else if (data.type === "system" && username === data.requester) {
+        alert(data.message);
       } else if (data.type === "kick") {
         const usernameFromSession = decryptData(
           sessionStorage.getItem("username")
@@ -1857,3 +1862,16 @@ window.addEventListener("beforeunload", () => {
     ws.close();
   }
 });
+
+
+
+/*----------------------------------------------------------------------------------------------*/
+
+function InitiallyCalls() {
+  InitiallCallings()
+    .then(() => {
+      document.getElementById("ScriptJS").checked = true;
+    });
+}
+
+InitiallyCalls();
