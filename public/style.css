@@ -79,7 +79,7 @@ nav ul li button:hover {
   flex-direction: column;
   position: relative;
   border-radius: 20px;
-  overflow: hidden; 
+  overflow: hidden;
   flex: 1;
 }
 
@@ -130,12 +130,12 @@ nav ul li button:hover {
   height: 100%;
   background-color: #e0e0e0;
   background-size: cover;
-  background-position: center; 
+  background-position: center;
   background-repeat: no-repeat;
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse;
-  align-items: stretch; 
+  align-items: stretch;
   align-self: center;
   transition: transform 1s ease, padding 0.5s;
   transition-delay: 0.5s;
@@ -288,8 +288,15 @@ nav ul li button:hover {
   transition-delay: 0s;
 }
 
-#burgerHelper:not(:checked) ~ #MessageSend {
-  opacity: 1;
+#currentUserDisplay {
+  align-self: center;
+  position: absolute;
+  z-index: 10;
+  margin: 13px;
+  mix-blend-mode: difference;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #span-container {
@@ -309,12 +316,17 @@ nav ul li button:hover {
   height: 100%;
   z-index: 8;
   border-radius: 20px;
-  transition: 0.5s;
-  transition-delay: 0.5s;
+  transition-delay: 0s;
   overflow: scroll;
   display: flex;
   justify-content: center;
   padding: 50px 30px 30px 30px;
+  transition: background 0.5s ease, transform 0.5s ease;
+}
+
+
+.lobby-selection:hover {
+  transform: scale(1.02);
 }
 
 .lobby-selection > ul {
@@ -323,16 +335,28 @@ nav ul li button:hover {
   padding: 0;
   margin: 0;
   width: 100%;
+  max-width: 800px;
 }
 
 .lobby-selection > ul > li {
   margin: 10px 0;
   padding: 20px 20px 20px 40px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  color: #333333;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  transition: background 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.lobby-selection > ul > li:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .lobby-option {
@@ -841,7 +865,7 @@ nav ul {
   border-radius: 20px;
   position: sticky;
   top: 0;
-  z-index: 1000000000000000000000000000;
+  z-index: 999999;
 }
 
 #rulesBackground {
@@ -975,7 +999,7 @@ nav ul {
 .lobby-input {
   width: 75%;
   padding: 12px;
-  margin: 20px 0;
+  margin-top: 20px;
   border-radius: 5px;
   border: 1px solid #4d4d4d;
   background-color: #333333;
@@ -989,9 +1013,14 @@ nav ul {
   color: #aaaaaa; /* Placeholder text color */
 }
 
+.password-toggle {
+  margin-top: 20px;
+}
+
 /* Create Button */
 .create-button {
   padding: 12px 20px;
+  margin-top: 20px;
   background-color: #00b300;
   color: white;
   border: none;
@@ -1020,11 +1049,6 @@ nav ul {
   border-color: #00b300;
   box-shadow: 0 0 5px rgba(0, 179, 0, 0.7);
 }
-
-
-
-
-
 
 /* ---------------------------------- settings ---------------------------------- */
 
@@ -1065,7 +1089,7 @@ nav ul {
   padding: 10px;
   color: white;
   font-size: 14px;
-  z-index: 10000;
+  z-index: 1;
   opacity: 0; /* Initially transparent */
   transition: opacity 0.4s ease, transform 0.4s ease;
   align-items: center;
@@ -1087,11 +1111,13 @@ nav ul {
 
 .settings-container {
   width: 100%;
+  height: 600px;
   margin: 0 auto;
   background-color: rgba(2, 28, 27, 0.8); /* Dark Mode */
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow-y: scroll;
 }
 .input-group {
   margin-bottom: 30px;
@@ -1111,7 +1137,7 @@ nav ul {
 .light-mode {
   background-color: rgba(7, 94, 84, 0.2);
 }
-.light-mode #status, 
+.light-mode #status,
 .light-mode #statuslobby {
   color: rgba(2, 28, 27, 0.8);
 }
@@ -1271,6 +1297,10 @@ body::-webkit-scrollbar-thumb:hover {
   display: none;
 }
 
+.settings-container::-webkit-scrollbar {
+  display: none;
+}
+
 @-moz-document url-prefix() {
   #chat {
     scrollbar-width: none;
@@ -1341,10 +1371,7 @@ body::-webkit-scrollbar-thumb:hover {
   }
 }
 
-@font-face{
+@font-face {
   font-family: "Digital-7";
-  src: url("https://cdn.glitch.global/8421a94e-4cd3-463a-adb8-c198f2a6ff98/digital-7.ttf?v=1732611338709")
-}
-.nav-time{
-  
+  src: url("https://cdn.glitch.global/8421a94e-4cd3-463a-adb8-c198f2a6ff98/digital-7.ttf?v=1732611338709");
 }

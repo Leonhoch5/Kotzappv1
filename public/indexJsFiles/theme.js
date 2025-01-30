@@ -47,11 +47,13 @@ function openMenu() {
     // Hide panel after animation completes
     setTimeout(() => {
       leftPanel.style.display = "none";
+      $(leftPanel).css("z-index", "1");
     }, 400); // Duration matches the slideOut animation
   } else {
     leftPanel.style.display = "flex"; // Display before animation
     leftPanel.classList.remove("inactive");
     leftPanel.classList.add("active");
+    $(leftPanel).css("z-index", "100000000000");
     burgerSettings.checked = true;
   }
 }
@@ -115,17 +117,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const randomBackgroundToggle = document.getElementById("randomBackground");
   const backgroundSelector = document.getElementById("background-selector");
   const autoJoinCheckbox = document.getElementById("autoJoin");
+  const hideOwnerToggle = document.getElementById("hideOwner");
+
+  function InitiallyCalls() {
+    loadUserSettings(username).then(() => {
+      document.getElementById("ThemeJS").checked = true;
+    });
+  }
 
   if (username) {
-    loadUserSettings(username);
+    InitiallyCalls();
   }
-  
+
   // Save settings on theme change
   themeSelect.addEventListener("change", saveUserSettings);
   notificationsToggle.addEventListener("change", saveUserSettings);
   randomBackgroundToggle.addEventListener("change", saveUserSettings);
   autoJoinCheckbox.addEventListener("change", saveUserSettings);
-
+  hideOwnerToggle.addEventListener("change", saveUserSettings);
 
   // Listen for background changes
   backgroundSelector.addEventListener("click", (event) => {
@@ -145,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadUserSettings(username) {
-  fetch("/userdata/background.json")
+  return fetch("/userdata/background.json")
     .then((response) => response.json())
     .then((data) => {
       array = data;
@@ -155,8 +164,18 @@ function loadUserSettings(username) {
         .then((settings) => {
           const themeSelect = document.getElementById("theme");
           const notificationsToggle = document.getElementById("notifications");
-          const randomBackgroundToggle = document.getElementById("randomBackground");
+          const randomBackgroundToggle =
+            document.getElementById("randomBackground");
           const autoJoinCheckbox = document.getElementById("autoJoin");
+          const hideOwnerToggle = document.getElementById("hideOwner");
+          const ownerSection = document.querySelector(".owner-settings");
+
+          // Show owner toggle only for owner role
+          const role = decryptData(sessionStorage.getItem("role"));
+          if (role === "owner") {
+            hideOwnerToggle.checked = settings.hideOwner;
+            ownerSection.style.display = "block";
+          }
 
           // Apply settings
           themeSelect.value = settings.theme ? "DarkMode" : "LightMode";
@@ -166,7 +185,9 @@ function loadUserSettings(username) {
 
           applyTheme(themeSelect.value);
 
-          const backgroundSelector = document.getElementById("background-selector");
+          const backgroundSelector = document.getElementById(
+            "background-selector"
+          );
           if (!settings.randomBackground) {
             backgroundSelector.style.display = "block";
           }
@@ -175,24 +196,24 @@ function loadUserSettings(username) {
             setBackgroundById(settings.currentBackgroundId);
           }
 
-          // Add event listener for autoJoin checkbox change
+          // Add event listeners
           autoJoinCheckbox.addEventListener("change", () => {
             if (autoJoinCheckbox.checked) {
-              const event = new CustomEvent("autoJoinChecked", {
-                detail: { checked: true },
-              });
-              window.dispatchEvent(event);  // Dispatch event when autoJoin is checked
+              window.dispatchEvent(
+                new CustomEvent("autoJoinChecked", {
+                  detail: { checked: true },
+                })
+              );
             }
           });
 
-          // If autoJoin was already checked when loading the settings, dispatch the event
           if (autoJoinCheckbox.checked) {
-            const event = new CustomEvent("autoJoinChecked", {
-              detail: { checked: true },
-            });
-            window.dispatchEvent(event);
+            window.dispatchEvent(
+              new CustomEvent("autoJoinChecked", {
+                detail: { checked: true },
+              })
+            );
           }
-
         })
         .catch((error) => console.error("Error loading user settings:", error));
     })
@@ -201,10 +222,12 @@ function loadUserSettings(username) {
 
 function saveUserSettings() {
   const username = decryptData(sessionStorage.getItem("username"));
+  const role = decryptData(sessionStorage.getItem("role"));
   const theme = document.getElementById("theme").value === "DarkMode";
   const notifications = document.getElementById("notifications").checked;
   const randomBackground = document.getElementById("randomBackground").checked;
-  const autoJoin = document.getElementById("autoJoin").checked; // New Auto Join Setting
+  const autoJoin = document.getElementById("autoJoin").checked;
+  const hideOwner = document.getElementById("hideOwner").checked;
 
   const settings = {
     username,
@@ -214,6 +237,11 @@ function saveUserSettings() {
     autoJoin,
     currentBackgroundId: currentBackgroundId || 1,
   };
+
+  // Add hideOwner setting only for owner role
+  if (role === "owner") {
+    settings.hideOwner = hideOwner;
+  }
 
   fetch("/api/user-settings", {
     method: "POST",
@@ -246,33 +274,27 @@ function setBackground(url) {
   saveUserSettings();
 }
 
-// Find the background ID based on the URL
 function findBackgroundIdByUrl(url) {
   const background = array.find((item) => item.url === url);
   return background ? background.id : 1; // Return the ID if a match is found
 }
 
-// Observe changes to the background of the chat element
 function observeBackgroundChange() {
   const chat = document.getElementById("chat");
 
-  // Create a MutationObserver to monitor changes to the 'backgroundImage' style
   const observer = new MutationObserver(() => {
     const backgroundUrl = chat.style.backgroundImage;
     if (backgroundUrl && backgroundUrl !== "none") {
       const match = backgroundUrl.match(/url\(["'](.*?)["']\)/); // Extract the URL from backgroundImage
       if (match && match[1]) {
-        // If the background URL changes, update the background ID
         currentBackgroundId = findBackgroundIdByUrl(match[1]);
         saveUserSettings(); // Save the updated background ID
       }
     }
   });
 
-  // Configure the observer to watch for changes in the 'backgroundImage' property
   observer.observe(chat, {
     attributes: true,
     attributeFilter: ["style"],
   });
 }
-

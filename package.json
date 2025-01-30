@@ -1,7 +1,7 @@
 {
   "name": "kotzapp",
   "version": "0.1.2",
-  "description": "Nico will Sterben",
+  "description": "Nico will Sterben, wir versklaven alle Maxi",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
     "sqlite3": "^5.1.7",

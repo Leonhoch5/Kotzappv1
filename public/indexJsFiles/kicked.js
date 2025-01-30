@@ -33,7 +33,6 @@ rulesData.forEach((ruleText, index) => {
   // Create the input element
   const input = document.createElement('input');
   input.classList.add('rulesInput');
-  input.id = "rulesInput";
   input.type = 'text';
   input.placeholder = 'Type the rule exactly to proceed';
 

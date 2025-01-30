@@ -3,12 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Application</title>
+    <title>Kotzapp</title>
     <link
       rel="icon"
       type="image/x-icon"
       href="https://cdn.glitch.global/05a0f658-73c9-4927-9816-926caba90f4c/IMG_0843.jpeg?v=1729152770176"
     />
+    <link rel="stylesheet" href="loadingScreen.css" />
     <link rel="stylesheet" href="style.css" />
     <!-- Include Material Symbols -->
     <link
@@ -19,8 +20,22 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
   </head>
   <body>
+    <div style="display: none">
+      <input type="checkbox" id="AuthJS" />
+      <input type="checkbox" id="CountdownJS" />
+      <input type="checkbox" id="ScriptJS" />
+      <input type="checkbox" id="ThemeJS" />
+    </div>
+
+    <div id="loading">
+      <div>
+        <span class="loader">Load&nbsp;ng</span><span class="loader1"></span>
+      </div>
+    </div>
+
     <div id="tooltip" class="tooltip"></div>
     <!-- Navbar Section -->
     <nav>
@@ -95,14 +110,7 @@
         <span class="material-symbols-outlined">settings</span>
         <div style="margin: 10px">Settings</div>
       </a>
-      <a
-        href="https://games-hub.glitch.me/"
-        class="icon icon-mobile"
-        data-tooltip="Games"
-      >
-        <span class="material-symbols-outlined">sports_esports</span>
-        <div style="margin: 10px">Games</div>
-      </a>
+      
       <a
         href="admin.html"
         id="adminLinkMobile"
@@ -154,7 +162,7 @@
           <label id="themesel">Theme:</label>
           <select id="theme">
             <option value="DarkMode">Dark Mode</option>
-            <option value="LightMode">Light Mode</option>
+            <option value="LightMode">Light Mode</option> 
           </select>
         </div>
         <div class="input-group">
@@ -169,6 +177,12 @@
         <div class="input-group">
           <input type="checkbox" id="autoJoin" />
           <label for="autoJoin">Auto Join Lobby Onload</label>
+        </div>
+        <div class="owner-settings" style="display: none">
+          <div class="input-group">
+            <input type="checkbox" id="hideOwner" checked />
+            <label for="hideOwner">Vanish</label>
+          </div>
         </div>
       </div>
     </div>
@@ -214,6 +228,7 @@
                 >
               </div>
             </label>
+            <div id="currentUserDisplay">-- Writing as: XXXXX --</div>
             <div id="chat"></div>
 
             <div id="moreMenu" class="more-menu" style="display: none">
@@ -275,35 +290,34 @@
       </div>
     </div>
 
-<div id="lobbyMenu" class="modal">
-  <div class="modal-content">
-    <!-- Close Button with Material Icon -->
-    <span class="material-symbols-outlined close-modal">close</span>
-    <h2>Create a New Lobby</h2>
-    <input
-      type="text"
-      id="lobbyNameInput"
-      class="lobby-input"
-      placeholder="Enter lobby name..."
-    />
-    <div class="password-toggle">
-      <input type="checkbox" id="enablePassword" />
-      <label for="enablePassword">Require Password</label>
+    <div id="lobbyMenu" class="modal">
+      <div class="modal-content">
+        <!-- Close Button with Material Icon -->
+        <span class="material-symbols-outlined close-modal">close</span>
+        <h2>Create a New Lobby</h2>
+        <input
+          type="text"
+          id="lobbyNameInput"
+          class="lobby-input"
+          placeholder="Enter lobby name..."
+        />
+        <div class="password-toggle">
+          <input type="checkbox" id="enablePassword" />
+          <label for="enablePassword">Require Password</label>
+        </div>
+        <input
+          type="password"
+          id="lobbyPasswordInput"
+          class="lobby-input"
+          placeholder="Enter password..."
+          style="display: none"
+        />
+        <button type="submit" id="createLobbySubmit" class="create-button">
+          <span class="material-symbols-outlined">check</span>
+          Create Lobby
+        </button>
+      </div>
     </div>
-    <input
-      type="password"
-      id="lobbyPasswordInput"
-      class="lobby-input"
-      placeholder="Enter password..."
-      style="display: none;"
-    />
-    <button type="submit" id="createLobbySubmit" class="create-button">
-      <span class="material-symbols-outlined">check</span>
-      Create Lobby
-    </button>
-  </div>
-</div>
-
 
     <script src="indexJsFiles/auth.js"></script>
     <script src="indexJsFiles/theme.js"></script>
@@ -311,5 +325,8 @@
     <script src="indexJsFiles/countdown.js"></script>
     <script src="indexJsFiles/kicked.js"></script>
     <script src="indexJsFiles/christmasMode.js"></script>
+    <script src="indexJsFiles/loadingScreen.js"></script>
+
+    <!-- imports -->
   </body>
 </html>

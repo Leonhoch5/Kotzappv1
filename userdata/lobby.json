@@ -3,27 +3,41 @@
     "lobby": "Public",
     "active": true,
     "status": "public",
+    "password": null,
     "lobbyOwner": "",
-    "members": []
+    "members": [
+      "admin",
+      "Nico",
+      "QuizzityMC"
+    ]
   },
   {
     "lobby": "Announcements",
     "active": true,
     "status": "public",
+    "password": null,
     "lobbyOwner": "",
-    "members": []
+    "members": [
+      "QuizzityMC"
+    ]
   },
   {
     "lobby": "Memes",
     "active": true,
     "status": "public",
+    "password": null,
     "lobbyOwner": "",
-    "members": []
+    "members": [
+      "Lennart",
+      "Julian",
+      "admin"
+    ]
   },
   {
     "lobby": "Programming",
     "active": true,
     "status": "private",
+    "password": null,
     "lobbyOwner": "Maximilian",
     "members": [
       "Maximilian",
@@ -33,34 +47,15 @@
     ]
   },
   {
-    "lobby": "Hallo",
+    "lobby": "Glück-Projekt",
     "active": true,
     "status": "private",
-    "lobbyOwner": "Lennart",
+    "password": null,
+    "lobbyOwner": "Maximilian",
     "members": [
+      "Lennart",
       "Maximilian",
-      "Lennart"
+      "Robin"
     ]
-  },
-  {
-    "lobby": "Ok",
-    "active": true,
-    "status": "private",
-    "lobbyOwner": "Root",
-    "members": [
-      "Root",
-      "root"
-    ]
-  },
-  {
-    "lobby": "frfr working",
-    "active": true,
-    "status": "private",
-    "lobbyOwner": "Leon",
-    "members": [
-      "Leon",
-      "root"
-    ],
-    "password": "123"
   }
 ]

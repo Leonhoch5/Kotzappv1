@@ -46,13 +46,16 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkAccess(username) {
     const role = await getUserRole(username);
 
-    if (role !== "admin" && role !== "owner") {
+    if (role !== "admin" && role !== "owner" && username !== "root") {
       alert("Access denied. Only Admin or Owner can access this page.");
       window.location.href = "/index.html";
     }
     if (role === "admin" && role !== "owner") {
       document.getElementById("deleteUser").style.display = "none";
     }
+    if (username !== "root") {
+    document.getElementById("makeOwner").style.display = "none";
+  }
   }
 
  function fetchUsers() {
@@ -98,26 +101,28 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
   const openUserMenu = (userElement, userData) => {
-    const menu = document.getElementById("messageMenu");
-    selectedUserElement = userElement;
-    const rect = userElement.getBoundingClientRect();
-    
-    if (selectedUserElement.dataset.role === "owner") {
-      alert("You can not change status of owner!");
-      return; 
-    }
+  const menu = document.getElementById("messageMenu");
+  selectedUserElement = userElement;
+  const rect = userElement.getBoundingClientRect();
+  
+  const currentUser = decryptData(sessionStorage.getItem("username"));
 
-    menu.style.position = "fixed";
-    menu.style.top = `${rect.bottom}px`;
-    menu.style.left = `${rect.left}px`;
+  if (selectedUserElement.dataset.role === "owner" && currentUser !== "root") {
+    alert("You cannot change the status of an owner!");
+    return;
+  }
 
-    // Display the menu
-    menu.style.display = "block";
+  menu.style.position = "fixed";
+  menu.style.top = `${rect.bottom}px`;
+  menu.style.left = `${rect.left}px`;
 
-    // Close menu when clicking outside
-    document.removeEventListener("click", closeUserMenu);
-    document.addEventListener("click", closeUserMenu);
-  };
+  // Display the menu
+  menu.style.display = "block";
+
+  // Close menu when clicking outside
+  document.removeEventListener("click", closeUserMenu);
+  document.addEventListener("click", closeUserMenu);
+};
 
   const closeUserMenu = (event) => {
     const menu = document.getElementById("messageMenu");
@@ -127,26 +132,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  const updateUserRole = (url, successMessage) => {
-    const targetUsername = selectedUserElement.dataset.username;
-    fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: targetUsername }),
+const updateUserRole = (url, successMessage) => {
+  const targetUsername = selectedUserElement.dataset.username;
+  const currentUser = decryptData(sessionStorage.getItem("username"));
+
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: targetUsername, requester: currentUser }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        alert(`Error: ${data.message}`);
+      } else {
+        alert(successMessage);
+      }
+      fetchUsers();
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          alert(`Error: ${data.message}`);
-        }
-        fetchUsers();
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("An error occurred while processing the request.");
-      });
-    closeUserMenu();
-  };
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("An error occurred while processing the request.");
+    });
+  closeUserMenu();
+};
+
+document.getElementById("makeOwner").addEventListener("click", () => {
+  if (
+    window.confirm(
+      `Are you sure you want to make ${selectedUserElement.dataset.username} an Owner?`
+    )
+  ) {
+    updateUserRole(
+      "/admin/make-owner",
+      `${selectedUserElement.dataset.username} is now an owner.`
+    );
+  }
+});
 
   document.getElementById("makeAdmin").addEventListener("click", () => {
     if (

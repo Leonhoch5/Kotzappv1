@@ -3,24 +3,59 @@
     "username": "Maximilian",
     "theme": true,
     "notifications": true,
-    "randomBackground": true,
+    "randomBackground": false,
     "autoJoin": false,
-    "currentBackgroundId": 6
+    "currentBackgroundId": 6,
+    "hideOwner": false
   },
   {
     "username": "Leon",
     "theme": true,
-    "notifications": false,
+    "notifications": true,
     "randomBackground": false,
     "autoJoin": false,
-    "currentBackgroundId": 1
+    "currentBackgroundId": 1,
+    "hideOwner": false
   },
   {
-    "username": "System",
+    "username": "root",
     "theme": true,
     "notifications": true,
     "randomBackground": true,
     "autoJoin": false,
-    "currentBackgroundId": 14
+    "currentBackgroundId": 19,
+    "hideOwner": false
+  },
+  {
+    "username": "admin",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 15
+  },
+  {
+    "username": "Nico",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 1
+  },
+  {
+    "username": "Lennart",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 4
+  },
+  {
+    "username": "QuizzityMC",
+    "theme": true,
+    "notifications": true,
+    "randomBackground": true,
+    "autoJoin": false,
+    "currentBackgroundId": 10
   }
 ]

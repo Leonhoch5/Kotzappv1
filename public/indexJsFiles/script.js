@@ -20,28 +20,32 @@ if (!username) {
   window.location.href = "/login.html";
 }
 
-window.onload = () => {
-  if (kicked === "true") {
-    toggleKickedStatus();
-  }
+function InitiallCallings() {
+  return new Promise((resolve) => {
+    if (kicked === "true") {
+      toggleKickedStatus();
+    }
 
-  loadOffensiveWords();
-  loadReplacements();
+    loadOffensiveWords();
+    loadReplacements();
 
-  fetch(`/get-lobbies?username=${username}&role=${role}`)
-    .then((response) => response.json())
-    .then((data) => {
-      const lobbies = data.lobbies;
-      loadLobbies(lobbies);
-    })
-    .then(() => {
-      document.getElementById("burger").checked = false;
-      document.getElementById("burgerHelper").checked = false;
-    })
-    .catch((error) => {
-      console.error("Error loading lobbies:", error);
-    });
-};
+    fetch(`/get-lobbies?username=${username}&role=${role}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const lobbies = data.lobbies;
+        loadLobbies(lobbies);
+      })
+      .then(() => {
+        document.getElementById("burger").checked = false;
+        document.getElementById("burgerHelper").checked = false;
+        resolve();
+      })
+      .catch((error) => {
+        console.error("Error loading lobbies:", error);
+        resolve(); // Resolve even on error to continue chain
+      });
+  });
+}
 
 function decryptData(encryptedData) {
   try {
@@ -227,12 +231,23 @@ function sendMessage(message) {
 }
 
 // Handle checkbox toggle
-document.getElementById("enablePassword").addEventListener("change", function () {
-  const passwordInput = document.getElementById("lobbyPasswordInput");
-  passwordInput.style.display = this.checked ? "block" : "none";
-});
+document
+  .getElementById("enablePassword")
+  .addEventListener("change", function () {
+    const passwordInput = document.getElementById("lobbyPasswordInput");
+    passwordInput.style.display = this.checked ? "block" : "none";
+  });
+
+function hasSpaces(str) {
+  return /\s/.test(str);
+}
 
 function createLobby(lobbyName, username) {
+  if (hasSpaces(lobbyName)) {
+    alert("Lobby name should not contain spaces.");
+    return;
+  }
+
   const enablePassword = document.getElementById("enablePassword").checked;
   const passwordInput = document.getElementById("lobbyPasswordInput");
   const password = enablePassword ? passwordInput.value : null;
@@ -324,6 +339,41 @@ function loadLobbies(lobbies) {
     "priority",
     "battery_4_bar",
     "wifi_2_bar",
+    "heart_check",
+    "sweep",
+    "patient_list",
+    "expansion_panels",
+    "settings_heart",
+    "category_search",
+    "error_med",
+    "multimodal_hand_eye",
+    "iframe_off",
+    "cyclone",
+    "severe_cold",
+    "globe_asia",
+    "specific_gravity",
+    "sentiment_calm",
+    "raven",
+    "sentiment_stressed",
+    "mountain_flag",
+    "lab_research",
+    "weather_hail",
+    "altitude",
+    "emoticon",
+    "emoji_objects",
+    "rocket",
+    "cruelty_free",
+    "mood_bad",
+    "skull",
+    "person_alert",
+    "sentiment_calm",
+    "skull_list",
+    "planet",
+    "flutter_dash",
+    "contacts_product",
+    "water_lock",
+    "satellite_alt",
+    "work",
   ];
 
   // Loop through each lobby and create a list item
@@ -334,7 +384,6 @@ function loadLobbies(lobbies) {
     a.href = "#";
     a.classList.add("lobby-option");
     a.setAttribute("data-lobby", lobby.lobby);
-    a.setAttribute("data-tooltip", lobby.lobby);
 
     const LobbyName = document.createElement("div");
     LobbyName.textContent = lobby.lobby;
@@ -366,7 +415,7 @@ function loadLobbies(lobbies) {
     });
 
     li.appendChild(moreLink);
-    
+
     if (lobby.lobbyOwner !== username) {
       moreLink.style.display = "none";
     }
@@ -385,7 +434,7 @@ function loadLobbies(lobbies) {
       leaveLobby();
     });
     li.appendChild(leave);
-    
+
     if (lobby.status === "public" || role === "owner") {
       leave.style.display = "none";
     }
@@ -578,8 +627,6 @@ window.addEventListener("click", function (event) {
 window.addEventListener("autoJoinChecked", (event) => {
   if (event.detail.checked) {
     join();
-    document.getElementById("burger").checked = true;
-    document.getElementById("burgerHelper").checked = true;
   }
 });
 
@@ -663,7 +710,7 @@ function thumbnail() {
   );
 
   // Assume 'arr' is an array of URLs for the background images
-  arr.forEach((url) => {
+  arr.forEach((url, id) => {
     const thumbnailDiv = document.createElement("div");
     thumbnailDiv.className = "thumbnail";
     thumbnailDiv.setAttribute("data-url", url);
@@ -1409,8 +1456,19 @@ chatContainer.addEventListener("scroll", () => {
 dateSeparator.classList.remove("active");
 
 function updateOnlineUsers(users) {
-  statuslobbyDiv.textContent = `-- ${currentLobby} --`;
-  statusDiv.textContent = `-- Online: ${users.join(", ")} --`;
+  const username = decryptData(sessionStorage.getItem("username"));
+  const currentRole = decryptData(sessionStorage.getItem("role"));
+
+  fetch(`/api/user-settings/${username}`)
+    .then((response) => response.json())
+    .then((settings) => {
+      const hideOwner = settings.hideOwner;
+      let displayUsers = [...users];
+
+      statuslobbyDiv.textContent = `-- ${currentLobby} --`;
+      statusDiv.textContent = `-- Online: ${displayUsers.join(", ")} --`;
+    })
+    .catch((error) => console.error("Error fetching user settings:", error));
 }
 
 const alwaysOnCheckbox = document.getElementById("alwaysOnCheckbox");
@@ -1498,152 +1556,198 @@ function join() {
     ws.close();
   }
 
-  ws = new WebSocket(
-    `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}`
-  );
-
-  ws.onopen = () => {
-    console.log("Connected to the server");
-    updateLobbyStatus(currentLobby, true);
-    ws.send(
-      JSON.stringify({
-        type: "join",
-        lobby: currentLobby,
-        username: username,
-        role: role,
-      })
+  checkLobbyPassword(currentLobby, () => {
+    ws = new WebSocket(
+      `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}`
     );
 
-    chat.innerHTML = "";
+    ws.onopen = () => {
+      console.log("Connected to the server");
+      updateLobbyStatus(currentLobby, true);
+      ws.send(
+        JSON.stringify({
+          type: "join",
+          lobby: currentLobby,
+          username: username,
+          role: role,
+        })
+      );
 
-    initializeLobbyData(currentLobby);
+      chat.innerHTML = "";
 
-    if (alwaysOnCheckbox.checked) {
-      startPing();
-    }
-  };
+      initializeLobbyData(currentLobby);
 
-  ws.onerror = (error) => {
-    console.error("WebSocket error:", error);
-    statusDiv.textContent = "-- Connection error --";
-  };
-
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-
-    if (data.type === "pong") {
-      clearTimeout(pongTimeout); // Clear pong timeout on receiving pong
       if (alwaysOnCheckbox.checked) {
         startPing();
       }
-    } else if (data.type === "ROLE_CHANGE") {
-      const { username, role } = data;
+    };
 
-      const encryptedUserDataRole = encryptData(role);
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      statusDiv.textContent = "-- Connection error --";
+    };
 
-      // Update sessionStorage for the specific user
-      sessionStorage.setItem(`role`, encryptedUserDataRole);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
 
-      if (role === "banned") {
-        window.location.href = "/banned.html";
-      }
+      if (data.type === "pong") {
+        clearTimeout(pongTimeout); // Clear pong timeout on receiving pong
+        if (alwaysOnCheckbox.checked) {
+          startPing();
+        }
+      } else if (data.type === "ROLE_CHANGE") {
+        const { username, role } = data;
 
-      // Optional: Log to confirm the change
-      console.log(`Role of ${username} changed to ${role}`);
-    } else if (data.type === "delete") {
-      const messageDiv = chat.querySelector(
-        `div[data-id="${data.id}"][data-timestamp="${data.timestamp}"]`
-      );
-      if (messageDiv) {
-        messageDiv.remove();
-      }
-    } else if (data.type === "onlineUsers") {
-      updateOnlineUsers(data.users);
-    } else if (data.type === "chatHistory") {
-      data.messages.forEach(appendMessage);
-    } else if (data.type === "clear") {
-      chat.innerHTML = "";
-    } else if (data.type === "newLobby") {
-      updateLobbies();
-    } else if (data.type === "kick") {
-      const usernameFromSession = decryptData(
-        sessionStorage.getItem("username")
-      );
-      const encryptedKickedStatus = encryptData("true");
+        const encryptedUserDataRole = encryptData(role);
 
-      // Check if the decrypted username matches the incoming data.username
-      if (data.username === usernameFromSession) {
-        toggleKickedStatus();
-        sessionStorage.setItem("kicked", encryptedKickedStatus);
-      }
-    } else if (data.type === "AdminClear") {
-      chat.innerHTML = "";
+        // Update sessionStorage for the specific user
+        sessionStorage.setItem(`role`, encryptedUserDataRole);
 
-      appendMessage({
-        id: Date.now(),
-        username: "System",
-        timestamp: new Date().toISOString(),
-        message: "Chat has been cleared by the admin.",
-      });
-    } else if (data.type === "lobby-deleted") {
-      const { lobbyName, redirectTo } = data;
+        if (role === "banned") {
+          window.location.href = "/banned.html";
+        }
 
-      if (currentLobby === lobbyName) {
-        currentLobby = redirectTo;
+        // Optional: Log to confirm the change
+        console.log(`Role of ${username} changed to ${role}`);
+      } else if (data.type === "delete") {
+        const messageDiv = chat.querySelector(
+          `div[data-id="${data.id}"][data-timestamp="${data.timestamp}"]`
+        );
+        if (messageDiv) {
+          messageDiv.remove();
+        }
+      } else if (data.type === "onlineUsers") {
+        updateOnlineUsers(data.users);
+      } else if (data.type === "chatHistory") {
+        data.messages.forEach(appendMessage);
+      } else if (data.type === "clear") {
+        chat.innerHTML = "";
+      } else if (data.type === "newLobby") {
+        updateLobbies();
+      } else if (data.type === "system" && username === data.requester) {
+        alert(data.message);
+      } else if (data.type === "kick") {
+        const usernameFromSession = decryptData(
+          sessionStorage.getItem("username")
+        );
+        const encryptedKickedStatus = encryptData("true");
 
-        console.log(`Redirecting to the first available lobby: ${redirectTo}`);
+        // Check if the decrypted username matches the incoming data.username
+        if (data.username === usernameFromSession) {
+          toggleKickedStatus();
+          sessionStorage.setItem("kicked", encryptedKickedStatus);
+        }
+      } else if (data.type === "AdminClear") {
+        chat.innerHTML = "";
 
-        fetchUpdatedLobbies().then(() => {
-          const firstLobbyElement =
-            document.getElementsByClassName("lobby-option")[0];
-          if (firstLobbyElement) {
-            const newLobbyName = firstLobbyElement.getAttribute("data-lobby");
-            joinLobby(newLobbyName);
-          }
+        appendMessage({
+          id: Date.now(),
+          username: "System",
+          timestamp: new Date().toISOString(),
+          message: "Chat has been cleared by the admin.",
         });
-      }
-    } else if (data.type === "edit") {
-      const messageDiv = chat.querySelector(
-        `div[data-id="${data.id}"][data-timestamp="${data.timestamp}"]`
-      );
+      } else if (data.type === "lobby-deleted") {
+        const { lobbyName, redirectTo } = data;
 
-      if (messageDiv) {
-        const messageTextElement = messageDiv.querySelector(".message-text");
-        if (messageTextElement) {
-          messageTextElement.textContent = data.message;
+        if (currentLobby === lobbyName) {
+          currentLobby = redirectTo;
+
+          console.log(
+            `Redirecting to the first available lobby: ${redirectTo}`
+          );
+
+          fetchUpdatedLobbies().then(() => {
+            const firstLobbyElement =
+              document.getElementsByClassName("lobby-option")[0];
+            if (firstLobbyElement) {
+              const newLobbyName = firstLobbyElement.getAttribute("data-lobby");
+              joinLobby(newLobbyName);
+            }
+          });
+        }
+      } else if (data.type === "edit") {
+        const messageDiv = chat.querySelector(
+          `div[data-id="${data.id}"][data-timestamp="${data.timestamp}"]`
+        );
+
+        if (messageDiv) {
+          const messageTextElement = messageDiv.querySelector(".message-text");
+          if (messageTextElement) {
+            messageTextElement.textContent = data.message;
+          } else {
+            console.error("Message text element not found.");
+          }
         } else {
-          console.error("Message text element not found.");
+          console.error("Message not found for editing.");
         }
       } else {
-        console.error("Message not found for editing.");
+        if (!data.username) {
+          console.error("Username is missing in the received data.");
+          return;
+        }
+        const currentUser = decryptData(sessionStorage.getItem("username"));
+        const isCurrentUser = data.username === currentUser;
+        const notificationsCheckbox = document.getElementById("notifications");
+        appendMessage(data);
+        if (!isCurrentUser && notificationsCheckbox.checked) {
+          sendNotification(data.username, data.message, data.imageUrl);
+        }
       }
-    } else {
-      if (!data.username) {
-        console.error("Username is missing in the received data.");
-        return;
-      }
-      const currentUser = decryptData(sessionStorage.getItem("username"));
-      const isCurrentUser = data.username === currentUser;
-      const notificationsCheckbox = document.getElementById("notifications");
-      appendMessage(data);
-      if (!isCurrentUser && notificationsCheckbox.checked) {
-        sendNotification(data.username, data.message, data.imageUrl);
-      }
-    }
-  };
+    };
 
-  ws.onclose = () => {
-    console.log("Connection closed");
-    statusDiv.textContent = "-- Connection closed --";
-    clearInterval(pingInterval);
-  };
+    ws.onclose = () => {
+      console.log("Connection closed");
+      statusDiv.textContent = "-- Connection closed --";
+      clearInterval(pingInterval);
+    };
 
-  console.log(`Joining ${currentLobby} as ${username}`);
+    console.log(`Joining ${currentLobby} as ${username}`);
+
+    document.getElementById("burger").checked = true;
+    document.getElementById("burgerHelper").checked = true;
+  });
+}
+
+function checkLobbyPassword(lobbyName, callback) {
+  fetch("userdata/lobby.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const lobby = data.find((lobby) => lobby.lobby === lobbyName);
+      let password = null;
+
+    if (role === "owner") {
+      password = null;
+    } else if (lobby && lobby.password) {
+        password = prompt("Enter the password for this lobby:");
+      }
+
+      fetch("/join-lobby", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ lobbyName, username, role, password }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            callback();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error joining lobby:", error);
+        });
+    })
+    .catch((error) => {
+      console.error("Error fetching lobbies:", error);
+    });
 }
 
 function toggleKickedStatus() {
   const rulesBackground = document.getElementById("rulesBackground");
-  const rulesInput = document.getElementById("rulesInput");
+  const rulesInput = document.querySelector(".rulesInput");
   const countdownElement = document.getElementById("kickCountdown");
   let countdown = 30;
   countdownElement.textContent = `You can rejoin in ${countdown} seconds`;
@@ -1680,9 +1784,11 @@ function joinLobby(lobbyName) {
   currentLobby = lobbyName;
   changeBackground();
   join();
-  document.getElementById("burger").checked = true;
-  document.getElementById("burgerHelper").checked = true;
 }
+
+const hideOwnerToggle = document.getElementById("hideOwner");
+
+hideOwnerToggle.addEventListener("change", reconnect);
 
 messageInput.addEventListener("keypress", (event) => {
   if (event.key === "Enter") {
@@ -1717,6 +1823,7 @@ document
 
       if (lobbyOption) {
         const lobbyName = lobbyOption.getAttribute("data-lobby");
+        const imageInput = document.getElementById("imageInput");
 
         // Update currentLobby to the new lobby name
         currentLobby = lobbyName;
@@ -1725,13 +1832,16 @@ document
 
         // Call the join function with the updated lobby name
         join();
-        document.getElementById("burger").checked = true;
-        document.getElementById("burgerHelper").checked = true;
-        
-        if (lobbyName === "Announcements" && (username === "Nico" || role !== "admin" && role !== "owner")) {
+
+        if (
+          lobbyName === "Announcements" &&
+          (username === "Nico" || (role !== "admin" && role !== "owner"))
+        ) {
           messageInput.disabled = true;
+          imageInput.disabled = true;
         } else {
           messageInput.disabled = false;
+          imageInput.disabled = false;
         }
       }
     }
@@ -1752,3 +1862,16 @@ window.addEventListener("beforeunload", () => {
     ws.close();
   }
 });
+
+
+
+/*----------------------------------------------------------------------------------------------*/
+
+function InitiallyCalls() {
+  InitiallCallings()
+    .then(() => {
+      document.getElementById("ScriptJS").checked = true;
+    });
+}
+
+InitiallyCalls();

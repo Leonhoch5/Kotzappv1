@@ -1,39 +1,73 @@
 # 📋 TODO List
 
----
-
-## 🕒 General Tasks
-
-- **Reply Messages**: Add functionality for replying to messages.
-- **Pin Messages**: Implement message pinning feature.
+<br>
 
 ---
 
-## 🏛️ Lobby Creation
+<br>
 
-- <a href="https://codepen.io/PXJesse/pen/zYZBmYW" target="_blank">Lobby Creation Menu Animation Codepen</a>
+## 🕒 Tasks
 
-- **Role: Owner (Root)**
-  - Lobby Members
-  - Passwort Lock
-  - Has access to every lobby.
-  - Can decide if the current user with the "owner" role is hidden (`default === true`) inside of settings.
-  - Only an owner can assign the "owner" role; admins do not have this privilege.
+<br>
+
+### **Message Management**
+- **Reply to Messages**: Implement functionality to reply to individual messages.
+- **Pin Messages**: Add feature to pin important messages for easy access.
+- **Lazy Loading for Messages**: Optimize message loading by implementing lazy loading.
+
+### **User** 
+- **User Profiles**:  
+  - Add functionality to see and manage user profiles.
+- **User List**:
+  - A user should can see all user registered, or not?
+
+### **UI & UX Enhancements**
+- **Improved Calculator**: Revamp the calculator for better functionality and UX.
+- **Better Notifications**:  
+  - Implement enhanced notification system with improved UI and responsiveness.
+  - Ensure notifications work seamlessly on iOS devices (iOS mobile devices).
+- **Auto-Join Feature**: Improve the auto-join feature for a better experience on load. (direct in chat (without animation))
+
+### **Performance & Security**
+- **Lazy Loading for Messages**: Implement lazy loading to optimize message loading.
+- **Security Improvements**: Encrypt JSON data to enhance security.
+
+### **Code Quality & Maintenance**
+- **Code Refactoring**:  
+  - Reorganize and clean up the code for better maintainability.
+  - Initially call functions towards the bottom of the script (`.js`).
+
+<br>
 
 ---
 
-## 🎨 Animations
+<br>
 
-Here are some code samples and inspirations for animations:
+## 📈 Progress Tracking
 
-- [Animation Example 1 For Settings](https://codepen.io/romagny13/pen/dXbqJg/)
-- [Animation Example 2 For Settings](https://codepen.io/mp_graphic/pen/qByVrK)
-- [Animation Example 3 For Settings](https://codepen.io/rp20/pen/MjbZPZ)
-- [Animation Example 4 For Settings](https://codepen.io/coreyroth/pen/BaEPKK)
-- [Animation Example 5 For Settings](https://codepen.io/florian-gropp/pen/wLGrqj/)
+- **Completed**:  
+  - List any completed tasks here to track progress.
+
+- **In Progress**:  
+  - List tasks currently being worked on.
+
+- **Pending**:  
+  - List tasks that are yet to be started.
+
+<br>
 
 ---
 
----
+<br>
+
+## 📝 Notes & Ideas
+
+### **Ideas**
+- List any ideas for improving the app further.
+
+### **Bugs/Issues**
+- Keep track of known bugs or issues that need attention.
+
+<br>
 
 ---
