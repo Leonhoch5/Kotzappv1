@@ -1,0 +1,7 @@
+node_modules/
+.env
+users.db
+uploads/*
+!uploads/.gitkeep
+chat_history/*
+!chat_history/.gitkeep

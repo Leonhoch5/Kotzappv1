@@ -592,7 +592,7 @@ app.post("/login", (req, res) => {
   );
 });
 
-// Change assword route
+// Change password route
 app.post("/change-password", async (req, res) => {
   const { username, oldPassword, newPassword } = req.body;
 
@@ -847,7 +847,7 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     const parsedMessage = JSON.parse(message);
-    const data = JSON.parse(message);
+    const data = parsedMessage;
 
     if (parsedMessage.type === "join") {
       clients.set(ws, {
@@ -1703,7 +1703,7 @@ function sendRoleChangeToClient(username, newRole) {
 
   // Find the client associated with the username
   for (const [client, user] of clients.entries()) {
-    if (user === username && client.readyState === WebSocket.OPEN) {
+    if (user.username === username && client.readyState === WebSocket.OPEN) {
       client.send(message); // Send message to specific client
       break; // Stop after sending to the first matched client
     }
@@ -1942,6 +1942,16 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
+// Only start the HTTP server when running directly (not when imported as a serverless handler)
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+// Export the Express app for Vercel's @vercel/node serverless runtime.
+// Note: WebSocket (wss) connections require a persistent server and are not supported
+// in Vercel's traditional serverless functions. For WebSocket support on Vercel,
+// consider using a managed service such as Pusher or Ably.
+module.exports = app;
