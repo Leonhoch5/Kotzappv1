@@ -18,7 +18,7 @@
     "ws": "^8.18.0"
   },
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "repository": {
     "url": "https://github.com/Team-Loewenrot/"
